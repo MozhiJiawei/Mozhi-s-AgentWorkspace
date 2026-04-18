@@ -1,0 +1,6 @@
+[submodule "skills/architecture_4-1"]
+	path = skills/architecture_4-1
+	url = https://github.com/MozhiJiawei/architecture_4-1.git
+[submodule "skills/ppt_gen_wqt"]
+	path = skills/ppt_gen_wqt
+	url = https://github.com/MozhiJiawei/ppt_gen_wqt.git

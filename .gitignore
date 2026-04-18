@@ -1,0 +1,10 @@
+.tmp/*
+!.tmp/.gitkeep
+
+*.log
+*.tmp
+*.cache
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/

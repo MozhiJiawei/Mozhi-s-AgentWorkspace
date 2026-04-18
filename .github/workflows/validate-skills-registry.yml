@@ -1,0 +1,22 @@
+name: Pre-Commit Gates
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pre-commit-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run pre-commit gates
+        run: python scripts/pre_commit_gate.py
