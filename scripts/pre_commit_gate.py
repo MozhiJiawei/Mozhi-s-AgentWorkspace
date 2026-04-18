@@ -29,6 +29,10 @@ def main() -> int:
             name="agents-registry",
             command=[sys.executable, "scripts/check_agents_registry.py"],
         ),
+        Gate(
+            name="readme-skill-prompts",
+            command=[sys.executable, "scripts/check_readme_skill_prompts.py"],
+        ),
     ]
 
     for gate in gates:
