@@ -61,3 +61,26 @@
 - 先读取 `skills/ppt_gen_wqt/SKILL.md`
 - 若任务会产生中间稿、图片、图表素材、生成脚本、检查结果或阶段性 PPT，必须以 `.tmp/` 为工作根目录，并按该 skill 的目录约定拼接子路径
 - 生成或修改 PPT 后，应按该 skill 的要求运行相应检查脚本，再交付结果
+
+### `skills/grobid_pdf_skill`
+
+- 加载路径：`skills/grobid_pdf_skill/SKILL.md`
+- skill 名称：`grobid-docling-pdf`
+- 主要用途：解析论文或技术 PDF，结合 GROBID 的学术文本结构与 Docling 的图表图片导出，生成可供下游 agent 理解和引用的 TEI/XML 包
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求解析、读取、理解、结构化分析论文 PDF 或技术 PDF
+- 用户要求从 PDF 中提取标题、摘要、正文、章节、引用、参考文献、图表或表格图片
+- 用户希望增强 agent 对 PDF 内容的理解效果，或要求生成供后续任务使用的 XML / TEI 中间表示
+- 用户要求把 PDF 中的图、表与正文引用关系整理成可追踪的结构化结果
+
+当任务只是生成 PPT、修改代码、整理普通文档，且不需要重新解析 PDF 内容时，不应加载这个 skill；但基于论文 PDF 生成 PPT 前，可先使用该 skill 生成结构化解析结果，再交给 PPT skill 使用。
+
+使用这个 skill 时：
+
+- 先读取 `skills/grobid_pdf_skill/SKILL.md`
+- 若任务会产生中间解析文件、导出图片、XML、校验报告或归档结果，必须以 `.tmp/` 为工作根目录，并按该 skill 的默认目录约定写入 `.tmp/pdf_xml/<paper-name>/`
+- 运行前应确认 GROBID 服务地址；默认使用 `http://localhost:8070`
+- 对 born-digital 论文 PDF 默认不要开启 OCR；仅在扫描版 PDF 场景下按 skill 说明启用 OCR
+- 交付结果时应报告最终 XML 路径、图片目录和数量、中间结果归档路径，以及校验状态

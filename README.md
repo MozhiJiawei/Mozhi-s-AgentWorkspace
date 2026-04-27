@@ -93,3 +93,13 @@ git commit -m "Update skill submodule: <source-or-skill-name>"
 - `请根据这篇论文 PDF 分析并生成一份 12 页左右的技术汇报 PPT，风格偏正式。`
 - `请基于这篇论文 PDF 提炼方法、实验和结论，并输出一份适合组会汇报的 PPT。`
 - `请读取这篇论文 PDF，做一份论文方法介绍的汇报 deck，重点检查标题、正文和图片不要重叠或超出边界。`
+
+### `skills/grobid_pdf_skill`
+
+适用场景：解析论文或技术 PDF，使用 GROBID 提取学术文本结构与参考文献，使用 Docling 导出图表图片，并生成一个可供后续 agent 理解和引用的 TEI/XML 包。
+
+示例 prompt：
+
+- `请解析这篇论文 PDF，输出结构化 XML 和图表图片索引，用于后续分析。`
+- `请先用 PDF 解析 skill 读取这篇论文，再基于解析结果总结方法、实验和结论。`
+- `请把这篇论文 PDF 的正文、引用、参考文献、图和表整理成 agent 可消费的结构化结果。`

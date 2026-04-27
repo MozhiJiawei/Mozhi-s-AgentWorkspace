@@ -4,3 +4,6 @@
 [submodule "skills/ppt_gen_wqt"]
 	path = skills/ppt_gen_wqt
 	url = https://github.com/MozhiJiawei/ppt_gen_wqt.git
+[submodule "skills/grobid_pdf_skill"]
+	path = skills/grobid_pdf_skill
+	url = https://github.com/MozhiJiawei/grobid_pdf_skill.git
