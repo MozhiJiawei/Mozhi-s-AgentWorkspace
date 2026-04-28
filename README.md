@@ -54,6 +54,45 @@ git add skills/<source-or-skill-name>
 git commit -m "Update skill submodule: <source-or-skill-name>"
 ```
 
+## Skill 依赖管理
+
+`docs/skill-dependencies.yml` 是 skill 运行依赖的唯一登记入口。每个 skill 都应在其中登记：
+
+- skill 路径
+- 依赖复核指纹
+- Windows 运行依赖
+- macOS 运行依赖或待补状态
+- 验证命令
+
+每个 skill 子仓根目录必须提供统一入口：
+
+```powershell
+python verify_dependencies.py
+```
+
+该脚本应兼容 Windows 和 macOS，并由 skill 自己验证运行所需的 Python 包、浏览器运行时、外部服务或可选硬件能力。仓库级门禁会检查这个脚本是否存在，并把它纳入依赖复核指纹。
+
+依赖复核指纹只覆盖可能影响运行依赖的文件，例如 `SKILL.md`、`verify_dependencies.py`、`requirements*.txt`、`pyproject.toml`、`environment*.yml`、`package.json`、`scripts/**/*.py` 和安装脚本。
+
+新增 skill 或更新 skill submodule 后，应先复核依赖是否变化：
+
+- 若依赖变化，更新 `docs/skill-dependencies.yml` 中对应平台的依赖条目。
+- 若依赖没有变化，也要刷新 `dependency_review.source_fingerprint`，并在 `note` 中说明已复核。
+
+刷新指纹：
+
+```powershell
+python scripts/check_skill_dependencies.py --update-fingerprints
+```
+
+提交前统一门禁会运行：
+
+```powershell
+python scripts/pre_commit_gate.py
+```
+
+如果 skill 的依赖相关文件变化但依赖清单没有复核，门禁会失败并提示刷新依赖登记。
+
 ## .tmp/ 使用方式
 
 当 prompt 引导某个 skill 工作时，生成产物应默认写到：

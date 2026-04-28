@@ -33,6 +33,10 @@ def main() -> int:
             name="readme-skill-prompts",
             command=[sys.executable, "scripts/check_readme_skill_prompts.py"],
         ),
+        Gate(
+            name="skill-dependencies",
+            command=[sys.executable, "scripts/check_skill_dependencies.py"],
+        ),
     ]
 
     for gate in gates:

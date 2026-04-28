@@ -1,0 +1,70 @@
+schema_version: 1
+description: >
+  Single source of truth for skill runtime dependencies. When a skill is added
+  or dependency-relevant files change, review this file and refresh the
+  dependency_review.source_fingerprint value.
+skills:
+  generate-3plus1-diagrams:
+    path: skills/architecture_4-1
+    dependency_review:
+      source_fingerprint: sha256:b2348d012abfc7509793e7c30ea5721eb26f12ead5e5362adc0e8f74923b8f58
+      reviewed_at: "2026-04-28"
+      reviewed_by: agent
+      note: Initial Windows dependency review from SKILL.md and scripts.
+    windows:
+      python_packages:
+        - pillow
+        - playwright
+      playwright_browsers:
+        - chromium
+      external:
+        - diagrams.net embed runtime or VS Code draw.io extension webapp
+      optional:
+        - network access to https://embed.diagrams.net/ when local draw.io webapp is absent
+      verify:
+        - python skills/architecture_4-1/verify_dependencies.py
+    macos:
+      status: todo
+
+  tech-report-ppt-safe-layout:
+    path: skills/ppt_gen_wqt
+    dependency_review:
+      source_fingerprint: sha256:9d7bf0265d2c78273e93a8ee05d9602a00022de4d2228851b92298724b4b3d8b
+      reviewed_at: "2026-04-28"
+      reviewed_by: agent
+      note: Initial Windows dependency review from PPT generation and layout checker scripts.
+    windows:
+      python_packages:
+        - python-pptx
+        - matplotlib
+        - numpy
+        - pillow
+      verify:
+        - python skills/ppt_gen_wqt/verify_dependencies.py
+    macos:
+      status: todo
+
+  grobid-docling-pdf:
+    path: skills/grobid_pdf_skill
+    dependency_review:
+      source_fingerprint: sha256:7a680b4f6ce264cf84927dd227397de61fc7e44a7dcfebed7aab03737ecef42c
+      reviewed_at: "2026-04-28"
+      reviewed_by: agent
+      note: Initial Windows dependency review from hybrid PDF pipeline scripts.
+    windows:
+      python_packages:
+        - docling
+        - lxml
+        - torch
+      services:
+        - GROBID service at http://localhost:8070
+      external:
+        - Java or Docker runtime for running GROBID
+      optional:
+        - CUDA-capable PyTorch for --docling-device cuda
+      verify:
+        - python skills/grobid_pdf_skill/verify_dependencies.py --skip-services
+      service_verify:
+        - python skills/grobid_pdf_skill/verify_dependencies.py --grobid-url http://localhost:8070
+    macos:
+      status: todo
