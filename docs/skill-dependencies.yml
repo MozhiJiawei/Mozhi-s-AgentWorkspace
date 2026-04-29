@@ -7,10 +7,10 @@ skills:
   generate-3plus1-diagrams:
     path: skills/architecture_4-1
     dependency_review:
-      source_fingerprint: sha256:b2348d012abfc7509793e7c30ea5721eb26f12ead5e5362adc0e8f74923b8f58
-      reviewed_at: "2026-04-28"
+      source_fingerprint: sha256:73073d0fbacc25a6e0182d3b410cd3e45838fe84440c48bcc3ddc53ac4802570
+      reviewed_at: "2026-04-29"
       reviewed_by: agent
-      note: Initial Windows dependency review from SKILL.md and scripts.
+      note: Reviewed architecture_4-1 update; no new runtime dependencies, refreshed fingerprint.
     windows:
       python_packages:
         - pillow
