@@ -1,9 +1,9 @@
 [submodule "skills/architecture_4-1"]
 	path = skills/architecture_4-1
 	url = https://github.com/MozhiJiawei/architecture_4-1.git
-[submodule "skills/ppt_gen_wqt"]
-	path = skills/ppt_gen_wqt
-	url = https://github.com/MozhiJiawei/ppt_gen_wqt.git
 [submodule "skills/grobid_pdf_skill"]
 	path = skills/grobid_pdf_skill
 	url = https://github.com/MozhiJiawei/grobid_pdf_skill.git
+[submodule "skills/hw-ppt-gen"]
+	path = skills/hw-ppt-gen
+	url = https://github.com/MozhiJiawei/hw-ppt-gen.git
