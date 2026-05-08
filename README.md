@@ -142,3 +142,13 @@ python scripts/pre_commit_gate.py
 - `请解析这篇论文 PDF，输出结构化 XML 和图表图片索引，用于后续分析。`
 - `请先用 PDF 解析 skill 读取这篇论文，再基于解析结果总结方法、实验和结论。`
 - `请把这篇论文 PDF 的正文、引用、参考文献、图和表整理成 agent 可消费的结构化结果。`
+
+### `skills/send-qq-email`
+
+适用场景：通过 QQ 邮箱 SMTP 发送或 dry-run 测试邮件，验证 SMTP 配置，生成 `.eml` 快照和结构化发送结果。
+
+示例 prompt：
+
+- `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/send-qq-email/。`
+- `请检查我的 QQ 邮箱 SMTP 环境变量是否齐全，不要真实发送邮件。`
+- `请用已配置的 QQ 邮箱授权码给 receiver@example.com 发送一封 HTML 测试邮件。`

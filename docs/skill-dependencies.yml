@@ -81,3 +81,27 @@ skills:
         - python skills/grobid_pdf_skill/verify_dependencies.py --grobid-url http://localhost:8070
     macos:
       status: todo
+
+  send-qq-email:
+    path: skills/send-qq-email
+    dependency_review:
+      source_fingerprint: sha256:21f4ae731c337a3895d94f1cfd2b19f5376147c21d25804416583871b20eb874
+      reviewed_at: "2026-05-08"
+      reviewed_by: agent
+      note: Initial review; runtime uses Python standard library only, with QQ Mail SMTP credentials supplied from environment variables or a private config file.
+    windows:
+      python_packages: []
+      external:
+        - QQ Mail SMTP authorization code for real sends
+      optional:
+        - network access to smtp.qq.com:587 for real sends
+      verify:
+        - python skills/send-qq-email/verify_dependencies.py
+    macos:
+      python_packages: []
+      external:
+        - QQ Mail SMTP authorization code for real sends
+      optional:
+        - network access to smtp.qq.com:587 for real sends
+      verify:
+        - python skills/send-qq-email/verify_dependencies.py

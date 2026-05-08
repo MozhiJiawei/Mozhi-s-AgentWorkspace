@@ -85,3 +85,25 @@
 - 运行前应确认 GROBID 服务地址；默认使用 `http://localhost:8070`
 - 对 born-digital 论文 PDF 默认不要开启 OCR；仅在扫描版 PDF 场景下按 skill 说明启用 OCR
 - 交付结果时应报告最终 XML 路径、图片目录和数量、中间结果归档路径，以及校验状态
+
+### `skills/send-qq-email`
+
+- 加载路径：`skills/send-qq-email/SKILL.md`
+- skill 名称：`send-qq-email`
+- 主要用途：通过 QQ 邮箱 SMTP 发送或预演 UTF-8 纯文本 / HTML 邮件，并生成 `.eml` 快照和结构化发送结果
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求发送、测试、预览或 dry-run QQ 邮箱邮件
+- 用户要求配置、验证或排查 QQ Mail SMTP / 授权码邮件发送能力
+- 用户要求生成 `.eml` 邮件快照、发送测试邮件或复用轻量邮件发送脚本
+- 用户明确提到 `SMTP_USERNAME`、`SMTP_PASSWORD`、`SMTP_TO`、QQ 邮箱授权码或 `send_qq_email.py`
+
+当任务只是整理普通文档、生成 PPT、解析 PDF、分析架构或修改与邮件发送无关的代码时，不应加载这个 skill。
+
+使用这个 skill 时：
+
+- 先读取 `skills/send-qq-email/SKILL.md`
+- 涉及真实发送时，若用户意图或收件人不明确，应先确认；配置检查、预览和验证任务默认使用 `--dry-run`
+- 不要打印、记录或提交 SMTP 密码、QQ 邮箱授权码等凭据
+- 若任务会产生邮件快照、发送结果或调试日志，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/send-qq-email/`

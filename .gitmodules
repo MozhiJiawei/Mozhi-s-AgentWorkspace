@@ -7,3 +7,6 @@
 [submodule "skills/hw-ppt-gen"]
 	path = skills/hw-ppt-gen
 	url = https://github.com/MozhiJiawei/hw-ppt-gen.git
+[submodule "skills/send-qq-email"]
+	path = skills/send-qq-email
+	url = https://github.com/MozhiJiawei/send-qq-email.git
