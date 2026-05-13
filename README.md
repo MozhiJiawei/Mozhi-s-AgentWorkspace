@@ -133,6 +133,16 @@ python scripts/pre_commit_gate.py
 - `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的业务汇报 deck，并导出图片做视觉检查。`
 - `请读取这个仓库的分析结果，生成一份华为风格技术方案 PPTX，重点检查章节指示器、分析总结块和正文内容不要重叠或裁切。`
 
+### `skills/ppt-deep-search`
+
+适用场景：在 PPT 生成之前进行 human-in-the-loop 深度研究，把材料整理成 Storyline Brief，包括研究问题、读者认知路径、金字塔结构、章节逻辑、页面角色、claim/evidence/implication、证据图使用策略、边界和开放问题，并通过脚本检查输出格式和页面信息密度。
+
+示例 prompt：
+
+- `请先用 ppt-deep-search 和我一起研究这篇论文，输出可交给华为 PPT skill 的 Storyline Brief，不要直接生成 PPT。`
+- `请基于这些 Markdown 材料梳理读者认知路径、章节逻辑和每页核心观点，并用 QA 脚本检查每页信息密度。`
+- `请把这份仓库分析结果整理成 Storyline Brief，明确每页 claim/evidence/implication、证据图使用策略和哪些结论需要标为待验证。`
+
 ### `skills/grobid_pdf_skill`
 
 适用场景：解析论文或技术 PDF，使用 GROBID 提取学术文本结构与参考文献，使用 Docling 导出图表图片，并生成一个可供后续 agent 理解和引用的 TEI/XML 包。

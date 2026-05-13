@@ -63,6 +63,29 @@
 - 若任务会产生中间稿、图片、图表素材、生成脚本、检查结果、导出图片或阶段性 PPT，必须以 `.tmp/` 为工作根目录，并按该 skill 的 `.tmp/<deck>/` 目录约定拼接子路径
 - 生成 PPT 后，应按该 skill 的要求运行参考图审阅、内容 QA、硬规则 QA、PPTX 图片导出和视觉 QA，再交付结果
 
+### `skills/ppt-deep-search`
+
+- 加载路径：`skills/ppt-deep-search/SKILL.md`
+- skill 名称：`ppt-deep-search`
+- 主要用途：在生成 PPT 之前，和用户进行 human-in-the-loop 深度研究，把论文、网页、Markdown、PDF 解析结果、仓库分析或纯文本材料整理成可供下游 PPT skill 消费的 `Storyline Brief`
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求在做 PPT 前先梳理研究问题、读者认知路径、故事线或论证结构
+- 用户要求把材料转成章节逻辑、页面角色、页面标题、核心观点、claim/evidence/implication 结构
+- 用户要求明确证据图、参考图、表格、截图的使用策略，例如原样使用、摘要重组、背景理解或舍弃
+- 用户要求为技术汇报、论文汇报、业务材料或方案 deck 做前置内容规划，而不是直接生成 PPTX
+- 用户明确提到 Deep Research、Storyline Brief、读者认知路径、金字塔结构、证据地图或反幻觉证据审核
+
+当任务只是生成最终 PPTX、做华为视觉渲染、选择具体版式、导出图片、检查页面重叠裁切或执行 PPT 硬规则 QA 时，不应单独加载这个 skill；这些属于 `skills/hw-ppt-gen` 的职责。该 skill 也不应输出 `visual_anchor.kind`、`template`、`contentLayout`、字号、配色、几栏布局或渲染器等表达层字段。
+
+使用这个 skill 时：
+
+- 先读取 `skills/ppt-deep-search/SKILL.md`
+- 若任务会产生研究草稿、材料清单、Storyline Brief 或 QA 结果，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/ppt-deep-search/<task-name>/`
+- 最终交给 PPT skill 前，必须把 Storyline Brief 保存为 Markdown，并运行 `python skills/ppt-deep-search/scripts/validate_storyline_brief.py <brief.md> --min-page-content-chars 220`
+- 若 QA 脚本报告格式缺失、页面信息密度不足、证据来源不清、开放问题缺失或包含表达层字段，应先修正 brief 再进入 PPT 生成
+
 ### `skills/grobid_pdf_skill`
 
 - 加载路径：`skills/grobid_pdf_skill/SKILL.md`
