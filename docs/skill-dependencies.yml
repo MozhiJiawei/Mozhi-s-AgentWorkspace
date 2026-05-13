@@ -57,30 +57,6 @@ skills:
       verify:
         - python skills/hw-ppt-gen/verify_dependencies.py
 
-  ppt-deep-search:
-    path: skills/ppt-deep-search
-    dependency_review:
-      source_fingerprint: sha256:60b807a208519adf011157f5575f811aac5ab3fd2a36776feab89caa6bf636e5
-      reviewed_at: "2026-05-13"
-      reviewed_by: agent
-      note: Initial review; runtime uses Python standard library only. Storyline Brief QA is provided by scripts/validate_storyline_brief.py and checks output format, evidence discipline, and per-page information density.
-    windows:
-      python_packages: []
-      external: []
-      optional: []
-      verify:
-        - python skills/ppt-deep-search/verify_dependencies.py
-      qa:
-        - python skills/ppt-deep-search/scripts/validate_storyline_brief.py <brief.md> --min-page-content-chars 220
-    macos:
-      python_packages: []
-      external: []
-      optional: []
-      verify:
-        - python skills/ppt-deep-search/verify_dependencies.py
-      qa:
-        - python skills/ppt-deep-search/scripts/validate_storyline_brief.py <brief.md> --min-page-content-chars 220
-
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
