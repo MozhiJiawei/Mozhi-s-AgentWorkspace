@@ -10,3 +10,9 @@
 [submodule "skills/send-qq-email"]
 	path = skills/send-qq-email
 	url = https://github.com/MozhiJiawei/send-qq-email.git
+[submodule "skills/gh-issue-comment-monitor"]
+	path = skills/gh-issue-comment-monitor
+	url = https://github.com/MozhiJiawei/gh-issue-comment-monitor.git
+[submodule "skills/ppt-deep-search"]
+	path = skills/ppt-deep-search
+	url = https://github.com/MozhiJiawei/ppt-deep-search.git

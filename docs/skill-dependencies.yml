@@ -4,6 +4,30 @@ description: >
   or dependency-relevant files change, review this file and refresh the
   dependency_review.source_fingerprint value.
 skills:
+  gh-issue-comment-monitor:
+    path: skills/gh-issue-comment-monitor
+    dependency_review:
+      source_fingerprint: sha256:bb1d222da1dc0e482f89ee09c614e76614db72a80d89f5d5f31a2c1f8b6b82b1
+      reviewed_at: "2026-05-13"
+      reviewed_by: agent
+      note: Initial review; scripts use Python standard library, with GitHub API access supplied by GITHUB_TOKEN/GH_TOKEN or authenticated gh CLI fallback.
+    windows:
+      python_packages: []
+      external:
+        - GITHUB_TOKEN, GH_TOKEN, or authenticated gh CLI for real issue checks
+      optional:
+        - network access to api.github.com
+      verify:
+        - python skills/gh-issue-comment-monitor/verify_dependencies.py
+    macos:
+      python_packages: []
+      external:
+        - GITHUB_TOKEN, GH_TOKEN, or authenticated gh CLI for real issue checks
+      optional:
+        - network access to api.github.com
+      verify:
+        - python skills/gh-issue-comment-monitor/verify_dependencies.py
+
   generate-3plus1-diagrams:
     path: skills/architecture_4-1
     dependency_review:
@@ -56,6 +80,28 @@ skills:
         - Poppler
       verify:
         - python skills/hw-ppt-gen/verify_dependencies.py
+
+  ppt-deep-search:
+    path: skills/ppt-deep-search
+    dependency_review:
+      source_fingerprint: sha256:6fceef35602d05e8025c9a7ee9079be495db605757c8a9ac2d7ed1073e7db60f
+      reviewed_at: "2026-05-14"
+      reviewed_by: agent
+      note: Initial review; skill uses Python standard library validation scripts only and has no external service, browser, or package dependency.
+    windows:
+      python_packages: []
+      external: []
+      optional:
+        - network access only when the research task itself requires supplemental web sources
+      verify:
+        - python skills/ppt-deep-search/verify_dependencies.py
+    macos:
+      python_packages: []
+      external: []
+      optional:
+        - network access only when the research task itself requires supplemental web sources
+      verify:
+        - python skills/ppt-deep-search/verify_dependencies.py
 
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill

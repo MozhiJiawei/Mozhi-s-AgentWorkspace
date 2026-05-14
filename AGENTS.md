@@ -20,6 +20,29 @@
 
 ## Registered Skills
 
+### `skills/gh-issue-comment-monitor`
+
+- 加载路径：`skills/gh-issue-comment-monitor/SKILL.md`
+- skill 名称：`gh-issue-comment-monitor`
+- 主要用途：监控 GitHub Issue 评论更新，只拉取相对本地 checkpoint 的最新回复，避免反复加载完整 issue 历史
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求重新检查某个 GitHub Issue 是否有新回复
+- 用户要求读取 issue 最新评论、最新回复或新增评论
+- 用户要求监控、跟进、轮询某个 GitHub Issue 评论区
+- 用户希望避免重复读取完整 issue 历史，只处理新评论或最新评论
+- 用户明确提到 `gh-issue-comment-monitor`、`check_issue_updates.py` 或 `get_latest_comments.py`
+
+当任务只是创建 issue、修改代码、处理 PR 评论或需要完整 issue 背景重建时，不应仅依赖这个 skill；只有在需要轻量获取 issue 评论增量时使用。
+
+使用这个 skill 时：
+
+- 先读取 `skills/gh-issue-comment-monitor/SKILL.md`
+- 状态文件和本轮 updates 文件必须写入 `.tmp/gh-issue-comment-monitor/`
+- 优先使用该 skill 的脚本读取增量评论；只有缺少 checkpoint 或任务确实需要重建上下文时，才读取完整 issue 历史
+- 只有在已成功处理返回评论后，才使用 `--update-state` 更新本地 checkpoint
+
 ### `skills/architecture_4-1`
 
 - 加载路径：`skills/architecture_4-1/SKILL.md`
@@ -62,6 +85,28 @@
 - 先读取 `skills/hw-ppt-gen/SKILL.md`
 - 若任务会产生中间稿、图片、图表素材、生成脚本、检查结果、导出图片或阶段性 PPT，必须以 `.tmp/` 为工作根目录，并按该 skill 的 `.tmp/<deck>/` 目录约定拼接子路径
 - 生成 PPT 后，应按该 skill 的要求运行参考图审阅、内容 QA、硬规则 QA、PPTX 图片导出和视觉 QA，再交付结果
+
+### `skills/ppt-deep-search`
+
+- 加载路径：`skills/ppt-deep-search/SKILL.md`
+- skill 名称：`ppt-deep-search`
+- 主要用途：在生成 PPT 前做人机协同的深度研究、观点对齐、故事线规划和证据审计，产出 `ppt_content_brief.md` 与 `research_audit.md` 供后续 PPT 生成 skill 使用
+
+只有当人类明确提到“PPT深度研究”时，agent 才应加载并使用这个 skill。用户只是说“做 PPT”“生成 PPT”“制作 PPT”“PPT 汇报”或类似普通 PPT 制作需求时，不应触发该 skill，应直接使用 `skills/hw-ppt-gen`。
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户明确要求进行“PPT深度研究”
+- 用户明确要求在生成 PPT 前先做深度研究、观点对齐、证据审计或故事线规划，并且使用了“PPT深度研究”这个触发词
+- 用户明确要求基于材料先产出 PPT Content Brief / Research Audit，再交给 PPT 生成流程
+- 用户明确提到 `ppt-deep-search`、`ppt_content_brief.md`、`research_audit.md` 或 `validate_ppt_content_brief.py`
+
+使用这个 skill 时：
+
+- 先读取 `skills/ppt-deep-search/SKILL.md`
+- 所有临时笔记、基线、草稿、QA 输出和最终 handoff 文件必须写入 `.tmp/ppt-deep-search/<task-name>/`
+- 完成深度研究后，必须按该 skill 要求运行 `validate_ppt_content_brief.py` 校验 `ppt_content_brief.md`
+- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策
 
 ### `skills/grobid_pdf_skill`
 

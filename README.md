@@ -113,6 +113,16 @@ python scripts/pre_commit_gate.py
 
 本节为每个已注册 skill 提供几条可直接复用的 prompt 示例，便于快速触发对应能力。
 
+### `skills/gh-issue-comment-monitor`
+
+适用场景：监控 GitHub Issue 评论增量，只读取最新回复或 checkpoint 之后的新评论，避免重复加载完整 issue 历史。
+
+示例 prompt：
+
+- `请检查 MozhiJiawei/Mozhi-s-AgentWorkspace#3 有没有新的 issue 评论，只处理上次之后的新回复。`
+- `请读取这个 GitHub Issue 的最新 5 条评论，并在处理完成后更新本地 checkpoint。`
+- `请监控这个 issue 的评论更新，把本轮 updates 文件放到 .tmp/gh-issue-comment-monitor/。`
+
 ### `skills/architecture_4-1`
 
 适用场景：分析目标仓库架构，产出 3+1 / 4+1 架构视图、draw.io 图和相关校验结果。
@@ -132,6 +142,16 @@ python scripts/pre_commit_gate.py
 - `请根据这篇论文 PDF 的解析结果生成一份 12 页左右的华为风格技术汇报 PPTX，正文使用中文。`
 - `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的业务汇报 deck，并导出图片做视觉检查。`
 - `请读取这个仓库的分析结果，生成一份华为风格技术方案 PPTX，重点检查章节指示器、分析总结块和正文内容不要重叠或裁切。`
+
+### `skills/ppt-deep-search`
+
+适用场景：只有当 prompt 明确出现“PPT深度研究”时，才在生成 PPT 前先做人机协同的观点对齐、故事线规划和证据审计，输出可交给 PPT 生成 skill 的 `ppt_content_brief.md` 与 `research_audit.md`。普通 PPT 制作需求仍直接使用 `skills/hw-ppt-gen`。
+
+示例 prompt：
+
+- `请对这篇论文做 PPT深度研究，先帮我确定读者、核心观点和页面故事线，不要直接生成 PPT。`
+- `请基于这些材料进行 PPT深度研究，产出通过校验的 ppt_content_brief.md 和 research_audit.md，后续再交给 PPT 生成流程。`
+- `请先用 PPT深度研究 对齐这份技术汇报的证据边界和页面标题，再进入华为风格 PPT 生成。`
 
 ### `skills/grobid_pdf_skill`
 
