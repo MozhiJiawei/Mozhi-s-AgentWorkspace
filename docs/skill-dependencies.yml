@@ -53,10 +53,10 @@ skills:
   huawei-pptx-generator:
     path: skills/hw-ppt-gen
     dependency_review:
-      source_fingerprint: sha256:2153800f442deb9451ee729d16e53e27a6eb3a65a6dd1e708c7ac99c83392c98
-      reviewed_at: "2026-05-15"
+      source_fingerprint: sha256:29f9762e1925268a984d0ee987fd6b5c351194276ba2bca53dc0c20099588dfb
+      reviewed_at: "2026-05-22"
       reviewed_by: agent
-      note: Reviewed hw-ppt-gen update; package.json script changes and QA/helper updates add no new runtime dependencies beyond Node.js, pptxgenjs, sharp, roughjs, JSZip, and PPT rendering toolchain requirements.
+      note: Reviewed hw-ppt-gen update to dccd00d; SKILL, reference, QA, helper, and smoke-test changes add no new runtime dependencies beyond Node.js, pptxgenjs, sharp, roughjs, JSZip, and PPT rendering toolchain requirements.
     windows:
       node_packages:
         - pptxgenjs
