@@ -1,0 +1,114 @@
+[
+  {
+    "text": "Skill 索引",
+    "link": "/skills/"
+  },
+  {
+    "text": "3+1 / 4+1 架构图生成",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/architecture_4-1/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/architecture_4-1/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/architecture_4-1/reference"
+      }
+    ]
+  },
+  {
+    "text": "GitHub Issue 评论监控",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/gh-issue-comment-monitor/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/gh-issue-comment-monitor/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/gh-issue-comment-monitor/reference"
+      }
+    ]
+  },
+  {
+    "text": "GROBID + Docling PDF 解析",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/grobid_pdf_skill/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/grobid_pdf_skill/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/grobid_pdf_skill/reference"
+      }
+    ]
+  },
+  {
+    "text": "华为风格 PPT 生成",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/hw-ppt-gen/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/hw-ppt-gen/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/hw-ppt-gen/reference"
+      }
+    ]
+  },
+  {
+    "text": "PPT 深度研究",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/ppt-deep-search/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/ppt-deep-search/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/ppt-deep-search/reference"
+      }
+    ]
+  },
+  {
+    "text": "QQ 邮件发送",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "概览",
+        "link": "/skills/send-qq-email/"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/send-qq-email/usage"
+      },
+      {
+        "text": "参考",
+        "link": "/skills/send-qq-email/reference"
+      }
+    ]
+  }
+]

@@ -37,6 +37,10 @@ def main() -> int:
             name="skill-dependencies",
             command=[sys.executable, "scripts/check_skill_dependencies.py"],
         ),
+        Gate(
+            name="skill-docs",
+            command=[sys.executable, "scripts/check_skill_docs.py"],
+        ),
     ]
 
     for gate in gates:

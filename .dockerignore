@@ -1,0 +1,10 @@
+.git/
+.tmp/
+node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+skills/**/.git/
+skills/**/__pycache__/
+*.log
+Thumbs.db
+.DS_Store

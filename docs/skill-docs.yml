@@ -1,0 +1,90 @@
+﻿schema_version: 1
+description: >
+  Skill 文档集成的唯一登记入口。当 skill 内与文档相关的文件变化时，
+  需要复核生成站点骨架或 skill 自有文档 manifest，并刷新
+  docs_review.source_fingerprint。
+skills:
+  gh-issue-comment-monitor:
+    path: skills/gh-issue-comment-monitor
+    mount: docs/skills/gh-issue-comment-monitor
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/gh-issue-comment-monitor/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:985f081428c53eed586606219f23952ca4b1141a72a01ba4455685bf71e8f14e
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  generate-3plus1-diagrams:
+    path: skills/architecture_4-1
+    mount: docs/skills/architecture_4-1
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/architecture_4-1/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:1536ba6b037650cd0d4ed5b0a3e3c2019e0386b744756428f08dfb85171c6732
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  huawei-pptx-generator:
+    path: skills/hw-ppt-gen
+    mount: docs/skills/hw-ppt-gen
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/hw-ppt-gen/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:f1da5a44446e7aa734afc69541137f9a5db4d880e75210b42bef29b3b26a0662
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  ppt-deep-search:
+    path: skills/ppt-deep-search
+    mount: docs/skills/ppt-deep-search
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/ppt-deep-search/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:706196654d26c345baca019f4793502a99b52aec84d3735ef440379171e7c46a
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  grobid-docling-pdf:
+    path: skills/grobid_pdf_skill
+    mount: docs/skills/grobid_pdf_skill
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/grobid_pdf_skill/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:289ded5eb61e846a05e7b4ceb0013163e1f71a3f96a0460576453a2fa8af8dac
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  send-qq-email:
+    path: skills/send-qq-email
+    mount: docs/skills/send-qq-email
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/send-qq-email/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:7b3b683e36fbb483c609915aa1a99da7750c454c1518bbfbf41d2fc78d612e26
+      reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+

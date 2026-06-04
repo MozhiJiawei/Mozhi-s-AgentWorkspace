@@ -1,0 +1,16 @@
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mozhi-agent-workspace-docs:local
+    container_name: mozhi-agent-workspace-docs
+    ports:
+      - "${DOCS_PORT:-8080}:8080"
+    volumes:
+      - ./:/workspace:ro
+    environment:
+      DOCS_SOURCE: /workspace
+      DOCS_WORKDIR: /tmp/mozhi-agent-workspace
+      DOCS_OUTPUT: /site
+    restart: unless-stopped
