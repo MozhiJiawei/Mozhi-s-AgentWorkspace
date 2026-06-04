@@ -50,6 +50,7 @@ docker compose -f compose.docs.yml up --build
 
 ```bash
 NODE_IMAGE=m.daocloud.io/docker.io/library/node:24.13.1-alpine3.22 \
+ALPINE_MIRROR=https://mirrors.aliyun.com/alpine \
   docker compose -f compose.docs.yml up --build -d
 ```
 

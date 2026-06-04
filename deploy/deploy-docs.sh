@@ -6,6 +6,7 @@ REPO_URL=${REPO_URL:-https://github.com/MozhiJiawei/Mozhi-s-AgentWorkspace.git}
 BRANCH=${BRANCH:-main}
 DOCS_PORT=${DOCS_PORT:-8080}
 NODE_IMAGE=${NODE_IMAGE:-node:24.13.1-alpine3.22}
+ALPINE_MIRROR=${ALPINE_MIRROR:-}
 FORCE_REBUILD=${FORCE_REBUILD:-0}
 
 ensure_compose() {
@@ -40,10 +41,10 @@ deploy_docs() {
   cd "$APP_DIR"
 
   if [ "$FORCE_REBUILD" = "1" ] || ! docker image inspect mozhi-agent-workspace-docs:local >/dev/null 2>&1; then
-    DOCS_PORT="$DOCS_PORT" NODE_IMAGE="$NODE_IMAGE" docker compose -f compose.docs.yml build docs
+    DOCS_PORT="$DOCS_PORT" NODE_IMAGE="$NODE_IMAGE" ALPINE_MIRROR="$ALPINE_MIRROR" docker compose -f compose.docs.yml build docs
   fi
 
-  DOCS_PORT="$DOCS_PORT" NODE_IMAGE="$NODE_IMAGE" docker compose -f compose.docs.yml up -d --no-build docs
+  DOCS_PORT="$DOCS_PORT" NODE_IMAGE="$NODE_IMAGE" ALPINE_MIRROR="$ALPINE_MIRROR" docker compose -f compose.docs.yml up -d --no-build docs
   DOCS_PORT="$DOCS_PORT" docker compose -f compose.docs.yml restart docs
 }
 
