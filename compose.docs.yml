@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24.13.1-alpine3.22}
     image: mozhi-agent-workspace-docs:local
     container_name: mozhi-agent-workspace-docs
     ports:

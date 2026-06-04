@@ -1,4 +1,5 @@
-FROM node:24.13.1-alpine3.22
+ARG NODE_IMAGE=node:24.13.1-alpine3.22
+FROM ${NODE_IMAGE}
 
 LABEL org.opencontainers.image.title="Mozhi Agent Workspace Docs"
 LABEL org.opencontainers.image.description="Runtime image for building and serving the workspace documentation site from mounted repository content."

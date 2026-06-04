@@ -46,6 +46,13 @@ docker compose -f compose.docs.yml restart docs
 docker compose -f compose.docs.yml up --build
 ```
 
+如果服务器访问 Docker Hub 不稳定，可以使用镜像源：
+
+```bash
+NODE_IMAGE=m.daocloud.io/docker.io/library/node:24.13.1-alpine3.22 \
+  docker compose -f compose.docs.yml up --build -d
+```
+
 访问：
 
 ```text
