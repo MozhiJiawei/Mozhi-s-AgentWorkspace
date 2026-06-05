@@ -5,6 +5,13 @@ export default {
   title: "Mozhi 的 Agent 工作区",
   description: "Agent 工作区与已注册 skill 的在线文档。",
   cleanUrls: true,
+  ignoreDeadLinks: [
+    (link: string) =>
+      /\.(html|htm|pptx)$/.test(link) ||
+      /^\/skill-static\/.+\.(html|htm|pptx)$/.test(link) ||
+      /\/source_understanding_review$/.test(link) ||
+      /\/prototype(?:-[a-z-]+)?$/.test(link)
+  ],
   themeConfig: {
     nav: [
       { text: "工作区", link: "/workspace/" },

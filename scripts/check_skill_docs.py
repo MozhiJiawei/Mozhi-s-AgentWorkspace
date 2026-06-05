@@ -16,9 +16,7 @@ DOC_FINGERPRINT_PATTERNS = (
     "SKILL.md",
     "REQUIREMENTS.md",
     "AGENTS.md",
-    "docs/**/*.md",
-    "docs/**/*.yml",
-    "docs/**/*.yaml",
+    "docs/**/*",
     "references/**/*.md",
 )
 

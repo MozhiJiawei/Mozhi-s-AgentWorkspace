@@ -10,6 +10,7 @@ import re
 SKILL_DOCS_ROOT = Path("docs/skills")
 SUBREPO_MANIFEST = "docs.manifest.yml"
 GENERATED_ROOT = Path("docs/.vitepress/generated")
+PUBLIC_STATIC_ROOT = Path("docs/public/skill-static")
 BETA_SKILL_NAMES = {"generate-3plus1-diagrams"}
 SKILL_ORDER = {
     "ppt-deep-search": 0,
@@ -94,6 +95,10 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
         shutil.rmtree(target_root)
     target_root.mkdir(parents=True, exist_ok=True)
 
+    static_root = root / PUBLIC_STATIC_ROOT / skill_slug
+    if static_root.exists():
+        shutil.rmtree(static_root)
+
     declared_paths: list[str] = []
     entry = str(manifest.get("entry", "")).replace("\\", "/")
     if entry:
@@ -120,10 +125,23 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
             destination_name = "index.md"
         destination = target_root / destination_name
         path_to_destination[relative] = destination_name
-        destination.write_text(
-            source.read_text(encoding="utf-8"),
-            encoding="utf-8",
-        )
+        text = rewrite_static_links(source.read_text(encoding="utf-8"), skill_slug, relative)
+        destination.write_text(text, encoding="utf-8")
+
+    docs_root = skill_root / "docs"
+    if docs_root.is_dir():
+        shutil.copytree(docs_root, static_root)
+        create_html_clean_url_aliases(static_root)
+        for child in sorted(docs_root.iterdir(), key=lambda path: path.name):
+            if child.is_dir():
+                shutil.copytree(child, target_root / child.name)
+        for copied_markdown in target_root.rglob("*.md"):
+            relative_to_skill_docs = copied_markdown.relative_to(target_root).as_posix()
+            text = copied_markdown.read_text(encoding="utf-8")
+            copied_markdown.write_text(
+                rewrite_static_links(text, skill_slug, f"docs/{relative_to_skill_docs}"),
+                encoding="utf-8",
+            )
 
     if entry:
         index_path = target_root / "index.md"
@@ -161,6 +179,70 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
         "description": str(manifest.get("description", "")),
         "items": sidebar_items,
     }
+
+
+def rewrite_static_links(text: str, skill_slug: str, source_relative: str) -> str:
+    source_dir = Path(source_relative.replace("\\", "/")).parent
+    if source_dir.as_posix() == ".":
+        source_dir = Path("docs")
+
+    def rewrite_link(match: re.Match[str]) -> str:
+        prefix = match.group(1)
+        link = match.group(2)
+        suffix = match.group(3)
+        if re.match(r"^[a-z]+://", link) or link.startswith(("#", "/")):
+            return match.group(0)
+        path_part, sep, anchor = link.partition("#")
+        query_sep = "?" if "?" in path_part else ""
+        if query_sep:
+            path_part, query = path_part.split("?", 1)
+        else:
+            query = ""
+        is_html = re.search(r"\.html$", path_part)
+        if not (is_html or re.search(r"\.pptx$", path_part)):
+            return match.group(0)
+        resolved = (source_dir / path_part).as_posix()
+        if resolved.startswith("docs/"):
+            resolved = resolved[len("docs/") :]
+        if is_html:
+            resolved = re.sub(r"\.html$", ".htm", resolved)
+        static_link = f"/skill-static/{skill_slug}/{resolved}"
+        if query:
+            static_link += f"?{query}"
+        if sep:
+            static_link += f"#{anchor}"
+        return f"{prefix}{static_link}{suffix}"
+
+    text = re.sub(r"(\]\()([^)\n]+?)(\))", rewrite_link, text)
+    text = re.sub(r"(\bsrc=[\"'])([^\"']+?)([\"'])", rewrite_link, text)
+    text = re.sub(r"(\bhref=[\"'])([^\"']+?)([\"'])", rewrite_link, text)
+    text = rewrite_static_html_markdown_links(text)
+    return text
+
+
+def rewrite_static_html_markdown_links(text: str) -> str:
+    def replace_link(match: re.Match[str]) -> str:
+        label = match.group(1)
+        link = match.group(2)
+        return f'<a href="{link}" target="_blank" rel="noopener noreferrer">{label}</a>'
+
+    return re.sub(
+        r"\[([^\]\n]+)\]\((/skill-static/[^)\s]+\.htm(?:#[^)]+)?)\)",
+        replace_link,
+        text,
+    )
+
+
+def create_html_clean_url_aliases(static_root: Path) -> None:
+    for html_path in sorted(static_root.rglob("*.html")):
+        if html_path.name == "index.html":
+            continue
+        shutil.copy2(html_path, html_path.with_suffix(".htm"))
+        alias_dir = html_path.with_suffix("")
+        if alias_dir.exists() and not alias_dir.is_dir():
+            continue
+        alias_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(html_path, alias_dir / "index.html")
 
 
 def write_skill_index(root: Path, skills: list[dict[str, object]]) -> None:

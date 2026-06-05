@@ -13,7 +13,7 @@ skills:
       entry: docs/skills/gh-issue-comment-monitor/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:ea3b40b17d42e1f4032bcc5de7fc5e78703c0ab58b35aa681bc44e205f87e1fb
+      source_fingerprint: sha256:d37a4f71cbe22bf00d39d8139079c3fea3885853efea9bc8fedae0a9b3bb34c1
       reviewed_at: "2026-06-05"
       reviewed_by: agent
       note: 已复核 ppt-deep-search 文档更新；继续通过子仓 docs.manifest.yml 构建时同步文档。
@@ -27,7 +27,7 @@ skills:
       entry: docs/skills/architecture_4-1/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:412d827deeee6a7cfca80f16c4b9d6585588e8f707be4b4266b5163d94ac2c50
+      source_fingerprint: sha256:9105a74461d5cd632e596ac3408d5ed8cedb1af703559bb63cbd208951f06c88
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:8ff204ddc22622bc40718f3edba25ad9bebb020693fb49c619133fae0e75405d
+      source_fingerprint: sha256:373dec5a3198982092fd5e3890da62a7c4b10326c51ba7881908c4304da82754
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:3d70f955dae870fa280d8d7b2be25c9d338c72f0e7b1cd6dd970fca6c4a26114
+      source_fingerprint: sha256:bf8f4f3ec141360d0e93c63174d3b8eb6d89eb9f0c25740f24632a3a07933ebb
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -69,7 +69,7 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:9cf5b0648f72a47311d48dee226ec2eab40de4f9bbf353490f6138b2105a80fe
+      source_fingerprint: sha256:f7ebfbb4ba30f0dbab10d35ce705cb3cd351cfd684bf97c9ab5aefb9755fba5c
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -83,7 +83,7 @@ skills:
       entry: docs/skills/send-qq-email/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:e2d0c6af86472964fe5efa0f6aeb20852cb2617d4a6d1b0816337299a61828eb
+      source_fingerprint: sha256:061f17597c25f99080184282c985585cd77ba8842c35bbebccbc1bac28939056
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

@@ -1,0 +1,453 @@
+{
+  "meta": {
+    "title": "RTX Spark 更像 Windows 本地 personal-agent stack 锚点，而不是单纯高 TOPS AI PC",
+    "question": "技术架构 / AI engineering leaders 应如何判断 RTX Spark：新平台类别，还是营销/spec update？",
+    "audience": "技术架构 / AI engineering leaders",
+    "generated_at": "2026-06-04T20:14:59+08:00",
+    "source_package": "forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/candidate/input/source-request.md plus browser-captured official webpages",
+    "source_discovery_path": "sources/source-discovery.md"
+  },
+  "source_discovery": {
+    "primary_sources": [
+      {
+        "id": "primary-nvidia-news",
+        "title": "NVIDIA and Microsoft Reinvent Windows PCs for the Age of Personal AI",
+        "url_or_path": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
+        "why_it_matters": "Defines official wording, date, RTX Spark positioning, specs, partner availability, and the personal-agent Windows PC claim.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "primary-rtx-spark-product",
+        "title": "NVIDIA RTX Spark product page",
+        "url_or_path": "https://www.nvidia.com/sv-se/products/rtx-spark/",
+        "why_it_matters": "Defines product-level positioning and visual evidence for agents, AI development, creator workflows, and desktop/laptop form factors.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "primary-nvidia-blog",
+        "title": "NVIDIA Levels Up Local AI Agents Across RTX PCs and DGX Spark",
+        "url_or_path": "https://blogs.nvidia.com/blog/rtx-ai-garage-computex-spark-local-agents/",
+        "why_it_matters": "Explains local agents, OpenShell, Windows security primitives, DGX Station relationship, llama.cpp optimization evidence, and broader RTX/DGX ecosystem.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "primary-microsoft-build",
+        "title": "Microsoft Build Live 2026",
+        "url_or_path": "https://news.microsoft.com/build-2026-live-blog?live-feed-entry-id=4927",
+        "why_it_matters": "Cross-checks Microsoft-side language around unified accelerated computing stack and Surface RTX Spark Dev Box.",
+        "capture_status": "captured"
+      }
+    ],
+    "adjacent_route_sources": [
+      {
+        "id": "adjacent-copilot-pc",
+        "title": "Copilot+ PC / Windows AI API route",
+        "url_or_path": "Microsoft Build Live captured source, Windows AI APIs section",
+        "comparison_role": "Shows ordinary AI PC evolution around local APIs, NPU/CPU/GPU support, and smaller in-box models rather than the RTX Spark large-memory local agent platform claim.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "adjacent-dgx-station",
+        "title": "DGX Station for Windows / DGX Spark route",
+        "url_or_path": "NVIDIA news and NVIDIA blog captured sources",
+        "comparison_role": "Shows the enterprise/frontier side of the same Windows agent stack, helping place RTX Spark as the personal/local anchor.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "adjacent-cloud-pc",
+        "title": "Windows 365 / cloud developer environment",
+        "url_or_path": "Microsoft Build Live captured source",
+        "comparison_role": "Boundary comparison: cloud/managed dev environments solve portability and policy differently from local RTX Spark compute.",
+        "capture_status": "captured"
+      }
+    ],
+    "boundary_sources": [
+      {
+        "id": "boundary-official-wording",
+        "title": "NVIDIA official press release legal and product wording",
+        "url_or_path": "sources/web/nvidia-news-windows-pcs-agents/source.md",
+        "boundary_checked": "Official wording says Windows PCs purpose-built for personal agents; it does not establish Chinese media phrase as formal product name.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "boundary-fcc-availability",
+        "title": "Microsoft Build Live Surface RTX Spark Dev Box footnotes",
+        "url_or_path": "sources/web/microsoft-build-live-blog-4927/source.md",
+        "boundary_checked": "Surface RTX Spark Dev Box availability and FCC authorization boundary.",
+        "capture_status": "captured"
+      },
+      {
+        "id": "boundary-performance",
+        "title": "NVIDIA blog llama.cpp chart and product/news specs",
+        "url_or_path": "sources/web/nvidia-blog-rtx-ai-garage/source.md",
+        "boundary_checked": "Distinguishes theoretical FP4/throughput optimization specs from end-to-end personal-agent productivity proof.",
+        "capture_status": "captured"
+      }
+    ],
+    "citation_debt": [
+      {
+        "claim_or_comparison_need": "Whether Chinese phrase Agent 原生电脑 is official product naming.",
+        "needed_source_type": "official docs / official press release",
+        "resolution": "Captured official NVIDIA and Microsoft pages; report states this is a media-facing Chinese interpretation, not official product name.",
+        "linked_citations": ["r1", "r4"]
+      },
+      {
+        "claim_or_comparison_need": "Whether RTX Spark proves an end-to-end local personal-agent category has market adoption.",
+        "needed_source_type": "market adoption / benchmark / procurement data",
+        "resolution": "Rewritten as boundary; current evidence supports platform anchor and partner intent, not adoption proof.",
+        "linked_citations": ["r1", "r4"]
+      }
+    ]
+  },
+  "citations": [
+    {
+      "id": "r1",
+      "marker": "R1",
+      "kind": "webpage",
+      "title": "NVIDIA and Microsoft Reinvent Windows PCs for the Age of Personal AI",
+      "locator": "NVIDIA Newsroom press release, May 31 2026, News Summary and product/security/availability sections",
+      "source_type": "primary",
+      "url": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
+      "local_path": "sources/web/nvidia-news-windows-pcs-agents/source.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser rendered page extraction",
+        "local_path": "sources/evidence/nvidia-news-windows-pcs-agents/article.md",
+        "metadata_path": "sources/evidence/nvidia-news-windows-pcs-agents/article.json",
+        "screenshot_path": "sources/evidence/nvidia-news-windows-pcs-agents/screenshots/full-page.png",
+        "image_manifest_path": "sources/evidence/nvidia-news-windows-pcs-agents/images.json",
+        "selected_container": "rendered press release body",
+        "captured_at": "2026-06-04T20:14:59+08:00"
+      }
+    },
+    {
+      "id": "r2",
+      "marker": "R2",
+      "kind": "webpage",
+      "title": "NVIDIA RTX Spark product page",
+      "locator": "NVIDIA product page, agent/AI/developer/creator sections",
+      "source_type": "primary",
+      "url": "https://www.nvidia.com/sv-se/products/rtx-spark/",
+      "local_path": "sources/web/nvidia-rtx-spark-product/source.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser rendered page extraction",
+        "local_path": "sources/evidence/nvidia-rtx-spark-product/article.md",
+        "metadata_path": "sources/evidence/nvidia-rtx-spark-product/article.json",
+        "screenshot_path": "sources/evidence/nvidia-rtx-spark-product/screenshots/full-page.png",
+        "image_manifest_path": "sources/evidence/nvidia-rtx-spark-product/images.json",
+        "selected_container": "rendered product page main content",
+        "captured_at": "2026-06-04T20:14:59+08:00"
+      }
+    },
+    {
+      "id": "r3",
+      "marker": "R3",
+      "kind": "webpage",
+      "title": "NVIDIA Levels Up Local AI Agents Across RTX PCs and DGX Spark",
+      "locator": "NVIDIA Blog, local agents/OpenShell/llama.cpp/Adobe/DGX sections",
+      "source_type": "primary",
+      "url": "https://blogs.nvidia.com/blog/rtx-ai-garage-computex-spark-local-agents/",
+      "local_path": "sources/web/nvidia-blog-rtx-ai-garage/source.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser rendered page extraction",
+        "local_path": "sources/evidence/nvidia-blog-rtx-ai-garage/article.md",
+        "metadata_path": "sources/evidence/nvidia-blog-rtx-ai-garage/article.json",
+        "screenshot_path": "sources/evidence/nvidia-blog-rtx-ai-garage/screenshots/full-page.png",
+        "image_manifest_path": "sources/evidence/nvidia-blog-rtx-ai-garage/images.json",
+        "selected_container": "rendered article body",
+        "captured_at": "2026-06-04T20:14:59+08:00"
+      }
+    },
+    {
+      "id": "r4",
+      "marker": "R4",
+      "kind": "webpage",
+      "title": "Microsoft Build Live 2026",
+      "locator": "Microsoft Build Live entries: NVIDIA/Microsoft unified stack, Surface RTX Spark Dev Box, Windows AI APIs",
+      "source_type": "primary",
+      "url": "https://news.microsoft.com/build-2026-live-blog?live-feed-entry-id=4927",
+      "local_path": "sources/web/microsoft-build-live-blog-4927/source.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser rendered page extraction",
+        "local_path": "sources/evidence/microsoft-build-live-blog-4927/article.md",
+        "metadata_path": "sources/evidence/microsoft-build-live-blog-4927/article.json",
+        "screenshot_path": "sources/evidence/microsoft-build-live-blog-4927/screenshots/full-page.png",
+        "image_manifest_path": "sources/evidence/microsoft-build-live-blog-4927/images.json",
+        "selected_container": "rendered live blog body",
+        "captured_at": "2026-06-04T20:14:59+08:00"
+      }
+    },
+    {
+      "id": "r5",
+      "marker": "R5",
+      "kind": "webpage",
+      "title": "NVIDIA GTC Taipei 2026 Keynote",
+      "locator": "Keynote replay page, June 1 2026 Taipei event context",
+      "source_type": "primary",
+      "url": "https://www.nvidia.com/en-tw/gtc/taipei/keynote/",
+      "local_path": "sources/web/nvidia-gtc-taipei-keynote/source.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser rendered page extraction",
+        "local_path": "sources/evidence/nvidia-gtc-taipei-keynote/article.md",
+        "metadata_path": "sources/evidence/nvidia-gtc-taipei-keynote/article.json",
+        "screenshot_path": "sources/evidence/nvidia-gtc-taipei-keynote/screenshots/full-page.png",
+        "image_manifest_path": "sources/evidence/nvidia-gtc-taipei-keynote/images.json",
+        "selected_container": "rendered keynote page main content",
+        "captured_at": "2026-06-04T20:14:59+08:00"
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "rtx_agent_workflow",
+      "role": "original_web_image",
+      "path": "assets/rtx-spark-agent-workflow.jpg",
+      "source_citation": "r2",
+      "page_url": "https://www.nvidia.com/sv-se/products/rtx-spark/",
+      "source_url": "https://www.nvidia.com/content/nvidiaGDC/se/sv_SE/products/rtx-spark/_jcr_content/root/responsivegrid/nv_container_1047900/nv_image.coreimg.100.1070.jpeg/1780173289127/nvidia-rtx-spark-agents-ari.jpeg",
+      "capture_method": "Codex in-app Browser page asset download",
+      "download_status": "ok",
+      "content_type": "image/jpeg",
+      "alt": "AI agent PC working alongside user tasks",
+      "caption_takeaway": "NVIDIA product page frames RTX Spark as a machine where agents work alongside the user, which supports the platform-anchor interpretation."
+    },
+    {
+      "id": "rtx_developer_stack",
+      "role": "original_web_image",
+      "path": "assets/rtx-spark-developer-stack.jpg",
+      "source_citation": "r2",
+      "page_url": "https://www.nvidia.com/sv-se/products/rtx-spark/",
+      "source_url": "https://www.nvidia.com/content/nvidiaGDC/se/sv_SE/products/rtx-spark/_jcr_content/root/responsivegrid/nv_container_1459706020/nv_container/nv_teaser_81179541.coreimg.100.410.jpeg/1780218415665/nvidia-rtx-spark-developers-1080x1440.jpeg",
+      "capture_method": "Codex in-app Browser page asset download",
+      "download_status": "ok",
+      "content_type": "image/jpeg",
+      "alt": "NVIDIA CUDA AI development and prototyping stack",
+      "caption_takeaway": "The developer visual reinforces that NVIDIA sells the CUDA/RTX software stack as part of the RTX Spark story, not only silicon specs."
+    },
+    {
+      "id": "llamacpp_performance",
+      "role": "original_web_image",
+      "path": "assets/llamacpp-performance.png",
+      "source_citation": "r3",
+      "page_url": "https://blogs.nvidia.com/blog/rtx-ai-garage-computex-spark-local-agents/",
+      "source_url": "https://blogs.nvidia.com/wp-content/uploads/2026/06/llama-cpp-perf-ari.png",
+      "capture_method": "Codex in-app Browser page asset download",
+      "download_status": "ok",
+      "content_type": "image/png",
+      "alt": "Llama.cpp Performance chart",
+      "caption_takeaway": "NVIDIA's local-agent software story includes open-source inference optimization evidence, but the chart is RTX 5090/llama.cpp, not direct RTX Spark end-to-end agent proof."
+    },
+    {
+      "id": "surface_dev_box",
+      "role": "original_web_image",
+      "path": "assets/surface-rtx-spark-dev-box.png",
+      "source_citation": "r4",
+      "page_url": "https://news.microsoft.com/build-2026-live-blog?live-feed-entry-id=4927",
+      "source_url": "https://news.microsoft.com/wp-content/uploads/prod/sites/668/2026/06/SparkPCDevBox_Social_1024x576-1024x576.png",
+      "capture_method": "Codex in-app Browser page asset download",
+      "download_status": "ok",
+      "content_type": "image/png",
+      "alt": "Surface RTX Spark Dev Box",
+      "caption_takeaway": "Microsoft-side visual evidence connects RTX Spark to developer-local compute, not just consumer AI PC positioning."
+    },
+    {
+      "id": "nvidia_news_screenshot",
+      "role": "rendered_screenshot",
+      "path": "assets/nvidia-news-full-page.png",
+      "source_citation": "r1",
+      "page_url": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
+      "source_url": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
+      "capture_method": "Codex in-app Browser rendered page screenshot",
+      "download_status": "ok",
+      "content_type": "image/png",
+      "caption_takeaway": "Full rendered press-release screenshot preserves the official headline/date/context for audit."
+    }
+  ],
+  "kpis": [
+    {
+      "id": "ai_compute",
+      "label": "AI compute",
+      "value": "1 petaflop FP4",
+      "status": "positive",
+      "context": "NVIDIA and Microsoft both use this as a headline RTX Spark capability.",
+      "citation": "r1"
+    },
+    {
+      "id": "unified_memory",
+      "label": "Unified memory",
+      "value": "128GB",
+      "status": "positive",
+      "context": "Supports on-device agents and large local models in the official positioning.",
+      "citation": "r1"
+    },
+    {
+      "id": "local_llm_claim",
+      "label": "Local model claim",
+      "value": "120B / 1M tokens",
+      "status": "warning",
+      "context": "Official news lists 120B-parameter LLMs with up to 1 million token context; this remains a capability claim, not workload benchmark.",
+      "citation": "r1"
+    },
+    {
+      "id": "availability",
+      "label": "Availability",
+      "value": "fall 2026",
+      "status": "warning",
+      "context": "NVIDIA says RTX Spark laptops/desktops will be available this fall from listed OEMs.",
+      "citation": "r1"
+    }
+  ],
+  "sections": [
+    {
+      "id": "decision",
+      "nav_label": "结论先行",
+      "heading_claim": "RTX Spark 的新意在 Windows 本地 agent stack，而不在单个 TOPS 数字",
+      "state_line": "官方证据支持把 RTX Spark 作为 personal-agent Windows PC 的平台锚点来评估，但不支持把中文媒体标题当作正式产品名。",
+      "blocks": [
+        {
+          "type": "status_strip",
+          "source_citations": ["r1", "r4"]
+        }
+      ]
+    },
+    {
+      "id": "problem",
+      "nav_label": "问题为什么重要",
+      "heading_claim": "本地 personal agent 需要同时解决算力、内存、权限和云路由",
+      "state_line": "RTX Spark 的判断焦点应从 AI PC hardware spec 转向本地 agent 能否安全、私密、持续地操作主力 Windows 设备。",
+      "blocks": [
+        {
+          "type": "architecture_diagram",
+          "source_citations": ["r1", "r3", "r4"]
+        }
+      ]
+    },
+    {
+      "id": "comparison",
+      "nav_label": "已有做法与缺口",
+      "heading_claim": "它位于普通 AI PC、云端 agent 与 DGX 工作站之间的空位",
+      "state_line": "RTX Spark 不是泛 AI PC 横评冠军，而是试图把 large local models、Windows security primitives、OpenShell 和 CUDA/RTX 生态绑成一个 personal-agent PC 类别。",
+      "blocks": [
+        {
+          "type": "method_cards",
+          "source_citations": ["r1", "r3", "r4"]
+        },
+        {
+          "type": "comparison_matrix",
+          "source_citations": ["r1", "r3", "r4"]
+        }
+      ]
+    },
+    {
+      "id": "mechanism",
+      "nav_label": "关键机制",
+      "heading_claim": "平台叙事由三层组成：Spark silicon、Windows trust layer、OpenShell routing",
+      "state_line": "硬件规格只是底座；更关键的是 NVIDIA 与 Microsoft 把 agent 的 identity、containment、policy、privacy routing 放进 Windows 体验叙事。",
+      "blocks": [
+        {
+          "type": "source_image_pair",
+          "source_citations": ["r1", "r2", "r3"]
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "nav_label": "实验信号与边界",
+      "heading_claim": "证据足以立项评估，不足以证明类别已经成立",
+      "state_line": "当前证据是官方发布、OEM/软件伙伴意向和局部 inference 优化，不是独立 benchmark、采购数据或端到端 agent 生产结果。",
+      "blocks": [
+        {
+          "type": "chart_with_aside",
+          "source_citations": ["r3"]
+        },
+        {
+          "type": "decision_register",
+          "source_citations": ["r1", "r3", "r4"]
+        }
+      ]
+    }
+  ],
+  "charts": [
+    {
+      "id": "llamacpp-throughput",
+      "question": "NVIDIA 给出的 local-agent software optimization evidence 到底证明了什么？",
+      "chart_type": "bar",
+      "source_citations": ["r3"],
+      "units": ["relative throughput"],
+      "conditions": "Qwen3.6-27B and Qwen3.6-35B on GeForce RTX 5090 using llama.cpp optimizations, SPEED-BENCH Coding Dataset",
+      "data": [
+        {
+          "model": "Qwen3.6-27B",
+          "before": 1.0,
+          "computex_optimizations": 2.0
+        },
+        {
+          "model": "Qwen3.6-35B",
+          "before": 1.0,
+          "computex_optimizations": 1.6
+        }
+      ],
+      "caption_takeaway": "The chart supports NVIDIA's local open-model ecosystem story, but it is not direct proof of RTX Spark end-to-end agent productivity.",
+      "known_limits": "RTX 5090/llama.cpp chart; not an RTX Spark production benchmark."
+    }
+  ],
+  "comparison_methods": [
+    {
+      "id": "ordinary-ai-pc",
+      "name": "普通 AI PC / Copilot+ PC 路线",
+      "positioning": "把端侧 AI 能力放进 PC 体验，常围绕 NPU/CPU/GPU API、轻量模型和系统功能展开。",
+      "mechanism": "Windows AI APIs 和 in-box/on-device models 支持本地推理、语音、字幕、文本智能和工具调用。",
+      "representative_evidence": "Microsoft Build Live says Windows AI APIs are being extended beyond Copilot+ PCs and Aion 1.0 Plan is a 14B reasoning/tool-calling model with 32K context planned for local workflows.",
+      "boundary": "更像 OS/API capability expansion；不直接证明能承载 120B-class local personal agents.",
+      "relationship": "RTX Spark tries to occupy a heavier local-agent compute tier above ordinary AI PC.",
+      "visual_summary": "axis_marker",
+      "citations": ["r4"]
+    },
+    {
+      "id": "rtx-spark-windows-pc",
+      "name": "RTX Spark Windows PC 路线",
+      "positioning": "以 RTX Spark Superchip 为硬件锚点，把 personal agents、large local models、Windows security primitives、OpenShell 和 RTX/CUDA app ecosystem 放进同一个 Windows PC story.",
+      "mechanism": "1 petaflop FP4, up to 128GB unified memory, Windows identity/containment/policy/security primitives, OpenShell policy and privacy routing.",
+      "representative_evidence": "NVIDIA states world's first Windows PCs purpose-built for personal agents and Microsoft confirms a unified accelerated computing stack with RTX Spark Windows PCs.",
+      "boundary": "官方发布和 partner intent 强；仍缺真实 agent workflow benchmark, procurement/adoption, and independent security evaluation.",
+      "relationship": "Current object; strongest interpretation is platform anchor, not mature category proof.",
+      "visual_summary": "evidence_badge",
+      "citations": ["r1", "r3", "r4"]
+    },
+    {
+      "id": "dgx-station-windows",
+      "name": "DGX Station for Windows / DGX Spark 路线",
+      "positioning": "把 Blackwell-class enterprise/frontier agent compute 放到 deskside/workstation 场景。",
+      "mechanism": "NVIDIA blog and news position DGX Station for Windows as scaling the partnership from personal to frontier agents.",
+      "representative_evidence": "NVIDIA states the collaboration extends from personal to frontier agents with DGX Station for Windows.",
+      "boundary": "更偏 enterprise developer / AI supercomputer; not the same portable personal PC category.",
+      "relationship": "Upper tier of the same stack; helps show RTX Spark is the personal/local anchor.",
+      "visual_summary": "tier_stack",
+      "citations": ["r1", "r3", "r4"]
+    },
+    {
+      "id": "cloud-agent-route",
+      "name": "Cloud / Windows 365 agent route",
+      "positioning": "用云端或 Cloud PC 解决弹性、管理和跨设备一致性。",
+      "mechanism": "Microsoft Build Live describes Windows 365 developer configurations and cloud PC developer environments under organizational policy controls.",
+      "representative_evidence": "The Build live blog frames Windows 365 as secure ready-to-code Cloud PCs with pre-configured developer tools.",
+      "boundary": "Works for managed portability and policy; does not give local always-on personal-agent compute on the primary device.",
+      "relationship": "Complementary route; cloud keeps elasticity, RTX Spark targets local privacy/latency/control.",
+      "visual_summary": "cloud_vs_local",
+      "citations": ["r4"]
+    }
+  ],
+  "decisions": [
+    {
+      "label": "Deck top-line",
+      "status": "recommended",
+      "reason": "Use platform-anchor framing: Windows local personal-agent stack, not just high TOPS AI PC.",
+      "citations": ["r1", "r3", "r4"]
+    },
+    {
+      "label": "Overclaim boundary",
+      "status": "required",
+      "reason": "Do not say Agent 原生电脑 is official product name; do not claim category is proven by deployment.",
+      "citations": ["r1", "r4"]
+    }
+  ]
+}

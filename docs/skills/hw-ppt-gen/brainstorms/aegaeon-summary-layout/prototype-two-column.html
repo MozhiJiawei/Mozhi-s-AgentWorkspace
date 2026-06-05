@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aegaeon - Two Column Huawei Layout</title>
+  <style>
+    :root { --red:#c00000; --ink:#222; --line:#d9d9d9; --soft:#e6e6e6; --pale:#f7f7f7; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; background:#e8e8e8; font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; color:var(--ink); }
+    .slide { width:min(96vw,1600px); aspect-ratio:16/9; position:relative; background:#fff; padding:38px 60px 42px; overflow:hidden; box-shadow:0 20px 55px rgba(0,0,0,.16); }
+    .tabs { position:absolute; right:58px; top:2px; display:grid; grid-template-columns:140px 140px 140px; height:28px; border:1px solid #222; font-size:12px; font-weight:700; text-align:center; line-height:26px; }
+    .tab { border-left:1px solid #222; background:#fff; } .tab:first-child{border-left:0;} .tab.active{background:var(--red); color:#fff;}
+    h1 { margin:0; color:var(--red); font-size:34px; line-height:1.08; font-weight:850; letter-spacing:0; padding-right:460px; }
+    h1 small { font-size:26px; font-weight:800; }
+    .rule { border-top:2px solid var(--red); margin-top:12px; }
+    .summary { margin-top:16px; height:100px; display:grid; grid-template-columns:98px 1fr; }
+    .summary-label { background:var(--red); color:#fff; display:grid; place-items:center; text-align:center; font-size:28px; line-height:1.05; font-weight:800; }
+    .summary-copy { background:var(--soft); padding:15px 24px; display:grid; align-content:center; gap:6px; font-size:21px; line-height:1.16; }
+    .summary-copy p { margin:0; display:grid; grid-template-columns:108px 1fr; gap:10px; } .summary-copy b{font-weight:850;}
+    .modules { margin-top:20px; display:grid; grid-template-columns:1.03fr .97fr; gap:26px; height:596px; }
+    .module { border:1px solid #bfbfbf; display:grid; grid-template-rows:25px 1fr; min-height:0; }
+    .module-head { background:var(--red); color:#fff; text-align:center; font-size:16px; line-height:25px; font-weight:800; }
+    .body { padding:18px 24px 16px; display:flex; flex-direction:column; gap:13px; min-height:0; }
+    .card-title { color:var(--red); text-align:center; font-size:18px; line-height:1.2; font-weight:850; }
+    .figure { border:1px solid #e6e6e6; background:#fafafa; display:grid; place-items:center; padding:10px; overflow:hidden; }
+    .figure img { display:block; max-width:100%; max-height:100%; object-fit:contain; }
+    .left .figure img { width:72%; }
+    .left .figure { height:270px; }
+    .right .figure { height:230px; }
+    .right .figure img { width:68%; max-height:208px; }
+    .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .kpi { min-height:78px; border:1px solid #d9d9d9; background:var(--pale); display:grid; place-items:center; text-align:center; padding:6px; }
+    .kpi strong { color:var(--red); font:400 32px/1 Impact,"Arial Black",sans-serif; } .kpi span { display:block; margin-top:5px; font-size:13px; font-weight:700; }
+    .bullets { margin:0; padding:0; display:grid; gap:11px; font-size:18px; line-height:1.46; font-weight:650; }
+    .bullets li { list-style:none; display:grid; grid-template-columns:18px 1fr; gap:7px; } .bullets li:before { content:""; width:8px; height:8px; margin-top:9px; background:#333; }
+    .bullets b, .note b, .compact b { color:var(--red); font-weight:850; }
+    .note { border:1px solid #d9d9d9; background:#f7f7f7; padding:10px 12px; font-size:15px; line-height:1.38; font-weight:650; }
+    .compact { display:grid; grid-template-columns:1fr 1fr; border:1px solid #d9d9d9; }
+    .cell { min-height:40px; display:grid; place-items:center; text-align:center; border-left:1px solid #d9d9d9; border-top:1px solid #d9d9d9; font-size:14px; line-height:1.25; font-weight:750; padding:6px; }
+    .cell:nth-child(odd){border-left:0;} .cell:nth-child(-n+2){border-top:0; background:#f2f2f2; color:var(--red); font-weight:850;}
+    .footer { position:absolute; left:60px; right:60px; bottom:16px; border-top:1px solid #d9d9d9; padding-top:6px; display:flex; justify-content:space-between; color:#8c8c8c; font-size:11px; font-weight:600; }
+  </style>
+</head>
+<body>
+  <main class="slide">
+    <nav class="tabs"><div class="tab active">浪费来自市场形态</div><div class="tab">突破在 token 粒度</div><div class="tab">价值由生产验证</div></nav>
+    <h1>Aegaeon GPU Pooling <small>- 二分栏高密图文页</small></h1>
+    <div class="rule"></div>
+    <section class="summary">
+      <div class="summary-label">分析<br>总结</div>
+      <div class="summary-copy">
+        <p><b>问题：</b><span>长尾低频占卡与热门 burst 同时推高 GPU 预留。</span></p>
+        <p><b>判断：</b><span>先证明市场形态，再证明 token-level pooling 是否值得评估。</span></p>
+        <p><b>边界：</b><span>不外推到所有 LLM serving，限定为模型市场型并发服务。</span></p>
+      </div>
+    </section>
+    <section class="modules">
+      <article class="module left">
+        <div class="module-head">左栏：市场浪费证据</div>
+        <div class="body">
+          <div class="card-title">长尾模型与热门 burst 共同制造预留浪费</div>
+          <div class="figure"><img src="../../assets/brainstorms/aegaeon-summary-layout/source-images/figure01_workload.png" alt="Figure 1"></div>
+          <ul class="bullets">
+            <li><span><b>长尾错配：</b>94.1% 模型仅贡献 1.35% 请求，却占用 17.7% GPU。</span></li>
+            <li><span><b>突发冗余：</b>热门 270B 模型峰值超过 reserved capacity。</span></li>
+            <li><span><b>设计含义：</b>大图优先保证可读，解释文字压成 3 条判断。</span></li>
+          </ul>
+          <p class="note"><b>二分栏规则：</b>当主证据图较宽且需要解释时，左栏给图更多高度，文字只承担读图指导。</p>
+        </div>
+      </article>
+      <article class="module right">
+        <div class="module-head">右栏：机制与结果压缩</div>
+        <div class="body">
+          <div class="card-title">从 request 边界推进到 token 边界</div>
+          <div class="figure"><img src="../../assets/brainstorms/aegaeon-summary-layout/source-images/figure02_request_token.png" alt="Figure 2"></div>
+          <div class="compact">
+            <div class="cell">request 结束</div><div class="cell">token 间隙</div>
+            <div class="cell">HOL blocking</div><div class="cell">prefill / decoding</div>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><div><strong>1,192</strong><span>原 H20</span></div></div>
+            <div class="kpi"><div><strong>213</strong><span>现 H20</span></div></div>
+            <div class="kpi"><div><strong>82%</strong><span>节省</span></div></div>
+          </div>
+          <p class="note"><b>密度规则：</b>右栏不堆长句，用机制对照 + KPI 形成第二证据层。</p>
+        </div>
+      </article>
+    </section>
+    <footer class="footer"><span>Source: Aegaeon paper figures and Model Studio beta deployment summary</span><span>05</span></footer>
+  </main>
+</body>
+</html>

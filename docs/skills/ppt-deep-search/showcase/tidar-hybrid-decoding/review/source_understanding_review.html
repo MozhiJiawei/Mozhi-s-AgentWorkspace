@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TiDAR 值得跟踪复现，但不能直接当作 serving 收益结论</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --paper: #ffffff;
+      --ink: #1c2430;
+      --muted: #667085;
+      --line: #dbe2ea;
+      --accent: #0f766e;
+      --accent-2: #2563eb;
+      --soft: #eef7f5;
+      --warn: #c2410c;
+      --risk: #b42318;
+      --ok: #047857;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f3f7fa 0%, var(--bg) 360px, var(--bg) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.72;
+    }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .review-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      gap: 28px;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .review-toc {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      padding: 18px 16px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .review-toc h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      letter-spacing: .02em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .review-toc a {
+      display: block;
+      padding: 8px 0;
+      color: #344054;
+      font-size: 14px;
+      border-top: 1px solid rgba(219,226,234,.72);
+    }
+    .review-paper {
+      min-width: 0;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(16,24,40,.08);
+    }
+    .review-article { padding: 46px min(6vw, 76px) 68px; }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 980px;
+      margin: 10px 0 12px;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+    .lead {
+      max-width: 940px;
+      margin: 0 0 22px;
+      color: #475467;
+      font-size: 18px;
+    }
+    h2 {
+      margin: 52px 0 8px;
+      font-size: 26px;
+      line-height: 1.28;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .state-line {
+      margin: 0 0 20px;
+      padding-left: 14px;
+      border-left: 3px solid var(--accent);
+      color: #475467;
+      font-size: 16px;
+    }
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 26px 0 34px;
+    }
+    .status-cell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 14px;
+      background: #fff;
+    }
+    .status-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .status-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 28px;
+      color: var(--ink);
+      line-height: 1.15;
+    }
+    .status-note {
+      margin-top: 8px;
+      color: #475467;
+      font-size: 13px;
+      line-height: 1.42;
+    }
+    .status-positive { border-top: 3px solid var(--ok); }
+    .status-warning { border-top: 3px solid var(--warn); }
+    .callout {
+      margin: 22px 0;
+      padding: 16px 18px;
+      background: var(--soft);
+      border: 1px solid #cfe8e2;
+      border-radius: var(--radius);
+    }
+    .evidence-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+      gap: 28px;
+      align-items: start;
+      margin: 24px 0 30px;
+    }
+    .evidence-main, figure.source-figure {
+      margin: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .evidence-main img, figure.source-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    figcaption {
+      margin-top: 10px;
+      color: #475467;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .evidence-aside {
+      border-left: 1px solid var(--line);
+      padding-left: 18px;
+      color: #475467;
+      font-size: 14px;
+    }
+    .aside-kicker {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 22px 0;
+    }
+    .method-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fff;
+    }
+    .method-position { margin: 0 0 12px; color: #475467; }
+    .method-visual {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+    .axis-chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid #b9d8d2;
+      border-radius: 999px;
+      background: #f2fbf8;
+      color: #0f766e;
+      font-size: 12px;
+    }
+    .axis-chip.muted {
+      border-color: var(--line);
+      background: #f8fafc;
+      color: #667085;
+    }
+    dl { margin: 0; }
+    dt {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    dd { margin: 2px 0 0; color: #344054; font-size: 14px; }
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      margin: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 10px 10px;
+      white-space: nowrap;
+    }
+    td {
+      border-bottom: 1px solid rgba(219,226,234,.72);
+      padding: 10px;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    td.number {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    tr.highlight-row { background: rgba(15,118,110,.07); }
+    .rebuild-block {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      gap: 18px;
+      margin: 22px 0;
+    }
+    .mini-bars {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 150px 70px minmax(120px, 1fr) 90px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #edf2f7;
+      overflow: hidden;
+    }
+    .bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+    .decision-register td:last-child { font-weight: 700; }
+    .risk { color: var(--risk); }
+    .warn { color: var(--warn); }
+    .ok { color: var(--ok); }
+    .refs {
+      margin-top: 54px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+    .refs ol { padding-left: 20px; }
+    .refs li { margin: 10px 0; color: #475467; font-size: 13px; }
+    sup a {
+      font-size: 11px;
+      padding: 0 2px;
+    }
+    @media (max-width: 1020px) {
+      .review-layout { display: block; padding: 14px; }
+      .review-toc { position: relative; top: 0; max-height: 280px; margin-bottom: 14px; }
+      .review-article { padding: 28px 18px 42px; }
+      .status-strip, .method-grid, .evidence-pair, .rebuild-block { grid-template-columns: 1fr; }
+      .evidence-aside { border-left: 0; padding-left: 0; }
+    }
+    @media print {
+      body { background: #fff; }
+      .review-layout { display: block; padding: 0; }
+      .review-toc { display: none; }
+      .review-paper { border: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="review-layout">
+    <nav class="review-toc" aria-label="阅读路径">
+      <h2>阅读路径</h2>
+      <a href="#decision">结论先行</a>
+      <a href="#problem">问题为什么重要</a>
+      <a href="#comparison">已有做法与缺口</a>
+      <a href="#mechanism">关键机制</a>
+      <a href="#benchmarks">实验信号与边界</a>
+      <a href="#next">下一步验证</a>
+      <a href="#refs">参考资料</a>
+    </nav>
+    <main class="review-paper">
+      <article class="review-article">
+        <div class="eyebrow">TiDAR / model efficiency review</div>
+        <h1>TiDAR 值得跟踪复现，但不能直接当作 serving 收益结论</h1>
+        <p class="lead">面向模型架构和 inference platform leaders，当前最稳的读法是：TiDAR 不是又一个泛泛 decoding 加速故事，而是一个把 diffusion-style parallel drafting 放进 AR sampling 质量保护里的 single-model architecture。它的论文信号足够进入受控复现，但还没有覆盖生产 serving 的关键外推条件。</p>
+
+        <section id="decision">
+          <h2>论文给出强信号，决策动作应是复现而非上线判断</h2>
+          <p class="state-line">最强证据是 TiDAR 1.5B / 8B 相对同规模 AR baseline 分别报告 4.71x 和 5.91x decoding throughput speedup，同时在 generative 与 likelihood 任务上保持接近 AR 的质量；但这些结果来自单 H100、batch size 1 的评测口径。<sup id="cite-ref-s1-1"><a href="#ref-s1">1</a></sup></p>
+          <div class="status-strip">
+            <div class="status-cell status-positive">
+              <div class="status-label">TiDAR 1.5B</div>
+              <div class="status-value">4.71x</div>
+              <div class="status-note">相对 Qwen2.5 1.5B AR 的 decoding throughput speedup；平均 T/NFE 7.45。</div>
+            </div>
+            <div class="status-cell status-positive">
+              <div class="status-label">TiDAR 8B</div>
+              <div class="status-value">5.91x</div>
+              <div class="status-note">相对 Qwen3 8B AR 的 throughput speedup；平均 T/NFE 8.25。</div>
+            </div>
+            <div class="status-cell status-warning">
+              <div class="status-label">评测口径</div>
+              <div class="status-value">batch=1</div>
+              <div class="status-note">single H100、downstream generative prompts、exact KV cache support；不等价于平台吞吐收益。</div>
+            </div>
+            <div class="status-cell status-positive">
+              <div class="status-label">TiDAR 8B quality</div>
+              <div class="status-value">65.31%</div>
+              <div class="status-note">Table 2 中 Trust Diff 8B generative average；Qwen3 8B AR 为 68.09%。<sup id="cite-ref-t2-1"><a href="#ref-t2">7</a></sup></div>
+            </div>
+          </div>
+          <div class="callout">给后续 PPT 的一句话边界：TiDAR 可以被定位为“值得复测的 hybrid architecture candidate”，不应被定位为“已经证明可部署降本的 serving feature”。</div>
+        </section>
+
+        <section id="problem">
+          <h2>关键前提是空闲 token slots 能承载可信草稿</h2>
+          <p class="state-line">TiDAR 的 serving 叙事不应从“diffusion 更快”开始，而应从 Figure 1 的 profiling 开始：在 memory-bound decoding 区间，一次 forward 多带一些 token slots 可能不会等比例增加 latency。</p>
+          <p>论文用 Qwen3-32B、NVIDIA H100、batch size 1、Flash Attention 2 做 profiling，展示 MLP、Attention 和 Total latency 随 token slots 增加的变化；绿色区间被标成 Free Token Slots，黄色区间被标成 Cheap Token Slots。这个图支撑的是“为什么 TiDAR 有机会把 diffusion drafting 放进同一次 forward”，而不是证明任何真实平台上的 end-to-end QPS、tail latency 或 GPU utilization 已经改善。<sup id="cite-ref-f1-1"><a href="#ref-f1">2</a></sup></p>
+          <div class="evidence-pair">
+            <figure class="evidence-main">
+              <img src="assets/figure_1_free_token_slots.png" alt="Figure 1 latency scaling over token slots">
+              <figcaption>原图：Figure 1 说明 free / cheap token slot 区间随 token slots 增加的 latency 形态；读图重点是“可利用的硬件余量”，不是完整 serving 收益。<sup id="cite-ref-f1-2"><a href="#ref-f1">2</a></sup></figcaption>
+            </figure>
+            <aside class="evidence-aside">
+              <p class="aside-kicker">读图边界</p>
+              <p><strong>口径：</strong>Qwen3-32B、H100、batch size 1、Flash Attention 2，prefix length 覆盖 1024 / 2048 / 4096。</p>
+              <p><strong>含义：</strong>如果本地 serving backend 也有类似 memory-bound 区间，parallel drafting 可能“顺手”占用一部分空闲计算。</p>
+              <p><strong>边界：</strong>这不是 scheduler、continuous batching、KV paging、prefill/decode 混部场景的收益证明。</p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="comparison">
+          <h2>TiDAR 补的是 draft capacity 与并行验证的双重缺口</h2>
+          <p class="state-line">与 classic speculative decoding、EAGLE-3、MTP、Block Diffusion 相比，TiDAR 的差异不是“也能多 token”，而是 shared high-capacity drafter、parallel-to-verification、AR sampling quality guard 三者放在一个模型里。</p>
+          <p>Table 1 对 speculative framework 的比较很适合放进 deck：classic speculative decoding 有独立弱 drafter；EAGLE-3 / DeepSeek-V3 / Apple MTP 改进了共享或多 token 预测，但仍不完全等价于 diffusion pre-drafting 与 AR verification 同时发生；TiDAR 被论文标成 model shared、high drafting capacity、parallel decoding、parallel to verification 都满足。<sup id="cite-ref-t1-1"><a href="#ref-t1">6</a></sup></p>
+          <div class="method-grid">
+            <article class="method-card">
+              <h3>Classic speculative decoding</h3>
+              <p class="method-position">一句话定位：用弱 draft model 提前猜 token，再由强 AR model 接受或拒绝。</p>
+              <div class="method-visual"><span class="axis-chip">separate drafter</span><span class="axis-chip muted">low capacity</span><span class="axis-chip muted">serial verify</span></div>
+              <dl>
+                <dt>核心机制</dt><dd>草稿和验证分离，收益依赖 acceptance rate 与 draft 成本。</dd>
+                <dt>代表证据</dt><dd>Table 1 将其标为非共享模型、低 drafting capacity、非并行验证。</dd>
+                <dt>适用边界</dt><dd>适合已有兼容 drafter 的场景；draft 弱时吞吐上限明显。</dd>
+                <dt>与 TiDAR 关系</dt><dd>TiDAR 试图把 drafter 提升为同模型高容量 diffusion 分支。</dd>
+              </dl>
+            </article>
+            <article class="method-card">
+              <h3>EAGLE-3 / speculative head</h3>
+              <p class="method-position">一句话定位：在 AR 模型旁接更强 draft head，改善 classic speculative 的 draft 质量。</p>
+              <div class="method-visual"><span class="axis-chip">shared extension</span><span class="axis-chip muted">mid capacity</span><span class="axis-chip muted">comparator</span></div>
+              <dl>
+                <dt>核心机制</dt><dd>通过额外层或 head 生成候选 token，再走 AR 验证路径。</dd>
+                <dt>代表证据</dt><dd>Figure 4 把 EAGLE-3 8B instruct 点与 TiDAR 8B 放在 throughput-quality 图中比较。<sup id="cite-ref-f4-1"><a href="#ref-f4">5</a></sup></dd>
+                <dt>适用边界</dt><dd>论文脚注说明 8B 对比受可用 EAGLE-3 权重影响，不能当成所有 base model 的严格同权重结论。</dd>
+                <dt>与 TiDAR 关系</dt><dd>它是最重要的 speculative comparator，但 apples-to-apples 程度需要复现时重新设计。</dd>
+              </dl>
+            </article>
+            <article class="method-card">
+              <h3>MTP / multi-token prediction</h3>
+              <p class="method-position">一句话定位：让 AR-adjacent 模型一次预测多个未来 token。</p>
+              <div class="method-visual"><span class="axis-chip">multi-token</span><span class="axis-chip muted">AR-adjacent</span><span class="axis-chip muted">mid capacity</span></div>
+              <dl>
+                <dt>核心机制</dt><dd>通过多 token head 或额外结构扩展 next-token prediction。</dd>
+                <dt>代表证据</dt><dd>Table 1 把 DeepSeek-V3 / Apple MTP 标成 shared with base 与 parallel-to-verification，但 drafting capacity 仍为 mid。</dd>
+                <dt>适用边界</dt><dd>工程上更靠近现有 AR serving；但不是 diffusion-style block pre-drafting。</dd>
+                <dt>与 TiDAR 关系</dt><dd>是 systems 近邻；TiDAR 的论点是 diffusion 分支提供更强草稿容量。</dd>
+              </dl>
+            </article>
+            <article class="method-card">
+              <h3>Block Diffusion / Dream / LLaDA</h3>
+              <p class="method-position">一句话定位：用 masked diffusion 并行生成多个 token，但质量与并行度存在张力。</p>
+              <div class="method-visual"><span class="axis-chip">parallel draft</span><span class="axis-chip muted">quality tradeoff</span><span class="axis-chip muted">MC likelihood</span></div>
+              <dl>
+                <dt>核心机制</dt><dd>并行预测 masked positions；质量最好时常需要更保守的 decoding。</dd>
+                <dt>代表证据</dt><dd>Table 2/3 与 Figure 4 同时比较 Block Diff、Dream、LLaDA 和 TiDAR。</dd>
+                <dt>适用边界</dt><dd>并行潜力强，但如果为质量退回一 token per forward，系统收益会被削弱。</dd>
+                <dt>与 TiDAR 关系</dt><dd>TiDAR 借 diffusion 做草稿，但用 AR sampling 保护最终输出质量。</dd>
+              </dl>
+            </article>
+          </div>
+          <div class="table-wrapper">
+            <table class="comparison-matrix">
+              <thead><tr><th>路线</th><th>优化轴</th><th>draft capacity</th><th>验证关系</th><th>对本 deck 的含义</th></tr></thead>
+              <tbody>
+                <tr><td>Classic speculative</td><td>独立弱 drafter</td><td>Low</td><td>串行</td><td>作为熟悉参照，解释 TiDAR 为什么强调 shared high-capacity。</td></tr>
+                <tr><td>EAGLE-3</td><td>speculative head</td><td>Mid</td><td>非完全并行</td><td>重要 comparator，但需注意权重和 model pairing。</td></tr>
+                <tr><td>MTP</td><td>多 token head</td><td>Mid</td><td>可并行</td><td>更接近现有 AR serving 的相邻路线。</td></tr>
+                <tr><td>Diffusion LLM</td><td>masked parallel decoding</td><td>High</td><td>不靠 AR guard</td><td>解释 TiDAR 为什么不能只看 diffusion speed。</td></tr>
+                <tr class="highlight-row"><td>TiDAR</td><td>diffusion draft + AR sample</td><td>High</td><td>并行</td><td>值得复现的差异化点：同一次 forward 验旧草稿、预写新草稿。</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="source-figure">
+            <img src="assets/table_1_spec_frameworks.png" alt="Table 1 comparison among speculative frameworks">
+            <figcaption>原始表格：Table 1 是 deck 中比较路线差异的首选证据，因为它直接把 TiDAR 放在 speculative framework 维度上解释。<sup id="cite-ref-t1-2"><a href="#ref-t1">6</a></sup></figcaption>
+          </figure>
+        </section>
+
+        <section id="mechanism">
+          <h2>结构化 mask 让同一次 forward 同时验旧草稿、预写新草稿</h2>
+          <p class="state-line">TiDAR 的架构可以压缩成一句：prefix 复用 exact KV cache；上一步 drafted tokens 用 AR rejection sampling 验证；下一步 mask tokens 用 diffusion 预生成 proposals。</p>
+          <p>Figure 2 的关键信息是三个区段：Prefix Tokens、Tokens Drafted From Last Step、Tokens Pre-Drafted For Next Step。AR 部分对上一步草稿做 verifier output；diffusion 部分为下一步生成多个 proposal；被接受的 prefix 决定采用哪一路 pre-draft。Figure 3 则把这个想法落到 training mask 和 decoding mask，说明 clean tokens 走 causal attention，mask tokens 在 block 内 bidirectional attention，并通过 reordering / slicing 复用预初始化 mask。<sup id="cite-ref-f2-1"><a href="#ref-f2">3</a></sup></p>
+          <div class="rebuild-block">
+            <figure class="source-figure">
+              <img src="assets/figure_2_architecture.png" alt="Figure 2 TiDAR architecture">
+              <figcaption>原图：Figure 2 展示 single forward 内 AR sampling 与 diffusion pre-drafting 的并置关系。<sup id="cite-ref-f2-2"><a href="#ref-f2">3</a></sup></figcaption>
+            </figure>
+            <figure class="source-figure">
+              <img src="assets/figure_3_attention_masks.png" alt="Figure 3 TiDAR attention masks">
+              <figcaption>原图：Figure 3 展示 training mask 与 decoding mask；这张图应服务于 architecture 可信性，而不是作为视觉装饰。<sup id="cite-ref-f3-1"><a href="#ref-f3">4</a></sup></figcaption>
+            </figure>
+          </div>
+          <div class="callout">机制判断：TiDAR 最值得复现的不是“diffusion 输出更多 token”这件事本身，而是它能否在本地实现中维持 exact KV cache、mask slicing/reordering、rejection sampling 和 pre-draft selection 的组合成本。</div>
+        </section>
+
+        <section id="benchmarks">
+          <h2>质量和吞吐信号强，但平台收益仍要重新证明</h2>
+          <p class="state-line">Table 2/3 说明 TiDAR 在 generative 与 likelihood 任务上不是只追吞吐；Table 4 说明普通 confidence decoding 提高 T/NFE 后质量会明显掉，而 TiDAR draft rows 保持更高任务分数。</p>
+          <p>最适合 PPT 使用的证据组合是：Figure 4 给 throughput-quality frontier 的直觉，Table 2 给 generative task 数字，Table 3 给 likelihood task 兼容性，Table 4 给 decoding strategy ablation。这样可以避免只引用 4.71x / 5.91x 两个 headline speedup，而没有说明任务范围和比较对象。<sup id="cite-ref-f4-2"><a href="#ref-f4">5</a></sup></p>
+          <div class="rebuild-block">
+            <div class="mini-bars">
+              <h3>Table 4 重构摘录：同等追求更多 T/NFE 时，TiDAR 质量保留更好</h3>
+              <div class="bar-row"><span>Confidence &gt; 0.8</span><span class="number">3.06</span><span class="bar-track"><span class="bar-fill" style="width:78%"></span></span><span>Avg 38.59%</span></div>
+              <div class="bar-row"><span>TiDAR 4 drafts</span><span class="number">3.47</span><span class="bar-track"><span class="bar-fill" style="width:98%"></span></span><span>Avg 48.42%</span></div>
+              <div class="bar-row"><span>TiDAR 8 drafts</span><span class="number">5.49</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span>Avg 48.94%</span></div>
+              <div class="bar-row"><span>TiDAR 16 drafts</span><span class="number">6.97</span><span class="bar-track"><span class="bar-fill" style="width:99%"></span></span><span>Avg 48.77%</span></div>
+              <figcaption>重构图：用 Table 4 的 HumanEval Avg、MBPP Avg、GSM8k 简单平均做横向直觉，展示 TiDAR rows 在更高 T/NFE 下仍保持约 48%-49% 的三任务平均。<sup id="cite-ref-t4-1"><a href="#ref-t4">9</a></sup></figcaption>
+            </div>
+            <figure class="source-figure">
+              <img src="assets/table_4_decoding_strategies.png" alt="Table 4 decoding strategies">
+              <figcaption>原始证据：Table 4 给出 confidence decoding、left-to-right AR 与 TiDAR drafts 的原始任务分数。<sup id="cite-ref-t4-2"><a href="#ref-t4">9</a></sup></figcaption>
+            </figure>
+          </div>
+          <div class="evidence-pair">
+            <figure class="evidence-main">
+              <img src="assets/figure_4_efficiency_quality.png" alt="Figure 4 efficiency quality benchmarking">
+              <figcaption>原图：Figure 4 同时展示 1.5B 与 8B 的任务分数和 relative AR throughput speedup；它适合支撑“值得复现 frontier”，不适合单独支撑“可上线”。<sup id="cite-ref-f4-3"><a href="#ref-f4">5</a></sup></figcaption>
+            </figure>
+            <aside class="evidence-aside">
+              <p class="aside-kicker">实验边界</p>
+              <p><strong>质量范围：</strong>Table 2 覆盖 HumanEval、HumanEval+、MBPP、MBPP+、GSM8k、Minerva Math；TiDAR 8B Trust Diff 平均 65.31%，低于 Qwen3 8B 的 68.09%，高于 Dream 7B 的 58.74%。</p>
+              <p><strong>likelihood 范围：</strong>Table 3 覆盖 MMLU、ARC、Hellaswag、PIQA、Winogrande，TiDAR 8B 平均 75.40%，高于 Qwen3 8B 的 74.25%。<sup id="cite-ref-t3-1"><a href="#ref-t3">8</a></sup></p>
+              <p><strong>serving 范围：</strong>论文明确说 efficiency benchmarking 聚焦 batch size=1；长上下文需要探索专门 context parallelism；custom attention kernels 与 scheduling algorithms 是后续优化空间。</p>
+            </aside>
+          </div>
+          <figure class="source-figure">
+            <img src="assets/table_2_generative_eval.png" alt="Table 2 generative evaluation results">
+            <figcaption>原始表格：Table 2 是质量范围的主证据，适合在 PPT 中和 Figure 4 配对使用，避免只讲 throughput。<sup id="cite-ref-t2-2"><a href="#ref-t2">7</a></sup></figcaption>
+          </figure>
+        </section>
+
+        <section id="next">
+          <h2>下一步应复测三个门槛：质量、吞吐、serving 假设</h2>
+          <p class="state-line">如果后续进入 6-7 页 deck，本阶段结论应是“tracking / controlled replication”，并把上线判断推迟到本地 backend 复测之后。</p>
+          <div class="table-wrapper">
+            <table class="decision-register">
+              <thead><tr><th>复测门槛</th><th>论文当前信号</th><th>本地必须补的证明</th><th>建议状态</th></tr></thead>
+              <tbody>
+                <tr><td>质量不退化</td><td>Table 2/3 显示 TiDAR 接近或部分超过同规模 AR / diffusion baseline。</td><td>用内部 coding/math/chat eval、采样策略和拒绝采样实现复测质量。</td><td class="ok">进入复现</td></tr>
+                <tr><td>吞吐可复现</td><td>Figure 4 与结论报告 4.71x / 5.91x relative AR throughput speedup。</td><td>在本地 kernels、continuous batching、真实 prompt length 分布下复测 tok/s、TTFT、TPOT、tail latency。</td><td class="ok">进入复现</td></tr>
+                <tr><td>平台假设成立</td><td>Figure 1 支撑 free token slots；限制部分说明 batch size、long context、custom kernels 仍需探索。</td><td>验证 free slots 是否存在于本地 GPU、模型尺寸、batching 策略、KV cache 管理和 scheduler 组合中。</td><td class="warn">不能外推</td></tr>
+                <tr><td>集成复杂度可控</td><td>Figure 2/3 显示架构需要 mask slicing/reordering、exact KV cache、proposal selection。</td><td>估算实现复杂度、debug surface、kernel dependency、与现有 serving stack 的改造成本。</td><td class="warn">需专项评估</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">建议的下一步 deck 方向：先确认 SCQA 为“是否值得跟踪/复现，而不是是否上线”，再用 architecture、benchmark scope、serving assumptions 三章构成证据链。</div>
+        </section>
+
+        <section id="refs" class="refs">
+          <h2>参考资料与定位</h2>
+          <ol>
+            <li id="ref-s1">[S1] TiDAR: Think in Diffusion, Talk in Autoregression, arXiv:2511.08923v1, abstract / introduction / limitations / conclusion; local XML: forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/final/tidar.xml. <a href="#cite-ref-s1-1">↩</a></li>
+            <li id="ref-f1">[F1] Figure 1: Latency Scaling over Token Slots, Qwen3-32B on NVIDIA H100, batch size 1, Flash Attention 2; local image: review/assets/figure_1_free_token_slots.png. <a href="#cite-ref-f1-1">↩</a></li>
+            <li id="ref-f2">[F2] Figure 2: TiDAR Architecture, single forward sampling and pre-drafting mechanism; local image: review/assets/figure_2_architecture.png. <a href="#cite-ref-f2-1">↩</a></li>
+            <li id="ref-f3">[F3] Figure 3: TiDAR Attention Masks, training and decoding mask design; local image: review/assets/figure_3_attention_masks.png. <a href="#cite-ref-f3-1">↩</a></li>
+            <li id="ref-f4">[F4] Figure 4: Efficiency-Quality Benchmarking, AR / EAGLE-3 / Block Diffusion / TiDAR comparisons; local image: review/assets/figure_4_efficiency_quality.png. <a href="#cite-ref-f4-1">↩</a></li>
+            <li id="ref-t1">[T1] Table 1: Comparison among Speculative Frameworks; local image: review/assets/table_1_spec_frameworks.png. <a href="#cite-ref-t1-1">↩</a></li>
+            <li id="ref-t2">[T2] Table 2: Generative Evaluation Results, HumanEval / MBPP / GSM8k / Minerva Math; local image: review/assets/table_2_generative_eval.png. <a href="#cite-ref-t2-1">↩</a></li>
+            <li id="ref-t3">[T3] Table 3: Likelihood Evaluation Results, MMLU / ARC / Hellaswag / PIQA / Winogrande; local image: review/assets/table_3_likelihood_eval.png. <a href="#cite-ref-t3-1">↩</a></li>
+            <li id="ref-t4">[T4] Table 4: Comparing Different Decoding Strategies, confidence decoding / AR / TiDAR draft ablation; local image: review/assets/table_4_decoding_strategies.png. <a href="#cite-ref-t4-1">↩</a></li>
+            <li id="ref-t5">[T5] Table 5: Quality-efficiency Improvement from Full Masking; local image: review/assets/table_5_full_masking.png. <a href="#cite-ref-s1-1">↩</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

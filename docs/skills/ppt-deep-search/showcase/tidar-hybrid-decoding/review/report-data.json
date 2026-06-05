@@ -1,0 +1,345 @@
+{
+  "meta": {
+    "title": "TiDAR 值得跟踪复现，但不能直接当作 serving 收益结论",
+    "question": "hybrid diffusion-autoregressive decoding 是否值得 model efficiency / serving 团队继续跟踪或复现？",
+    "audience": "模型架构 / inference platform leaders",
+    "generated_at": "2026-06-03T13:25:00+08:00",
+    "source_package": "forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/"
+  },
+  "citations": [
+    {
+      "id": "s1",
+      "marker": "S1",
+      "kind": "paper",
+      "title": "TiDAR: Think in Diffusion, Talk in Autoregression",
+      "locator": "paper abstract, introduction, conclusions, arXiv:2511.08923v1",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/final/tidar.xml"
+    },
+    {
+      "id": "f1",
+      "marker": "F1",
+      "kind": "figure",
+      "title": "Figure 1: Latency Scaling over Token Slots",
+      "locator": "paper Figure 1, page 3",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/figure_1_free_token_slots.png"
+    },
+    {
+      "id": "f2",
+      "marker": "F2",
+      "kind": "figure",
+      "title": "Figure 2: TiDAR Architecture",
+      "locator": "paper Figure 2, page 5",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/figure_2_architecture.png"
+    },
+    {
+      "id": "f3",
+      "marker": "F3",
+      "kind": "figure",
+      "title": "Figure 3: TiDAR Attention Masks",
+      "locator": "paper Figure 3, page 5",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/figure_3_attention_masks.png"
+    },
+    {
+      "id": "f4",
+      "marker": "F4",
+      "kind": "figure",
+      "title": "Figure 4: Efficiency-Quality Benchmarking",
+      "locator": "paper Figure 4, page 7",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/figure_4_efficiency_quality.png"
+    },
+    {
+      "id": "t1",
+      "marker": "T1",
+      "kind": "table",
+      "title": "Table 1: Comparison among Speculative Frameworks",
+      "locator": "paper Table 1, page 3",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/table_1_spec_frameworks.png"
+    },
+    {
+      "id": "t2",
+      "marker": "T2",
+      "kind": "table",
+      "title": "Table 2: Generative Evaluation Results",
+      "locator": "paper Table 2, page 9",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/table_2_generative_eval.png"
+    },
+    {
+      "id": "t3",
+      "marker": "T3",
+      "kind": "table",
+      "title": "Table 3: Likelihood Evaluation Results",
+      "locator": "paper Table 3, page 10",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/table_3_likelihood_eval.png"
+    },
+    {
+      "id": "t4",
+      "marker": "T4",
+      "kind": "table",
+      "title": "Table 4: Comparing Different Decoding Strategies",
+      "locator": "paper Table 4, page 11",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/table_4_decoding_strategies.png"
+    },
+    {
+      "id": "t5",
+      "marker": "T5",
+      "kind": "table",
+      "title": "Table 5: Quality-efficiency Improvement from Full Masking",
+      "locator": "paper Table 5, page 12",
+      "source_type": "primary",
+      "url": null,
+      "local_path": "review/assets/table_5_full_masking.png"
+    }
+  ],
+  "assets": [
+    {
+      "id": "figure_1_free_token_slots",
+      "role": "original_evidence",
+      "path": "review/assets/figure_1_free_token_slots.png",
+      "source_citation": "f1",
+      "caption_takeaway": "H100 batch size 1 profiling shows a token-slot region where latency is almost flat before compute-bound growth."
+    },
+    {
+      "id": "figure_2_architecture",
+      "role": "original_evidence",
+      "path": "review/assets/figure_2_architecture.png",
+      "source_citation": "f2",
+      "caption_takeaway": "Architecture figure shows one forward handling prior drafts and next-step pre-drafts."
+    },
+    {
+      "id": "figure_4_efficiency_quality",
+      "role": "original_evidence",
+      "path": "review/assets/figure_4_efficiency_quality.png",
+      "source_citation": "f4",
+      "caption_takeaway": "Efficiency-quality plots compare TiDAR with AR, EAGLE-3 speculative decoding, and Block Diffusion."
+    }
+  ],
+  "kpis": [
+    {
+      "id": "speed-1p5b",
+      "label": "TiDAR 1.5B",
+      "value": "4.71x",
+      "status": "positive",
+      "context": "relative AR decoding throughput speedup; avg T/NFE 7.45",
+      "citation": "s1"
+    },
+    {
+      "id": "speed-8b",
+      "label": "TiDAR 8B",
+      "value": "5.91x",
+      "status": "positive",
+      "context": "relative AR decoding throughput speedup; avg T/NFE 8.25",
+      "citation": "s1"
+    },
+    {
+      "id": "benchmark-scope",
+      "label": "benchmark scope",
+      "value": "batch=1",
+      "status": "warning",
+      "context": "single H100, downstream generative prompts, exact KV cache support",
+      "citation": "s1"
+    },
+    {
+      "id": "quality-signal",
+      "label": "quality evidence",
+      "value": "65.31%",
+      "status": "positive",
+      "context": "TiDAR Trust Diff 8B generative average vs Qwen3 8B 68.09%",
+      "citation": "t2"
+    }
+  ],
+  "sections": [
+    {
+      "id": "decision",
+      "nav_label": "结论先行",
+      "heading_claim": "TiDAR 值得受控复现，但不应被包装成上线收益",
+      "state_line": "论文最强信号是单模型架构下同时给出 4.71x/5.91x throughput speedup 与接近 AR 的质量，但 serving 结论受 batch=1、kernel、scheduler 和长上下文训练成本限制。",
+      "blocks": [
+        {
+          "type": "status_strip",
+          "items": ["speed-1p5b", "speed-8b", "benchmark-scope", "quality-signal"]
+        }
+      ]
+    },
+    {
+      "id": "problem",
+      "nav_label": "问题为什么重要",
+      "heading_claim": "真正的问题是把空闲计算变成可信 token，而不是再讲一次 decoding 背景",
+      "state_line": "TiDAR 的服务价值前提来自 free token slots：一次 forward 可以携带更多 token 槽位而不立刻增加同等延迟。",
+      "blocks": [
+        {
+          "type": "chart_with_aside",
+          "chart_id": "free-token-slot-assumption",
+          "caption_takeaway": "Free-token-slot profiling is the serving assumption, not the serving result.",
+          "source_citations": ["f1"]
+        }
+      ]
+    },
+    {
+      "id": "comparison",
+      "nav_label": "已有做法与缺口",
+      "heading_claim": "它补的是 draft capacity 与并行验证的缺口",
+      "state_line": "Table 1 把 TiDAR 与 speculative framework 放在同一张表：它的差异在 shared high-capacity drafter 与 parallel-to-verification，而不是只换一个 draft head。",
+      "blocks": [
+        {
+          "type": "method_cards",
+          "method_ids": ["classic-spec", "eagle3", "mtp", "diffusion", "tidar"]
+        },
+        {
+          "type": "comparison_matrix"
+        }
+      ]
+    },
+    {
+      "id": "mechanism",
+      "nav_label": "关键机制",
+      "heading_claim": "结构化 mask 让同一次 forward 同时验旧草稿、预写新草稿",
+      "state_line": "TiDAR 把 prefix、上一步 draft、下一步 pre-draft 放进同一次 forward，用 AR sampling 保质量，用 diffusion pre-drafting 占用空闲 token slots。",
+      "blocks": [
+        {
+          "type": "original_evidence_pair",
+          "source_citations": ["f2", "f3"]
+        }
+      ]
+    },
+    {
+      "id": "benchmarks",
+      "nav_label": "实验信号与边界",
+      "heading_claim": "质量与吞吐信号足够强，外推到平台收益仍然过早",
+      "state_line": "Table 2/3/4 支持“值得复现”，Figure 4 支持“优先复测 efficiency-quality frontier”，但 production scheduler 与高 batch 情况仍未被证明。",
+      "blocks": [
+        {
+          "type": "data_table_with_aside",
+          "source_citations": ["t2", "t3", "t4", "f4"]
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "nav_label": "下一步验证",
+      "heading_claim": "下一步应复测三个门槛：质量、吞吐、serving 假设",
+      "state_line": "deck 后续应把 TiDAR 定位为 tracking/replication candidate，而不是 deployment recommendation。",
+      "blocks": [
+        {
+          "type": "decision_register"
+        }
+      ]
+    }
+  ],
+  "charts": [
+    {
+      "id": "free-token-slot-assumption",
+      "question": "TiDAR 的 serving 假设来自哪里？",
+      "chart_type": "source_figure_with_interpretation",
+      "source_citations": ["f1"],
+      "units": ["ms", "token slots", "past KV length"],
+      "conditions": "Qwen3-32B decoding, NVIDIA H100, batch size 1, Flash Attention 2",
+      "data": [
+        {
+          "region": "free token slots",
+          "interpretation": "additional token slots carry little latency increase before compute-bound transition"
+        },
+        {
+          "region": "cheap token slots",
+          "interpretation": "latency begins rising but remains below fully compute-bound region"
+        }
+      ],
+      "caption_takeaway": "A flat-latency region makes parallel drafting plausible, but production schedulers still need local validation.",
+      "known_limits": "Source figure is profiling, not an end-to-end serving workload."
+    },
+    {
+      "id": "decoding-strategy-ablation",
+      "question": "TiDAR 的并行 draft 是否优于普通 confidence decoding？",
+      "chart_type": "table",
+      "source_citations": ["t4"],
+      "units": ["Avg T/NFE", "task score %"],
+      "conditions": "full-mask models; HumanEval Avg, MBPP Avg, GSM8k",
+      "data": [
+        {"strategy": "Confidence > 0.8", "avg_t_nfe": 3.06, "humaneval_avg": "28.96%", "mbpp_avg": "39.28%", "gsm8k": "47.54%"},
+        {"strategy": "TiDAR (4 drafts)", "avg_t_nfe": 3.47, "humaneval_avg": "38.42%", "mbpp_avg": "50.96%", "gsm8k": "55.87%"},
+        {"strategy": "TiDAR (8 drafts)", "avg_t_nfe": 5.49, "humaneval_avg": "39.94%", "mbpp_avg": "52.13%", "gsm8k": "54.74%"},
+        {"strategy": "TiDAR (16 drafts)", "avg_t_nfe": 6.97, "humaneval_avg": "41.16%", "mbpp_avg": "51.26%", "gsm8k": "53.90%"}
+      ],
+      "caption_takeaway": "At similar or higher T/NFE, TiDAR rows retain substantially stronger task scores than confidence decoding rows.",
+      "known_limits": "Ablation is not a full serving workload comparison."
+    }
+  ],
+  "comparison_methods": [
+    {
+      "id": "classic-spec",
+      "name": "Classic speculative decoding",
+      "positioning": "separate draft model proposes tokens; base model verifies sequentially.",
+      "mechanism": "Use a weaker drafter to generate multiple candidate tokens, then let the stronger AR model accept or reject.",
+      "representative_evidence": "Table 1 marks separate draft model, low drafting capacity, and no parallel-to-verification behavior.",
+      "boundary": "Attractive when compatible drafter exists; weak drafter can limit acceptance and speedup.",
+      "relationship": "TiDAR argues for a stronger shared drafter and parallel pre-drafting instead of a weak external drafter."
+    },
+    {
+      "id": "eagle3",
+      "name": "EAGLE-3 / speculative head line",
+      "positioning": "stronger draft head attached to AR model family.",
+      "mechanism": "Use extra layers/heads to draft with mid capacity, then verify through AR path.",
+      "representative_evidence": "Table 1 places EAGLE-3 with shared base modifications but not parallel decoding parallel to verification; Figure 4 includes EAGLE-3 8B instruct points.",
+      "boundary": "Weight availability and model pairing matter; paper notes use of Qwen3-8B instruct EAGLE-3 weights.",
+      "relationship": "Primary speculative decoding comparator, but not a perfect apples-to-apples base-model comparison."
+    },
+    {
+      "id": "mtp",
+      "name": "MTP / multi-token prediction heads",
+      "positioning": "shared model extension that predicts multiple future tokens.",
+      "mechanism": "Add prediction heads/layers so a base model can draft more than one position.",
+      "representative_evidence": "Table 1 lists DeepSeek-V3 and Apple MTP as shared with base, mid drafting capacity, and parallel-to-verification.",
+      "boundary": "Still framed as AR-adjacent multi-token prediction rather than diffusion-style block pre-drafting.",
+      "relationship": "Closest systems neighbor in the table; TiDAR claims higher drafting capacity by using diffusion pre-drafts."
+    },
+    {
+      "id": "diffusion",
+      "name": "Block Diffusion / Dream / LLaDA",
+      "positioning": "diffusion language model line that can decode in parallel but faces quality-parallelism tension.",
+      "mechanism": "Predict masked token positions in parallel; likelihood evaluation often uses Monte Carlo sampling.",
+      "representative_evidence": "Table 2/3 compare Block Diff, Dream, and LLaDA; Figure 4 contrasts Block Diff points with TiDAR.",
+      "boundary": "Quality is often best when decoding one token per forward, weakening practical parallelism.",
+      "relationship": "TiDAR borrows diffusion's drafting parallelism but uses AR sampling to protect output quality."
+    },
+    {
+      "id": "tidar",
+      "name": "TiDAR",
+      "positioning": "single-model sequence-level hybrid: think in diffusion, talk in autoregression.",
+      "mechanism": "One forward samples previous drafts through AR rejection sampling while pre-drafting next proposals through diffusion with structured masks.",
+      "representative_evidence": "Abstract and conclusion report 4.71x/5.91x throughput speedup; Table 2/3/4 and Figure 4 provide quality and efficiency comparisons.",
+      "boundary": "Current efficiency benchmark focuses on batch size 1; long-context efficient training and custom serving kernels are future work.",
+      "relationship": "Current object; strong enough for controlled replication, not yet enough for deployment recommendation."
+    }
+  ],
+  "decisions": [
+    {
+      "label": "跟踪与复现",
+      "status": "recommended",
+      "reason": "Architecture and benchmark signal are differentiated enough versus speculative decoding and diffusion baselines.",
+      "citations": ["s1", "f4", "t2", "t4"]
+    },
+    {
+      "label": "生产上线判断",
+      "status": "not_ready",
+      "reason": "Batch size, long context, custom kernels, and scheduling assumptions remain unvalidated in local serving stack.",
+      "citations": ["s1", "f1"]
+    }
+  ]
+}
