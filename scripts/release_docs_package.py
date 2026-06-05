@@ -19,6 +19,7 @@ import posixpath
 import subprocess
 import sys
 import tarfile
+import tempfile
 from dataclasses import dataclass
 
 
