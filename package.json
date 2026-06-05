@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "docs:dev": "vitepress dev docs --host 127.0.0.1",
+    "docs:dev": "python scripts/sync_skill_docs.py && vitepress dev docs --host 127.0.0.1",
     "docs:build": "python scripts/sync_skill_docs.py && vitepress build docs",
     "docs:preview": "vitepress preview docs --host 127.0.0.1"
   },

@@ -43,11 +43,11 @@
 - 优先使用该 skill 的脚本读取增量评论；只有缺少 checkpoint 或任务确实需要重建上下文时，才读取完整 issue 历史
 - 只有在已成功处理返回评论后，才使用 `--update-state` 更新本地 checkpoint
 
-### `skills/architecture_4-1`
+### [beta] `skills/architecture_4-1`
 
 - 加载路径：`skills/architecture_4-1/SKILL.md`
 - skill 名称：`generate-3plus1-diagrams`
-- 主要用途：分析目标仓库并生成 3+1 / 4+1 架构视图的可编辑 `.drawio` 图，以及对应的导出预览和校验结果
+- 主要用途：[beta] 分析目标仓库并生成 3+1 / 4+1 架构视图的可编辑 `.drawio` 图，以及对应的导出预览和校验结果
 
 当任务满足以下任一条件时，agent 应加载并使用这个 skill：
 
@@ -106,7 +106,7 @@
 - 先读取 `skills/ppt-deep-search/SKILL.md`
 - 所有临时笔记、基线、草稿、QA 输出和最终 handoff 文件必须写入 `.tmp/ppt-deep-search/<task-name>/`
 - 完成深度研究后，必须按该 skill 要求运行 `validate_ppt_content_brief.py` 校验 `ppt_content_brief.md`
-- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策
+- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策	
 
 ### `skills/grobid_pdf_skill`
 

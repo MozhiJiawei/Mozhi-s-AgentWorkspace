@@ -1,0 +1,43 @@
+.VPHero .main {
+  max-width: 760px;
+}
+
+.VPHero .name,
+.VPHero .text {
+  max-width: 760px;
+}
+
+.VPHero .text {
+  max-width: 760px;
+}
+
+@media (min-width: 960px) {
+  .VPHero .name {
+    font-size: 54px;
+    line-height: 1.08;
+  }
+
+  .VPHero .text {
+    font-size: 52px;
+    line-height: 1.14;
+    margin-top: 8px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .VPHero .name {
+    font-size: 56px;
+  }
+
+  .VPHero .text {
+    font-size: 54px;
+  }
+}
+
+.VPFeature {
+  min-height: 168px;
+}
+
+.VPFeature .details {
+  line-height: 1.8;
+}

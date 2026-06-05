@@ -21,7 +21,7 @@ def parse_gitmodules(gitmodules_path: Path) -> list[str]:
 
 def parse_registered_skills(agents_path: Path) -> list[str]:
     text = agents_path.read_text(encoding="utf-8")
-    return re.findall(r"^### `([^`]+)`$", text, flags=re.MULTILINE)
+    return re.findall(r"^### (?:\[[^\]]+\]\s+)?`([^`]+)`$", text, flags=re.MULTILINE)
 
 
 def main() -> int:

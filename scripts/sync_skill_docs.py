@@ -10,6 +10,25 @@ import re
 SKILL_DOCS_ROOT = Path("docs/skills")
 SUBREPO_MANIFEST = "docs.manifest.yml"
 GENERATED_ROOT = Path("docs/.vitepress/generated")
+BETA_SKILL_NAMES = {"generate-3plus1-diagrams"}
+SKILL_ORDER = {
+    "ppt-deep-search": 0,
+    "huawei-pptx-generator": 1,
+}
+
+
+def display_skill_title(skill: dict[str, object]) -> str:
+    title = str(skill["title"])
+    if title in BETA_SKILL_NAMES:
+        return f"[beta] {title}"
+    return title
+
+
+def skill_sort_key(skill: dict[str, object]) -> tuple[int, str]:
+    title = str(skill["title"])
+    if title in BETA_SKILL_NAMES:
+        return (99, title)
+    return (SKILL_ORDER.get(title, 50), title)
 
 
 def parse_gitmodule_skill_paths(root: Path) -> list[str]:
@@ -138,7 +157,7 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
 
     return {
         "slug": skill_slug,
-        "title": str(manifest.get("title", skill_slug)),
+        "title": str(manifest.get("name", skill_slug)),
         "description": str(manifest.get("description", "")),
         "items": sidebar_items,
     }
@@ -146,14 +165,14 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
 
 def write_skill_index(root: Path, skills: list[dict[str, object]]) -> None:
     lines = [
-        "# Skill 索引",
+        "# Skills",
         "",
         "以下内容由各 skill 子仓的 `docs.manifest.yml` 集成生成。",
         "",
     ]
 
-    for skill in sorted(skills, key=lambda item: item["slug"]):
-        lines.append(f"## [{skill['title']}](./{skill['slug']}/)")
+    for skill in sorted(skills, key=skill_sort_key):
+        lines.append(f"## [{display_skill_title(skill)}](./{skill['slug']}/)")
         if skill["description"]:
             lines.append("")
             lines.append(skill["description"])
@@ -166,14 +185,14 @@ def write_skill_sidebar(root: Path, skills: list[dict[str, object]]) -> None:
     GENERATED_ROOT_PATH = root / GENERATED_ROOT
     GENERATED_ROOT_PATH.mkdir(parents=True, exist_ok=True)
 
-    sidebar_items: list[dict[str, object]] = [{"text": "Skill 索引", "link": "/skills/"}]
-    for skill in sorted(skills, key=lambda item: str(item["slug"])):
+    sidebar_items: list[dict[str, object]] = [{"text": "Skills", "link": "/skills/"}]
+    for skill in sorted(skills, key=skill_sort_key):
         items = skill.get("items", [])
         if not isinstance(items, list):
             items = []
         sidebar_items.append(
             {
-                "text": str(skill["title"]),
+                "text": display_skill_title(skill),
                 "collapsed": True,
                 "items": items,
             }
