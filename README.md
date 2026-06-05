@@ -5,6 +5,8 @@
 </p>
 
 <p align="center">
+  <a href="http://docs.haohaoxiaoyu.top:8888/">文档站</a>
+  ·
   <a href="./docs/workspace/getting-started.md">快速开始</a>
   ·
   <a href="./docs/skills/">Skills</a>
