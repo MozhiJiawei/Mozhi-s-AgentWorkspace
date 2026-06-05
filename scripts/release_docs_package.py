@@ -209,7 +209,7 @@ def deploy_package(package: pathlib.Path, remote: str, deploy_path: str, remote_
     remote_package = f"{remote}:{posixpath.join(remote_tmp, package.name)}"
     run(["scp", str(package), remote_package], cwd=ROOT)
     script = remote_install_script(package.name, deploy_path, remote_tmp)
-    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".sh") as handle:
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n", delete=False, suffix=".sh") as handle:
         handle.write(script)
         script_path = pathlib.Path(handle.name)
     try:
