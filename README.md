@@ -12,10 +12,6 @@
   <a href="./docs/skills/">Skills</a>
   ·
   <a href="./docs/workspace/concepts.md">核心概念</a>
-  ·
-  <a href="./docs/operations/docs-server.md">文档服务器</a>
-  ·
-  <a href="./docs/reference/skill-repo-protocol.md">Skill 协议</a>
 </p>
 
 <p align="center">
