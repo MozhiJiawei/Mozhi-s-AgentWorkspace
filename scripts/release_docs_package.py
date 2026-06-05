@@ -194,8 +194,8 @@ mv "$SRC" "$DEPLOY_PATH"
 cd "$DEPLOY_PATH"
 docker compose -f compose.docs.yml restart docs
 docker compose -f compose.docs.yml ps
-curl -fsSI http://127.0.0.1:8888/ >/dev/null
-curl -fsSI http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm >/dev/null
+curl -fsS http://127.0.0.1:8888/ -o /dev/null
+curl -fsS http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm -o /dev/null
 echo "deployed package: $PACKAGE"
 """
 
