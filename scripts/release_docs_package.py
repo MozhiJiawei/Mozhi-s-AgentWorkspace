@@ -194,8 +194,17 @@ mv "$SRC" "$DEPLOY_PATH"
 cd "$DEPLOY_PATH"
 docker compose -f compose.docs.yml restart docs
 docker compose -f compose.docs.yml ps
-curl -fsS http://127.0.0.1:8888/ -o /dev/null
-curl -fsS http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm -o /dev/null
+for i in $(seq 1 30); do
+  if curl -fsS http://127.0.0.1:8888/ -o /dev/null && \
+     curl -fsS http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm -o /dev/null; then
+    break
+  fi
+  if [ "$i" -eq 30 ]; then
+    echo "docs service did not become ready in time" >&2
+    exit 1
+  fi
+  sleep 2
+done
 echo "deployed package: $PACKAGE"
 """
 
