@@ -41,6 +41,7 @@ export default {
         items: [
           { text: "运维索引", link: "/operations/" },
           { text: "文档服务器", link: "/operations/docs-server" },
+          { text: "文档发布", link: "/operations/release-docs" },
           { text: "Submodules", link: "/operations/submodules" },
           { text: "Pre-Commit Gates", link: "/operations/pre-commit-gates" },
           { text: "Docker 部署", link: "/deployment-docker" }

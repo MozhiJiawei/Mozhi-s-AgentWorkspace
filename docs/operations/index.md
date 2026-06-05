@@ -7,6 +7,7 @@
 | 任务 | 页面 |
 | --- | --- |
 | 运行或构建文档站 | [文档服务器](./docs-server) |
+| 发布文档站到远端 | [文档发布](./release-docs) |
 | 初始化或更新 skill submodules | [Submodules](./submodules) |
 | 运行仓库检查 | [Pre-Commit Gates](./pre-commit-gates) |
 | 使用 Docker 部署 | [Docker 部署](/deployment-docker) |
