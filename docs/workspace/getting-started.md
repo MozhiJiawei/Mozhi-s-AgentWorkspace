@@ -23,6 +23,7 @@ Codex 当前是本 workspace 的主要运行入口。
 2. 在 Codex App 中选择“使用现有文件夹”。
 3. 添加刚刚克隆的 `Mozhi-s-AgentWorkspace` 目录作为 workspace。
 4. 进入 workspace 后，让 Codex 先阅读仓库约定，再开始具体任务。
+5. 首次使用某个 skill 前，让 Agent 检查并解决该 skill 的依赖问题。
 
 Codex 会通过以下文件认识 workspace：
 
@@ -36,6 +37,23 @@ Codex 会通过以下文件认识 workspace：
 ```text
 请先阅读这个 workspace 的 README.md 和 AGENTS.md，告诉我当前有哪些 skills，以及它们分别适合什么场景。
 ```
+
+如果你准备使用某个 skill，再这样问：
+
+```text
+我要使用 ppt-deep-search，请先阅读它的依赖说明，运行依赖检查；如果缺依赖，请直接帮我处理到可用。
+```
+
+各 skill 的依赖说明入口：
+
+| Skill | 依赖说明 |
+| --- | --- |
+| `ppt-deep-search` | [依赖说明](/skills/ppt-deep-search/dependencies) |
+| `huawei-pptx-generator` | [依赖说明](/skills/hw-ppt-gen/dependencies) |
+| `grobid-docling-pdf` | [依赖说明](/skills/grobid_pdf_skill/dependencies) |
+| `gh-issue-comment-monitor` | [依赖说明](/skills/gh-issue-comment-monitor/dependencies) |
+| `send-qq-email` | [依赖说明](/skills/send-qq-email/dependencies) |
+| `[beta] generate-3plus1-diagrams` | [依赖说明](/skills/architecture_4-1/dependencies) |
 
 ### 1.2 OpenClaw
 

@@ -16,6 +16,10 @@
         "link": "/skills/ppt-deep-search/usage"
       },
       {
+        "text": "依赖说明",
+        "link": "/skills/ppt-deep-search/dependencies"
+      },
+      {
         "text": "架构概览",
         "link": "/skills/ppt-deep-search/architecture_design"
       }
@@ -32,6 +36,10 @@
       {
         "text": "使用方式",
         "link": "/skills/hw-ppt-gen/usage"
+      },
+      {
+        "text": "依赖说明",
+        "link": "/skills/hw-ppt-gen/dependencies"
       },
       {
         "text": "架构概览",
@@ -52,6 +60,10 @@
         "link": "/skills/gh-issue-comment-monitor/usage"
       },
       {
+        "text": "依赖说明",
+        "link": "/skills/gh-issue-comment-monitor/dependencies"
+      },
+      {
         "text": "架构概览",
         "link": "/skills/gh-issue-comment-monitor/"
       }
@@ -68,6 +80,10 @@
       {
         "text": "使用方式",
         "link": "/skills/grobid_pdf_skill/usage"
+      },
+      {
+        "text": "依赖说明",
+        "link": "/skills/grobid_pdf_skill/dependencies"
       },
       {
         "text": "架构概览",
@@ -88,6 +104,10 @@
         "link": "/skills/send-qq-email/usage"
       },
       {
+        "text": "依赖说明",
+        "link": "/skills/send-qq-email/dependencies"
+      },
+      {
         "text": "架构概览",
         "link": "/skills/send-qq-email/"
       }
@@ -104,6 +124,10 @@
       {
         "text": "使用方式",
         "link": "/skills/architecture_4-1/usage"
+      },
+      {
+        "text": "依赖说明",
+        "link": "/skills/architecture_4-1/dependencies"
       },
       {
         "text": "架构概览",

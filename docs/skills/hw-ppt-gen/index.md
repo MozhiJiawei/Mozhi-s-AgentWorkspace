@@ -12,4 +12,5 @@
 
 - [能力展示](./reference.md)
 - [使用方式](./usage.md)
+- [依赖说明](./dependencies.md)
 - [架构概览](./architecture_design.md)
