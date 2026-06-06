@@ -42,15 +42,25 @@ def run(
     cwd: pathlib.Path = ROOT,
     capture: bool = False,
     check: bool = True,
+    timeout: int | None = None,
 ) -> str:
-    result = subprocess.run(
-        args,
-        cwd=cwd,
-        check=False,
-        text=False,
-        stdout=subprocess.PIPE if capture else None,
-        stderr=subprocess.PIPE if capture else None,
-    )
+    try:
+        result = subprocess.run(
+            args,
+            cwd=cwd,
+            check=False,
+            text=False,
+            stdout=subprocess.PIPE if capture else None,
+            stderr=subprocess.PIPE if capture else None,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        command = " ".join(args)
+        message = f"Command timed out after {timeout}s: {command}"
+        if check:
+            raise SystemExit(message)
+        print(f"[warn] {message}", file=sys.stderr)
+        return ""
     if check and result.returncode != 0:
         if capture:
             sys.stderr.write(result.stderr.decode("utf-8", errors="replace"))
@@ -127,16 +137,25 @@ def collect_files() -> list[RepoFile]:
     return sorted(files, key=lambda item: item.arcname)
 
 
-def create_tag(tag: str, message: str, push_tag: bool) -> None:
+def create_tag(tag: str, message: str) -> None:
     existing = run(["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}"], capture=True, check=False)
     if existing.strip():
         print(f"[tag] existing tag: {tag}")
     else:
         run(["git", "tag", "-a", tag, "-m", message])
         print(f"[tag] created: {tag}")
-    if push_tag:
-        run(["git", "push", "origin", tag])
+
+
+def push_tag(tag: str, timeout: int, required: bool) -> None:
+    try:
+        run(["git", "push", "origin", tag], timeout=timeout)
         print(f"[tag] pushed: {tag}")
+    except SystemExit as exc:
+        if required:
+            raise
+        print(f"[warn] tag push skipped or failed: {exc}", file=sys.stderr)
+        print("[warn] deployment package has already been created/deployed; retry tag push later with:", file=sys.stderr)
+        print(f"[warn]   git push origin {tag}", file=sys.stderr)
 
 
 def release_metadata(tag: str) -> str:
@@ -236,7 +255,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Create and optionally deploy a docs source release package.")
     parser.add_argument("--tag", default=default_tag(), help="release tag to create/use")
     parser.add_argument("--message", default=None, help="annotated tag message")
-    parser.add_argument("--push-tag", action="store_true", help="push the tag to origin")
+    parser.add_argument("--push-tag", action="store_true", help="push the tag to origin after package/deploy succeeds")
+    parser.add_argument("--push-timeout", type=int, default=30, help="seconds to wait for tag push before continuing")
+    parser.add_argument("--require-pushed-tag", action="store_true", help="fail if --push-tag cannot push the tag")
     parser.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"), help="local package output directory")
     parser.add_argument("--remote", help="remote SSH target, for example root@39.105.78.135")
     parser.add_argument("--deploy-path", default=DEFAULT_DEPLOY_PATH, help="remote docs source directory")
@@ -254,12 +275,15 @@ def main() -> None:
 
     message = args.message or f"Docs release {args.tag}"
     if not args.skip_tag:
-        push_tag = args.push_tag or (args.push_tag_only_if_deploy and bool(args.remote))
-        create_tag(args.tag, message, push_tag)
+        create_tag(args.tag, message)
 
     package = create_package(args.tag, pathlib.Path(args.output_dir).resolve())
     if args.remote:
         deploy_package(package, args.remote, args.deploy_path, args.remote_tmp)
+    if not args.skip_tag:
+        should_push_tag = args.push_tag or (args.push_tag_only_if_deploy and bool(args.remote))
+        if should_push_tag:
+            push_tag(args.tag, args.push_timeout, args.require_pushed_tag)
 
 
 if __name__ == "__main__":

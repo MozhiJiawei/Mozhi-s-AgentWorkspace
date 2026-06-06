@@ -16,12 +16,14 @@ python scripts\release_docs_package.py --remote root@39.105.78.135 --push-tag
 
 1. 检查主仓工作区是否干净。
 2. 创建一个 `docs-YYYYMMDD-HHMMSS` 格式的发布 tag。
-3. 推送 tag 到 GitHub。
-4. 用主仓和各 skill 子仓的 `git ls-files` 生成干净源码包。
-5. 上传源码包到远端 `/tmp/mozhi-agent-workspace-releases/`。
-6. 清理并替换远端 `/opt/mozhi-agent-workspace-docs/`。
-7. 重启 `mozhi-agent-workspace-docs` 文档容器。
-8. 检查首页和静态 HTML 展示页是否可访问。
+3. 用主仓和各 skill 子仓的 `git ls-files` 生成干净源码包。
+4. 上传源码包到远端 `/tmp/mozhi-agent-workspace-releases/`。
+5. 清理并替换远端 `/opt/mozhi-agent-workspace-docs/`。
+6. 重启 `mozhi-agent-workspace-docs` 文档容器。
+7. 检查首页和静态 HTML 展示页是否可访问。
+8. 部署成功后尝试推送 tag 到 GitHub。
+
+远端上线不依赖 GitHub。`--push-tag` 只是部署后的版本同步动作；如果 GitHub 连接卡住，脚本会在默认 30 秒后告警并继续结束，不会影响已经完成的远端发布。
 
 ## 指定 tag
 
@@ -32,6 +34,18 @@ python scripts\release_docs_package.py --tag docs-20260605-001 --remote root@39.
 ```
 
 tag 已存在时，脚本会复用已有 tag。
+
+如果希望 tag 推送失败时让脚本失败，可以加：
+
+```powershell
+python scripts\release_docs_package.py --remote root@39.105.78.135 --push-tag --require-pushed-tag
+```
+
+如果只是想改 tag 推送等待时间：
+
+```powershell
+python scripts\release_docs_package.py --remote root@39.105.78.135 --push-tag --push-timeout 10
+```
 
 ## 只打包不部署
 
