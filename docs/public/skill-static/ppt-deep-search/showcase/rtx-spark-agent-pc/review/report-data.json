@@ -113,7 +113,6 @@
         "capture_method": "Codex in-app Browser rendered page extraction",
         "local_path": "sources/evidence/nvidia-news-windows-pcs-agents/article.md",
         "metadata_path": "sources/evidence/nvidia-news-windows-pcs-agents/article.json",
-        "screenshot_path": "sources/evidence/nvidia-news-windows-pcs-agents/screenshots/full-page.png",
         "image_manifest_path": "sources/evidence/nvidia-news-windows-pcs-agents/images.json",
         "selected_container": "rendered press release body",
         "captured_at": "2026-06-04T20:14:59+08:00"
@@ -132,7 +131,6 @@
         "capture_method": "Codex in-app Browser rendered page extraction",
         "local_path": "sources/evidence/nvidia-rtx-spark-product/article.md",
         "metadata_path": "sources/evidence/nvidia-rtx-spark-product/article.json",
-        "screenshot_path": "sources/evidence/nvidia-rtx-spark-product/screenshots/full-page.png",
         "image_manifest_path": "sources/evidence/nvidia-rtx-spark-product/images.json",
         "selected_container": "rendered product page main content",
         "captured_at": "2026-06-04T20:14:59+08:00"
@@ -151,7 +149,6 @@
         "capture_method": "Codex in-app Browser rendered page extraction",
         "local_path": "sources/evidence/nvidia-blog-rtx-ai-garage/article.md",
         "metadata_path": "sources/evidence/nvidia-blog-rtx-ai-garage/article.json",
-        "screenshot_path": "sources/evidence/nvidia-blog-rtx-ai-garage/screenshots/full-page.png",
         "image_manifest_path": "sources/evidence/nvidia-blog-rtx-ai-garage/images.json",
         "selected_container": "rendered article body",
         "captured_at": "2026-06-04T20:14:59+08:00"
@@ -170,7 +167,6 @@
         "capture_method": "Codex in-app Browser rendered page extraction",
         "local_path": "sources/evidence/microsoft-build-live-blog-4927/article.md",
         "metadata_path": "sources/evidence/microsoft-build-live-blog-4927/article.json",
-        "screenshot_path": "sources/evidence/microsoft-build-live-blog-4927/screenshots/full-page.png",
         "image_manifest_path": "sources/evidence/microsoft-build-live-blog-4927/images.json",
         "selected_container": "rendered live blog body",
         "captured_at": "2026-06-04T20:14:59+08:00"
@@ -189,7 +185,6 @@
         "capture_method": "Codex in-app Browser rendered page extraction",
         "local_path": "sources/evidence/nvidia-gtc-taipei-keynote/article.md",
         "metadata_path": "sources/evidence/nvidia-gtc-taipei-keynote/article.json",
-        "screenshot_path": "sources/evidence/nvidia-gtc-taipei-keynote/screenshots/full-page.png",
         "image_manifest_path": "sources/evidence/nvidia-gtc-taipei-keynote/images.json",
         "selected_container": "rendered keynote page main content",
         "captured_at": "2026-06-04T20:14:59+08:00"
@@ -248,18 +243,6 @@
       "content_type": "image/png",
       "alt": "Surface RTX Spark Dev Box",
       "caption_takeaway": "Microsoft-side visual evidence connects RTX Spark to developer-local compute, not just consumer AI PC positioning."
-    },
-    {
-      "id": "nvidia_news_screenshot",
-      "role": "rendered_screenshot",
-      "path": "assets/nvidia-news-full-page.png",
-      "source_citation": "r1",
-      "page_url": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
-      "source_url": "https://nvidianews.nvidia.com/news/nvidia-microsoft-windows-pcs-agents-rtx-spark",
-      "capture_method": "Codex in-app Browser rendered page screenshot",
-      "download_status": "ok",
-      "content_type": "image/png",
-      "caption_takeaway": "Full rendered press-release screenshot preserves the official headline/date/context for audit."
     }
   ],
   "kpis": [

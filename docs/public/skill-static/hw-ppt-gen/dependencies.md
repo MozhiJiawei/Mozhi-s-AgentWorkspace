@@ -7,7 +7,7 @@
 你可以直接这样说：
 
 ```text
-我要使用 huawei-pptx-generator，请先检查 PPT 生成依赖；如果 Node 包、PPTX 导出工具或渲染环境缺失，请帮我处理到可用。
+我要使用 huawei-pptx-generator，请先检查 PPT 生成依赖；如果 Node、Node 包或 PPTX 渲染环境缺失，请帮我处理到可用。
 ```
 
 ## 检查命令
@@ -23,9 +23,8 @@ python skills/hw-ppt-gen/verify_dependencies.py
 | 类型 | 说明 |
 | --- | --- |
 | Node.js | `node`、`npm` 是否可用 |
-| Node 包 | `pptxgenjs`、`jszip`、`roughjs`、`sharp` 是否声明并能加载 |
+| Node 包 | `pptxgenjs`、`jszip`、`roughjs`、`sharp` 是否已安装并能加载 |
 | PPTX 渲染 | Windows 使用 Microsoft PowerPoint COM；macOS / Linux 依赖 LibreOffice 和 Poppler |
-| QA 工具链 | PPTX 生成、图片导出和布局检查所需的本地工具是否可用 |
 
 ## 判断标准
 

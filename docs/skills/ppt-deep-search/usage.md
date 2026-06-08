@@ -59,14 +59,14 @@
 - assumptions/open questions
 - approval log
 
-如果任务需要网页证据，先使用仓库内 `web-article-capture/SKILL.md` 生成本地 Browser evidence package，再让 HTML review 和 audit 引用本地文本、截图、图片和 manifest。不要用搜索摘要、raw HTML、`curl` 抓取结果或手写网页摘录替代这个证据包。
+如果任务需要网页证据，先使用仓库内 `web-article-capture/SKILL.md` 生成本地 Browser evidence package，再让 HTML review 和 audit 引用本地正文、原始正文图片和 manifest。不要用搜索摘要、raw HTML、`curl` 抓取结果、手写网页摘录或渲染截图替代这个证据包。
 
 ## 校验命令
 
 HTML review 写完、请求用户 approval 前，尽量运行：
 
 ```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images when-indexed
 python scripts/validate_html_review_data.py <workspace-root>/review/report-data.json
 python scripts/validate_html_review.py <workspace-root>/review/source_understanding_review.html
 ```
@@ -74,7 +74,7 @@ python scripts/validate_html_review.py <workspace-root>/review/source_understand
 如果是产品发布、技术公告、官方博客等多图网页，使用更严格的图片门：
 
 ```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images always --min-image-sources 1
 ```
 
 最终 brief 写完后，按页数口径运行：

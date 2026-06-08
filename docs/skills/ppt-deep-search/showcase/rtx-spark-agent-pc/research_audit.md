@@ -50,7 +50,7 @@ Evidence mirror paths used by report-data:
 QA status before approval:
 
 - `python web-article-capture/scripts/validate_capture_package.py <run-output>/sources/web --require-images always`: passed.
-- `python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1`: passed.
+- `python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-images always --min-image-sources 1`: passed.
 - `python scripts/validate_html_review_data.py <run-output>/review/report-data.json`: passed.
 - `python scripts/validate_html_review.py <run-output>/review/source_understanding_review.html`: passed.
 - Pollution keyword scan over `sources/web/*/source.md`: no hits after cleanup.

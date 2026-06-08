@@ -22,11 +22,9 @@ python skills/send-qq-email/verify_dependencies.py
 
 | 类型 | 说明 |
 | --- | --- |
-| Python 脚本 | 检查邮件发送脚本是否能正常编译 |
-| dry-run | 使用临时假配置生成 `.eml` 快照，确认本地流程可用 |
 | SMTP 凭据 | 真实发送前需要 QQ 邮箱 SMTP 授权码和收件人配置 |
-| 网络 | 真实发送时需要访问 `smtp.qq.com:587` |
+| SMTP 网络 | 真实发送时需要访问 `smtp.qq.com:587`；需要时可加 `--check-network` |
 
 ## 判断标准
 
-依赖检查通过表示本地生成和 dry-run 流程可用。真实发送前，还需要让 Agent 确认 SMTP 用户名、授权码、收件人和发送意图。
+依赖检查通过表示真实发送所需的外部配置已准备好。真实发送前，还需要让 Agent 确认 SMTP 用户名、授权码、收件人和发送意图。`.eml` dry-run 和脚本编译属于仓库内部健康问题，不作为用户依赖配置展示。

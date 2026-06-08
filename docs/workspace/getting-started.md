@@ -23,7 +23,6 @@ Codex 当前是本 workspace 的主要运行入口。
 2. 在 Codex App 中选择“使用现有文件夹”。
 3. 添加刚刚克隆的 `Mozhi-s-AgentWorkspace` 目录作为 workspace。
 4. 进入 workspace 后，让 Codex 先阅读仓库约定，再开始具体任务。
-5. 首次使用某个 skill 前，让 Agent 检查并解决该 skill 的依赖问题。
 
 Codex 会通过以下文件认识 workspace：
 
@@ -37,6 +36,14 @@ Codex 会通过以下文件认识 workspace：
 ```text
 请先阅读这个 workspace 的 README.md 和 AGENTS.md，告诉我当前有哪些 skills，以及它们分别适合什么场景。
 ```
+
+### 1.2 OpenClaw
+
+TBD
+
+## 2. 依赖配置
+
+首次使用某个 skill 前，不需要自己先研究怎么装依赖。更合理的方式是让 Agent 阅读对应 skill 的依赖说明，运行依赖检查，并根据检查结果把环境处理到可用。
 
 如果你准备使用某个 skill，再这样问：
 
@@ -55,17 +62,13 @@ Codex 会通过以下文件认识 workspace：
 | `send-qq-email` | [依赖说明](/skills/send-qq-email/dependencies) |
 | `[beta] generate-3plus1-diagrams` | [依赖说明](/skills/architecture_4-1/dependencies) |
 
-### 1.2 OpenClaw
-
-TBD
-
-## 2. 使用方式
+## 3. 使用方式
 
 使用时，不需要先决定“我要调哪个脚本”。你只需要描述想完成的任务，Agent 会根据场景判断要不要调用一个或多个 skills。
 
 下面的示例按“典型场景、典型 Prompt、预期调用的 Skills、预期产物”组织。
 
-### 2.1 PPT 生成（zero-shot）：PDF 论文
+### 3.1 PPT 生成（zero-shot）：PDF 论文
 
 典型场景：你有一篇论文 PDF，希望根据输入材料直接生成中文技术汇报 PPT，不先进入深度研究流程。
 
@@ -87,7 +90,7 @@ Prompt 示例：
 - PPT 导出图片
 - 视觉 QA 和规则检查结果
 
-### 2.2 PPT 生成（zero-shot）：新闻
+### 3.2 PPT 生成（zero-shot）：新闻
 
 典型场景：你有新闻、网页或文字材料，希望根据输入内容直接生成汇报 PPT，不先进入深度研究流程。
 
@@ -107,7 +110,7 @@ Prompt 示例：
 - 视觉 QA 和规则检查结果
 - 可直接复用的汇报材料
 
-### 2.3 PPT 深度研究
+### 3.3 PPT 深度研究
 
 典型场景：你不想马上生成 PPT，而是先把观点、证据边界和页面故事线想清楚。
 
@@ -127,7 +130,7 @@ Prompt 示例：
 - `research_audit.md`
 - 可交给 PPT 生成流程继续使用的内容 brief
 
-### 2.4 GitHub Issue 跟进
+### 3.4 GitHub Issue 跟进
 
 典型场景：你需要跟进某个 GitHub Issue，但不想每次重复读取完整讨论历史。
 
@@ -147,7 +150,7 @@ Prompt 示例：
 - checkpoint 状态
 - 对新回复的摘要或后续处理建议
 
-### 2.5 QQ 邮箱发邮件
+### 3.5 QQ 邮箱发邮件
 
 典型场景：你希望 Agent 帮你组织邮件内容，并通过 QQ 邮箱发送。
 
@@ -167,7 +170,7 @@ Prompt 示例：
 - SMTP 配置检查结果
 - 邮件主题、正文和收件人记录
 
-### 2.6 [beta] 架构分析与画图
+### 3.6 [beta] 架构分析与画图
 
 典型场景：你希望 Agent 阅读一个代码仓库，梳理模块边界、运行路径，并生成可编辑架构图。
 

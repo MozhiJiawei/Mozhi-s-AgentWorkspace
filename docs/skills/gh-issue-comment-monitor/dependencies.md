@@ -22,10 +22,9 @@ python skills/gh-issue-comment-monitor/verify_dependencies.py
 
 | 类型 | 说明 |
 | --- | --- |
-| Python 脚本 | 检查 issue 评论读取脚本是否能正常编译 |
-| GitHub 访问 | 检查是否存在 `GITHUB_TOKEN`、`GH_TOKEN`，或可用的 `gh` CLI |
-| 网络 | 真实读取 Issue 时需要访问 GitHub API |
+| GitHub 凭据 | 检查是否存在 `GITHUB_TOKEN`、`GH_TOKEN`，或已登录的 `gh` CLI |
+| GitHub API 网络 | 真实读取 Issue 时需要访问 `api.github.com`；需要时可加 `--check-network` |
 
 ## 判断标准
 
-`required` 全部为 `ok: true` 表示脚本本身可用。凭据属于真实访问前置条件；如果检查结果提示缺少 token 或 `gh` 登录状态，请先让 Agent 配好再执行监控任务。
+`required` 全部为 `ok: true` 表示 GitHub 访问前置条件可用。若缺少 token 或 `gh` 登录状态，请先让 Agent 配好再执行监控任务。脚本编译、checkpoint 文件读写属于仓库内部健康问题，不作为用户依赖配置展示。

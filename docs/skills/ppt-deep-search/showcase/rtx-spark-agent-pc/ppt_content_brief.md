@@ -53,8 +53,7 @@
 - 传播边界：中文媒体标题有解释价值，因为它抓住了这次发布的方向变化：PC 不只运行 app，也要让本地 agent 在主力设备上执行跨应用任务。但它不能成为架构评估的定义依据。下游页面应把“Agent 原生电脑 / 老黄重新发明 PC”写成传播层转述，并在同页给出官方英文 wording，避免读者误以为 NVIDIA 或 Microsoft 正式命名了一个新中文品类。若页面需要引用媒体标题，建议写法是“中文传播可称为 Agent 原生电脑，但官方定义更准确地落在 personal-agent Windows PC 与 unified accelerated computing stack”。
 - 建议正文结构：左侧放“官方措辞”三行，分别是 NVIDIA News Summary、Jensen Huang quote 或新闻稿标题说明、Microsoft Build Live unified stack；右侧放“不能替代”的两条判断：媒体标题不能替代产品名，官方规格不能替代类别成熟证明。这样 Page 4 先把语言边界钉住，再让 Page 5 和 Page 6 讨论平台与评估门槛。
 参考图片：
-- ![Figure 3: Rendered NVIDIA Newsroom page preserves the official headline and release context](images/nvidia-news-full-page.png)
-- Figure 3 是 NVIDIA Newsroom 渲染截图，可在需要展示官方标题和发布时间上下文时使用；若版面有限，这张图优先保留在审计侧，正文仍以官方 wording 摘要为主。
+- 本页优先使用官方正文包中的文字证据和产品/文章原始图片；不要用渲染截图替代正文图文包。
 备注：
 - Page 4 的语气要稳：不是否定媒体标题，而是把媒体标题放回传播层，把架构判断放回官方材料和可验证技术栈。
 

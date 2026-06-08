@@ -7,7 +7,7 @@
 你可以直接这样说：
 
 ```text
-我要使用 ppt-deep-search，请先检查它的依赖；如果校验器或网页证据包工具缺失，请帮我处理到可用。
+我要使用 ppt-deep-search，请先检查它的外部依赖；如果 Python 版本不满足，请帮我处理到可用。
 ```
 
 ## 检查命令
@@ -23,10 +23,8 @@ python skills/ppt-deep-search/verify_dependencies.py
 | 类型 | 说明 |
 | --- | --- |
 | Python 版本 | Python 3.9+ |
-| 仓库文件 | 深度研究、HTML review、web evidence 相关脚本和参考文档是否存在 |
-| 自检 | `ppt_content_brief`、HTML review、web evidence package 等校验器是否能通过 self-test |
-| 外部服务 | 默认不需要外部服务；只有任务本身要求补充网页资料时才需要联网 |
+| 外部网络 | 默认不需要；只有任务本身要求补充网页资料时才需要联网 |
 
 ## 判断标准
 
-看到所有 `[OK]` 后再进入 PPT 深度研究。若某个 self-test 失败，请先让 Agent 修复校验器或缺失文件，再继续研究任务。
+看到 Python 版本检查通过后即可进入 PPT 深度研究。如果后续运行中出现仓库文件缺失、validator self-test 失败等问题，那不是用户依赖配置问题，应让 Agent 检查 submodule 是否完整或仓库内容是否损坏。

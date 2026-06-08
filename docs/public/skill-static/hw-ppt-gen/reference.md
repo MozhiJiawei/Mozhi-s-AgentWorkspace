@@ -1,68 +1,87 @@
 # 能力展示
 
-这里展示的是两份真实风格的 PPT 生成案例。你可以把它理解成：用户给一批材料和一个表达目标，Huawei PPTX Generator 负责读材料、提炼观点、组织页面，并生成一份可以交付的华为风格 PPT。
+`huawei-pptx-generator` 把 brief、PDF、Markdown、网页或纯文本材料转成经过 QA 的中文 PPTX 和页面预览图，让技术材料可以直接进入汇报交付。
 
-每个案例都按同一条线讲清楚：为什么要做这份 PPT，生成过程中做了什么，最后交付出来是什么效果。
-
-## 案例一：Aegaeon GPU Pooling 价值评估
-
-### 背景
-
-这个案例要解决的是一个云服务平台负责人会关心的问题：模型市场里有大量长尾模型，也有少数热门模型突然爆发请求，GPU 很容易被低频模型和峰值预留占住。用户希望把 Aegaeon 这篇工作讲成一份 7 页技术价值评估 PPT，让 AI 平台和云服务技术负责人快速判断：它到底能不能降低 GPU 成本，为什么能做到，以及生产环境里有什么证据。
-
-用户给到的材料不是一堆散乱文件，而是一份已经整理好的内容 brief。里面写清楚了主题、目标读者、页数、每页标题、核心观点、正文要点，以及每一页应参考的论文图。
-
-### 过程
-
-生成时，系统先读 brief，确认这份 PPT 应该围绕三件事展开：
-
-- 模型市场为什么会浪费 GPU；
-- request-level auto-scaling 为什么不够；
-- token-level scaling 如何带来生产侧收益。
-
-然后系统把这些内容组织成封面、顶层总结、目录和 4 页正文。正文页不是简单堆文字，而是把论文图放到页面中心位置，用简洁结论解释图里的业务含义。比如长尾模型分布、active model 上限、token 粒度抢占、生产部署 GPU 节省，都会各自落到清楚的页面结构里。
-
-### 结果
+| 输入 | 输出 | 最关键效果 |
+| --- | --- | --- |
+| 内容 brief、论文材料、网页材料、目标读者和页数约束 | `.pptx`、页面预览 PNG、视觉/规则 QA 结果 | 复杂材料变成可交付 PPT 页面 |
 
 ![Aegaeon 交付预览](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.png)
 
-最终生成了一份 7 页 PPTX。整体效果是：页面结构紧凑，证据图可读，结论不是泛泛地说“提升效率”，而是直接服务于平台负责人的判断：Aegaeon 适合用来评估模型市场型并发服务里的 GPU Pooling 价值。
+这张预览证明：系统不是把材料堆成文字页，而是把证据图、页面结论和汇报结构组织成可读的技术 PPT。
 
-交付件位置：
+## 适合场景
 
-- PPTX: [aegaeon-content-aware-layout-20260604-anchor-memory.pptx](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.pptx)
-- 页面预览: [aegaeon-content-aware-layout-20260604-anchor-memory.png](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.png)
+- 把论文或技术材料整理成中文汇报 PPT。
+- 根据内容 brief 生成固定页数的技术方案或价值评估。
+- 需要保留证据图，并检查文字不要重叠、裁切或失真。
+- 需要同时拿到 PPTX 和页面预览图，方便交付前确认。
 
-## 案例二：TiDAR 技术路线评估
+## 处理过程
 
-### 背景
+1. 读取输入材料和页面约束。
+2. 提炼目标读者真正需要的判断。
+3. 组织封面、总结、目录和正文页。
+4. 为正文页选择证据图和内容布局。
+5. 导出 PPTX、页面预览，并运行 QA。
 
-这个案例更接近真实论文评审场景。用户想给推理系统和模型服务负责人讲清楚 TiDAR：它和 MTP、speculative decoding、diffusion LLM 有什么关系，收益到底来自哪里，如果要落地，需要付出哪些训练、kernel、KV cache 和 serving 改造成本。
+## 交付物
 
-这类材料的难点不是“没有内容”，而是内容太密。输入里有内容 brief、论文文本、PDF/XML 解析结果、补充图片、补充资料和研究审计文件。如果直接把图表塞进固定版式里，PPT 很容易变成一堆看不清的小图。
+| 交付物 | 用途 |
+| --- | --- |
+| `.pptx` | 可直接编辑和交付 |
+| 页面预览 PNG | 快速检查整体效果 |
+| QA 结果 | 检查布局、文字、图片和规则 |
 
-### 过程
+## Case：Aegaeon GPU Pooling 价值评估
 
-生成时，系统先抓住这份 PPT 的主线：TiDAR 不是一个可以随手外挂的 training-free 插件，而是一条需要继续训练和服务栈适配的新技术路线。
+### 用户任务
 
-因此页面组织没有只追求“看起来热闹”。系统优先保留关键证据图，让图表有足够空间；再用短句解释每张图支持什么判断。顶层总结页也按用户要求处理：前两栏讲收益和机制，第三栏专门讲落地边界，避免把它画成泛泛的企业部署流程。
+把 Aegaeon 论文讲成 7 页技术价值评估 PPT，帮助 AI 平台和云服务技术负责人判断它是否适合用于模型市场型并发服务。
 
-### 结果
+### 输入
+
+- 已整理好的内容 brief。
+- 目标读者、页数、页面标题和每页核心观点。
+- 论文图和正文证据。
+
+### 输出
+
+- [Aegaeon PPTX](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.pptx)
+- [Aegaeon 页面预览](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.png)
+
+### 关键效果
+
+![Aegaeon 交付预览](assets/forward-tests/aegaeon-content-aware-layout-20260604-anchor-memory.png)
+
+这个案例证明系统能把“GPU pooling 为什么有价值”压缩成清晰汇报结构：长尾模型、request-level auto-scaling 局限、token-level scaling 收益和生产部署信号各自落到可读页面。
+
+## Case：TiDAR 技术路线评估
+
+### 用户任务
+
+把 TiDAR 论文讲成 9 页技术路线评估 PPT，说明它和 MTP、speculative decoding、diffusion LLM 的关系，以及落地前需要验证的训练、kernel、KV cache 和 serving 成本。
+
+### 输入
+
+- 内容 brief。
+- 论文文本和 PDF/XML 解析结果。
+- 补充图片、补充资料和研究审计文件。
+
+### 输出
+
+- [TiDAR PPTX](assets/forward-tests/tidar-evidence-readability-20260604-anchor-memory.pptx)
+- [TiDAR 页面预览](assets/forward-tests/tidar-evidence-readability-20260604-anchor-memory.png)
+
+### 关键效果
 
 ![TiDAR 交付预览](assets/forward-tests/tidar-evidence-readability-20260604-anchor-memory.png)
 
-最终生成了一份 9 页 PPTX。整体效果是：读者能先看到 TiDAR 在技术路线里的位置，再理解它如何把平均接收长度转成吞吐收益，最后看到落地前必须验证的训练成本、H100 batch=1 条件、kernel、KV cache 和 serving 约束。
+这个案例证明系统能处理高密度论文材料：优先保留关键证据图，用短句解释每张图支持的判断，并把 TiDAR 表达成需要受控复现的技术路线，而不是低成本插件。
 
-这份 PPT 的重点不是把论文内容全部塞进去，而是帮技术负责人形成判断：TiDAR 值得关注，但不能当作低成本插件来评估。
+## 展示覆盖
 
-交付件位置：
-
-- PPTX: [tidar-evidence-readability-20260604-anchor-memory.pptx](assets/forward-tests/tidar-evidence-readability-20260604-anchor-memory.pptx)
-- 页面预览: [tidar-evidence-readability-20260604-anchor-memory.png](assets/forward-tests/tidar-evidence-readability-20260604-anchor-memory.png)
-
-## 当前展示覆盖
-
-| 案例 | 输出页数 | 展示状态 |
-| --- | --- | --- |
-| Aegaeon GPU Pooling 价值评估 | 7 页 | 已生成 PPTX 和页面预览 |
-| TiDAR 技术路线评估 | 9 页 | 已生成 PPTX 和页面预览 |
+| Case | 输入 | 输出 | 证明的能力 |
+| --- | --- | --- | --- |
+| Aegaeon GPU Pooling | 内容 brief、论文图 | 7 页 PPTX、页面预览 | 技术价值评估型 PPT 组织 |
+| TiDAR 技术路线评估 | brief、PDF/XML、补充资料 | 9 页 PPTX、页面预览 | 高密度论文材料压缩与证据保留 |
