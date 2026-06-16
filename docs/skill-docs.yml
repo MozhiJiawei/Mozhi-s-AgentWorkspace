@@ -27,7 +27,7 @@ skills:
       entry: docs/skills/architecture_4-1/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:5980c5ae4ef7f0f5615c57de2bfb6295ebdb9dd0adb26c4190b226c0602079b8
+      source_fingerprint: sha256:ee3ce00a08793307908835b75b0d8e3ad5b8264fbe5c58c0326bc95825aa028c
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:9e63ca2c7058dcd82e118e71b9503b5486dd7836c42164b3346c85100035ee37
+      source_fingerprint: sha256:bd22068ffcc9308a4523bb68068cbbaa7620346ed2a1c84a1a101e1af3dc136f
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:18e946e1c068216acde55b2f9fc2a959b390cd0e2359d5ac11fac4785fbbd2f1
+      source_fingerprint: sha256:a163cd0cce8d64c675f08bc941426ed4b9c43b90bf8c16822ea6132bd864f0f9
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

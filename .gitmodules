@@ -16,3 +16,6 @@
 [submodule "skills/ppt-deep-search"]
 	path = skills/ppt-deep-search
 	url = https://github.com/MozhiJiawei/ppt-deep-search.git
+[submodule "ccn-report"]
+	path = ccn-report
+	url = https://github.com/MozhiJiawei/ccn-report.git
