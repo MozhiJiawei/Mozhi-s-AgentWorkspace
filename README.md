@@ -9,7 +9,7 @@
   ·
   <a href="./docs/workspace/getting-started.md">快速开始</a>
   ·
-  <a href="./docs/skills/">Skills</a>
+  <a href="#已注册-skills">Skills</a>
   ·
   <a href="./docs/workspace/concepts.md">核心概念</a>
 </p>
@@ -35,7 +35,7 @@ Mozhi's Agent Workspace 面向真实工作中的 Agent 生产力沉淀：把 PPT
 
 | 我想要... | 入口 |
 | --- | --- |
-| 使用已有 skill | [Skills](./docs/skills/) |
+| 使用已有 skill | [已注册 Skills](#已注册-skills) |
 | 理解工作区模型 | [核心概念](./docs/workspace/concepts.md) |
 | 运行文档站 | [文档服务器](./docs/operations/docs-server.md) |
 | 接入或维护 skill | [Skill 子仓协议](./docs/reference/skill-repo-protocol.md) |
@@ -91,7 +91,7 @@ Skill 子仓负责：
 
 ## 已注册 Skills
 
-完整索引见 [docs/skills](./docs/skills/)。当前已接入的 skill 包括：
+完整索引由文档服务器从各 skill 子仓生成；当前已接入的 skill 包括：
 
 | Skill | 用途 |
 | --- | --- |

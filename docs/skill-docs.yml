@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:a163cd0cce8d64c675f08bc941426ed4b9c43b90bf8c16822ea6132bd864f0f9
+      source_fingerprint: sha256:146dc6d0df6ee43173e198ccc0e2558af5df5170ea0c5b204e822fb2b85b248c
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

@@ -250,12 +250,12 @@ def main() -> int:
         entry = data.get("entry", "")
         if not entry:
             errors.append(f"{name}: 缺少 publish.entry")
-        elif not (root / entry).is_file():
-            errors.append(f"{name}: publish.entry 不存在：{entry}")
 
         mode = data.get("mode", "")
         if mode not in {"placeholder", "subrepo-manifest"}:
             errors.append(f"{name}: publish.mode 必须是 placeholder 或 subrepo-manifest")
+        if mode == "placeholder" and entry and not (root / entry).is_file():
+            errors.append(f"{name}: publish.entry 不存在：{entry}")
 
         skill_manifest = data.get("skill_manifest", DOCS_MANIFEST_NAME)
         skill_manifest_path = skill_root / skill_manifest
