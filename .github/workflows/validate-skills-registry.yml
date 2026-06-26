@@ -22,5 +22,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Debug dependency fingerprints
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from scripts.check_skill_dependencies import parse_manifest, source_fingerprint, MANIFEST_PATH
+          text = Path(MANIFEST_PATH).read_text(encoding="utf-8")
+          for name, data in parse_manifest(text).items():
+              actual = source_fingerprint(Path(data["path"]))
+              print(f"{name}: expected={data.get('source_fingerprint')} actual={actual}")
+          PY
+
       - name: Run pre-commit gates
         run: python scripts/pre_commit_gate.py
