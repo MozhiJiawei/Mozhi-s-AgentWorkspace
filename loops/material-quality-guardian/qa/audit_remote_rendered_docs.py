@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlparse
 import urllib.error
 import urllib.request
+import time
 
 from common import repo_root
 
@@ -45,14 +46,27 @@ def skill_roots() -> list[str]:
     return roots
 
 
-def fetch(url: str, timeout: int) -> tuple[int, str, str]:
+def fetch_once(url: str, timeout: int) -> tuple[int, str, str]:
     req = urllib.request.Request(url, headers={"User-Agent": "material-quality-guardian/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as response:
         body = response.read().decode("utf-8", errors="replace")
         return response.status, response.headers.get("Content-Type", ""), body
 
 
-def check_url(url: str, timeout: int) -> tuple[int | None, str | None]:
+def fetch(url: str, timeout: int, attempts: int) -> tuple[int, str, str]:
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            return fetch_once(url, timeout)
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+            if attempt < attempts:
+                time.sleep(1)
+    assert last_error is not None
+    raise last_error
+
+
+def check_url_once(url: str, timeout: int) -> tuple[int | None, str | None]:
     req = urllib.request.Request(url, headers={"User-Agent": "material-quality-guardian/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
@@ -61,6 +75,20 @@ def check_url(url: str, timeout: int) -> tuple[int | None, str | None]:
         return exc.code, str(exc)
     except Exception as exc:  # noqa: BLE001
         return None, str(exc)
+
+
+def check_url(url: str, timeout: int, attempts: int) -> tuple[int | None, str | None]:
+    last_status: int | None = None
+    last_error: str | None = None
+    for attempt in range(1, attempts + 1):
+        last_status, last_error = check_url_once(url, timeout)
+        if last_status == 200:
+            return last_status, None
+        if last_status is not None and 400 <= last_status < 500:
+            return last_status, last_error
+        if attempt < attempts:
+            time.sleep(1)
+    return last_status, last_error
 
 
 def same_site_content_link(base_url: str, href: str) -> str | None:
@@ -79,7 +107,7 @@ def same_site_content_link(base_url: str, href: str) -> str | None:
     return absolute
 
 
-def crawl_rendered_docs(remote_base_url: str, timeout: int) -> dict[str, object]:
+def crawl_rendered_docs(remote_base_url: str, timeout: int, attempts: int) -> dict[str, object]:
     root_url = remote_base_url.rstrip("/")
     checked_pages: list[dict[str, object]] = []
     broken_links: list[dict[str, object]] = []
@@ -88,7 +116,7 @@ def crawl_rendered_docs(remote_base_url: str, timeout: int) -> dict[str, object]
     for path in skill_roots():
         url = root_url + path
         try:
-            status, content_type, body = fetch(url, timeout)
+            status, content_type, body = fetch(url, timeout, attempts)
         except Exception as exc:  # noqa: BLE001
             broken_links.append(
                 {
@@ -117,7 +145,7 @@ def crawl_rendered_docs(remote_base_url: str, timeout: int) -> dict[str, object]
             if not absolute or absolute in seen_links:
                 continue
             seen_links.add(absolute)
-            link_status, error = check_url(absolute, timeout)
+            link_status, error = check_url(absolute, timeout, attempts)
             if link_status != 200:
                 broken_links.append(
                     {
@@ -141,11 +169,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Audit rendered remote docs pages and same-site content links.")
     parser.add_argument("--remote-base-url", default="http://docs.haohaoxiaoyu.top:8888")
     parser.add_argument("--timeout", type=int, default=20)
+    parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--output")
     parser.add_argument("--fail-on-broken", action="store_true")
     args = parser.parse_args()
 
-    result = crawl_rendered_docs(args.remote_base_url, args.timeout)
+    result = crawl_rendered_docs(args.remote_base_url, args.timeout, args.attempts)
     if args.output:
         output = Path(args.output).resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
