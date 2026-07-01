@@ -1,83 +1,32 @@
 # 文档架构需求
 
-## 目标
+本文是 Agent 修改工作区资料时的写作约束。重点不是介绍文档站历史，而是让 Agent 知道：资料写在哪里、四个 skill 页面分别写什么、改完后怎么校验。
 
-工作区文档系统必须发布一个统一的、面向人类读者的 HTML 文档站；同时允许每个
-skill 子仓拥有、解释、校验和演进自己的文档内容。
+## 文档边界
 
-## 架构原则
+- 主仓负责文档系统、导航、发布、门禁和跨 skill 索引。
+- Skill 子仓负责自己的使用说明、示例、限制、排障、依赖说明和架构说明。
+- 主仓不要复制 skill 子仓的详细正文；需要发布 skill 内容时，通过 `skills/*/docs.manifest.yml` 同步。
+- Skill 子仓不要要求主仓手工改写内部使用细节；应在子仓 `docs/` 中提供可发布资料。
 
-主仓拥有文档系统。Skill 拥有自己的文档内容。
+## Skill 文档 Manifest
 
-主仓必须承担以下职责：
-
-- 文档协议制定者
-- 文档构建编排者
-- 统一在线发布单元
-- 跨 skill 的导航与状态索引
-- 文档架构漂移的校验门禁
-
-每个 skill 子仓必须承担以下职责：
-
-- 自身使用文档的所有者
-- 自身示例、限制和排障说明的所有者
-- 独立的文档来源
-- 机器可读文档 manifest 的提供者
-
-## 仓库边界
-
-主仓不应复制详细的 skill 文档。主仓可以为发现、导航和路由目的总结某个
-skill，但权威内容应保留在对应 skill 子仓中。
-
-skill 子仓不应要求主仓手工复制或改写内部使用细节。它必须暴露足够的元数据，
-使主仓能够发现并发布它的文档。
-
-## 主仓能力要求
-
-主仓必须提供：
-
-- 一个可本地预览、后续可公网托管的静态 HTML 文档站
-- `docs/` 下的源文档目录
-- 文档构建命令
-- 本地文档开发命令
-- 扫描已注册 skill 的文档校验脚本
-- 当 skill 文档契约漂移时失败的提交前门禁
-- 发布站点中生成或同步出来的 skill 文档区域
-
-## Skill 文档契约要求
-
-每个已注册 skill 应在以下位置提供文档 manifest：
+每个已注册 skill 必须在子仓根目录提供：
 
 ```text
 docs.manifest.yml
 ```
 
-manifest 应声明：
+manifest 至少要声明：
 
-- schema 版本
-- skill 名称
-- 面向人类读者的标题
-- 简短描述
-- 文档入口页
-- 导航项
-- 构建或发布模式
-- 文档源指纹
-- 文档状态
+- `schema_version`
+- `name`
+- `title`
+- `description`
+- `entry`
+- `nav`
 
-主仓必须能够检查 manifest 声明的文件是否存在，并确认记录的指纹与当前文档源文件一致。
-
-## Skill 资料页面要求
-
-每个已注册 skill 必须在 `docs.manifest.yml` 中暴露四个面向人类读者的资料入口：
-
-- `能力展示`
-- `使用方式`
-- `依赖说明`
-- `架构概览`
-
-这四个入口必须能在文档站侧边栏中看到，并能从远端文档站打开。页面内容应帮助读者判断“这个 skill 能做什么、怎么用、需要什么、内部怎么运转”，不要只列文件名或复制 `SKILL.md`。
-
-推荐 manifest 形态：
+`nav` 必须包含四个固定中文入口：
 
 ```yaml
 entry: docs/index.md
@@ -92,106 +41,31 @@ nav:
     path: docs/index.md
 ```
 
-`架构概览` 可以指向 `docs/index.md`，也可以指向独立架构页。无论路径如何，页面正文都必须满足本节要求。
+路径可以按 skill 实际文件组织调整，但侧边栏标题必须使用这四个固定名称。`架构概览` 可以指向 `docs/index.md`，也可以指向独立架构页。
 
-### 能力展示
+## 四个必选页面
 
-`能力展示` 用来回答：这个 skill 做出来的结果长什么样，能力边界在哪里，哪些交付件可以被读者直接检查。
+| 页面 | 写作目标 | 必须包含 | 失败条件 |
+| --- | --- | --- | --- |
+| `能力展示` | 证明 skill 能交付什么。 | 真实示例或截图；覆盖的能力点；可在线打开的交付件、图片、HTML 或报告链接；示例来源；能力边界。 | 只有口号；只列本地路径；链接返回 HTML fallback；用目录结构代替结果展示。 |
+| `使用方式` | 让用户能直接发起任务，让 Agent 按正确边界执行。 | 可复制 prompt；输入、输出、临时目录；可运行命令及工作目录；完成标准；涉及子 agent / checker 时提醒用户允许启动。 | 没有 prompt；命令目录不对；涉及子 agent 但不提醒授权；只写“参考 SKILL.md”。 |
+| `依赖说明` | 让 Agent 判断环境是否可运行、缺失时怎么修。 | 外部依赖；必需/可选区分；`verify_dependencies.py` 调用方式；脚本实际检查与不会检查的范围；修复方向。 | 不列外部依赖；夸大自检覆盖范围；把仓库文件扫描当依赖检查；写入敏感凭据值。 |
+| `架构概览` | 让 Agent 知道执行链路和改资料时该查哪些实现证据。 | 输入输出；关键模块和边界；从 prompt 到交付物的执行路径；关键脚本、references、测试或 forward-test；多 agent 职责边界。 | 只有目录树；写成完整系统论文；不说明输入输出；multi-agent skill 不说明主/子 agent 分工；引用过期路径。 |
 
-最低内容：
-
-- 用图、截图、HTML 预览、导出图片、报告片段或真实示例展示 skill 的输出形态。
-- 说明这些示例覆盖了哪些能力点，例如研究、抓取、生成、解析、发送、架构建模或质量检查。
-- 给出可在线打开的内部交付件链接；如果链接指向图片、HTML、报告或静态资产，远端必须返回真实内容。
-- 说明示例的来源和状态，例如 forward-test、最新 showcase、人工样例或真实运行产物。
-- 明确能力边界：哪些情况可用，哪些情况只是示例，哪些情况不能代表完整能力。
-
-不合格情况包括：只有一句能力描述、没有示例或可检查产物；页面列了本地文件路径但远端用户打不开；交付件链接返回 HTML fallback；把实现目录结构当成能力展示。
-
-### 使用方式
-
-`使用方式` 用来回答：用户应该怎样向 Agent 发起任务，Agent 应该怎样执行这个 skill。
-
-最低内容：
-
-- 给出可直接复用的典型 prompt，覆盖主要使用场景。
-- 写清楚推荐的工作目录、输入文件、输出目录和临时产物位置。
-- 给出关键命令时，必须确认命令能从文档声明的目录运行；如果需要进入 skill 子仓，应明确写出来。
-- 说明完成标准，例如应生成哪些文件、应运行哪些校验、结果应写到哪里。
-- 如果实现或流程涉及子 agent、并行审查、独立 checker 或 delegated review，典型 prompt 必须明确提醒用户允许启动子 agent。
-
-不合格情况包括：只有实现说明、没有用户可复制的 prompt；命令默认读者在 skill 子仓内但文字说可以从主仓根目录运行；涉及子 agent 的流程没有告诉用户需要允许子 agent；只说“参考 SKILL.md”。
-
-### 依赖说明
-
-`依赖说明` 用来回答：运行这个 skill 前，外部环境需要满足什么，如何验证，缺失时怎么处理。
-
-最低内容：
-
-- 列出真实外部依赖，例如 Python 包、Node 包、浏览器运行时、系统工具、命令行工具、外部服务、账号凭据、环境变量或网络访问。
-- 区分必需依赖和可选依赖；可选依赖缺失时应说明影响哪些能力。
-- 给出依赖自检命令，通常是 `python skills/<skill>/verify_dependencies.py`。
-- 说明自检脚本实际检查什么、不会检查什么；不要把内部文件扫描包装成完整外部依赖检查。
-- 给出缺失依赖的修复方向，例如安装命令、环境变量名称、服务地址或跳过服务检查的参数。
-
-不合格情况包括：只说运行 `verify_dependencies.py` 但不列外部依赖；自检脚本只检查 Python 版本却文档声称已检查浏览器、服务和工具链；把仓库内文件是否存在当成依赖说明主体；把敏感凭据写进文档。
-
-### 架构概览
-
-`架构概览` 用来回答：这个 skill 内部如何分层、如何执行、哪些组件承担什么职责。
-
-最低内容：
-
-- 给出逻辑视图：核心概念、输入、输出、关键模块和边界。
-- 给出运行视图：一次典型任务从用户 prompt 到最终交付的执行路径。
-- 给出开发视图：重要目录、脚本、references、测试/forward-test、校验入口如何组织。
-- 说明资料与实现的对应关系：哪些文档是入口，哪些脚本是验证，哪些产物是示例。
-- 如果涉及 multi-agent、子 agent、独立 checker 或主/子流程协作，必须说明主 agent 和子 agent 的职责边界、交接物和禁止事项。
-
-不合格情况包括：只有目录树，没有解释运行路径和职责；只描述实现细节，没有告诉读者如何理解输入、输出和边界；multi-agent skill 没有说明主 agent 与子 agent 分工；架构页面引用过期脚本、已删除目录或不可访问交付件。
-
-## Agent 资料写作流程
-
-Agent 修改 skill 资料时应按这个顺序执行：
+## Agent 写作流程
 
 1. 读取本文和目标 skill 的 `docs.manifest.yml`。
-2. 阅读目标 skill 的 `SKILL.md`、`docs/`、必要的 `references/`、脚本和示例产物。
+2. 先读目标 skill 的 `SKILL.md`、manifest 指向的资料页和 `verify_dependencies.py`；只有资料页引用到的 `references/`、脚本或示例产物才继续读取。
 3. 按四个必选页面分别补齐内容，不把所有信息塞进一个页面。
-4. 运行 `python scripts/sync_skill_docs.py` 刷新文档站聚合产物。
+4. 运行 `python scripts/sync_skill_docs.py`。
 5. 运行 `python scripts/pre_commit_gate.py`。
-6. 如果资料来源变化导致文档指纹漂移，复核后运行 `python scripts/check_skill_docs.py --update-fingerprints`，再重新运行 pre-commit gate。
-7. 需要人工检查远端时，发布后运行 `python loops/material-quality-guardian/qa/run.py --output-root .tmp/loops/material-quality-guardian`。
+6. 如果文档指纹漂移，确认资料已复核后运行 `python scripts/check_skill_docs.py --update-fingerprints`，再重新运行 pre-commit gate。
+7. 只有用户要求发布验收，或本轮修改涉及远端可访问性时，发布后运行 `python loops/material-quality-guardian/qa/run.py --output-root .tmp/loops/material-quality-guardian`。
 
-## 变化感知要求
+## QA 守护
 
-主仓必须能够感知 skill 子仓内与文档相关的变化。该要求与现有依赖复核流程保持一致：
+- `scripts/check_skill_docs.py` 检查 skill 文档来源是否复核并刷新指纹。
+- `loops/material-quality-guardian/qa/check_docs_skill_surfaces.py` 检查文档站 skill 列表和四个必选导航项。
+- `loops/material-quality-guardian/qa/run.py` 在 Loop 中同时检查本地资料和远端发布状态。
 
-- 依赖变化由 `scripts/check_skill_dependencies.py` 守护
-- 文档变化由 `scripts/check_skill_docs.py` 守护
-
-当文档文件、文档 manifest 或公开 skill 解释文件变化时，主仓门禁必须失败；只有在复核后刷新文档指纹，门禁才应恢复通过。
-
-## 本地发布要求
-
-初始发布目标仅限本地调测。系统必须支持：
-
-```powershell
-npm run docs:dev
-npm run docs:build
-npm run docs:preview
-```
-
-真实公网服务器部署不属于本阶段范围。
-
-## 初始范围
-
-本阶段只建立：
-
-- 页面骨架
-- 文档架构需求
-- 本地静态站点工具链
-- skill 文档 manifest schema
-- 文档漂移检查脚本
-- 提交前门禁集成
-
-完整正文内容有意延后补齐。
+Material Quality Guardian 登记资料问题时，finding 必须包含页面链接、面向人类的问题描述和面向修复 Agent 的代码根因。
