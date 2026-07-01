@@ -22,6 +22,9 @@ SEVERITY_P2 = "P2"
 FIELD_STATUS = "状态"
 FIELD_SEVERITY = "严重级别"
 FIELD_TARGET = "目标"
+FIELD_PAGE_URL = "页面链接"
+FIELD_PROBLEM = "问题描述"
+FIELD_ROOT_CAUSE = "代码根因"
 FIELD_FIRST_SEEN = "首次发现"
 FIELD_LAST_SEEN = "最近发现"
 FIELD_EVIDENCE = "证据"
@@ -33,6 +36,9 @@ FIELD_ORDER = [
     FIELD_STATUS,
     FIELD_SEVERITY,
     FIELD_TARGET,
+    FIELD_PAGE_URL,
+    FIELD_PROBLEM,
+    FIELD_ROOT_CAUSE,
     FIELD_FIRST_SEEN,
     FIELD_LAST_SEEN,
     FIELD_EVIDENCE,
@@ -51,6 +57,7 @@ CANONICAL_PREFIX = """# Material Quality Guardian
 - `P0`：资料入口、发布可信度或核心交付链路整体不可用，或验证机制会明显误判成功。
 - `P1`：单个 workspace/skill 的重要使用路径会失败，或文档与实现契约明显不一致。
 - `P2`：局部资料质量问题，不阻断主要使用路径，但影响可读性、维护性或后续审查效率。
+- 每个 finding 必须包含 `问题描述`、`页面链接` 和 `代码根因`：问题描述给人类快速判断，页面链接用于打开有问题的资料页，代码根因承载路径、脚本输出、HTTP 状态、指纹等技术细节。
 - 已完成的 finding 必须通过 `python loops/material-quality-guardian/issue_db.py delete <id>` 从 Issue 中移除。
 - 所有 finding 状态变更必须通过 `python loops/material-quality-guardian/issue_db.py status ...` 或 `delete` 写回 Issue body。
 - Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `upsert` 新增或刷新 `待处理` 问题。
@@ -223,6 +230,9 @@ def cmd_upsert(args: argparse.Namespace) -> None:
                 FIELD_STATUS: STATUS_PENDING,
                 FIELD_SEVERITY: validate_severity(args.severity),
                 FIELD_TARGET: args.target,
+                FIELD_PAGE_URL: args.page_url,
+                FIELD_PROBLEM: args.problem,
+                FIELD_ROOT_CAUSE: args.root_cause,
                 FIELD_FIRST_SEEN: args.first_seen or today,
                 FIELD_LAST_SEEN: args.last_seen or today,
                 FIELD_EVIDENCE: args.evidence,
@@ -237,6 +247,9 @@ def cmd_upsert(args: argparse.Namespace) -> None:
                 {
                     FIELD_SEVERITY: validate_severity(args.severity),
                     FIELD_TARGET: args.target,
+                    FIELD_PAGE_URL: args.page_url,
+                    FIELD_PROBLEM: args.problem,
+                    FIELD_ROOT_CAUSE: args.root_cause,
                     FIELD_LAST_SEEN: args.last_seen or today,
                     FIELD_EVIDENCE: args.evidence,
                     FIELD_NOTE: args.note,
@@ -303,6 +316,9 @@ def build_parser() -> argparse.ArgumentParser:
     upsert_parser = subparsers.add_parser("upsert", help="新增或刷新一个待处理问题")
     upsert_parser.add_argument("--id", required=True)
     upsert_parser.add_argument("--target", required=True)
+    upsert_parser.add_argument("--page-url", required=True)
+    upsert_parser.add_argument("--problem", required=True)
+    upsert_parser.add_argument("--root-cause", required=True)
     upsert_parser.add_argument("--severity", default=SEVERITY_P1, choices=[SEVERITY_P0, SEVERITY_P1, SEVERITY_P2])
     upsert_parser.add_argument("--evidence", required=True)
     upsert_parser.add_argument("--note", required=True)

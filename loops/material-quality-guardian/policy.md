@@ -39,19 +39,12 @@
 - 远端站点：http://docs.haohaoxiaoyu.top:8888/
 
 你的任务：
-1. 先阅读本地文档，理解这个单元对外承诺了什么。
-2. 再阅读必要的实现证据，判断文档里哪些链接、页面、交付物或子报告是高价值检查点。
-3. 打开远端真实渲染页面，验证：
-   - 首页是否可打开；
-   - 导航页是否可打开；
-   - 文档正文里的关键内容链接是否可打开；
-   - 是否出现 404、HTML fallback、空白页或错误跳转。
-4. 需要时运行通用自动化检查补充证据。
-5. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
-
-当前已忽略的问题列表：
-* <finding-1>
-* <finding-2>
+1. 检阅内容：
+   - 能力展示：是否图文并茂的展示SKILL的能力；所有内部的交付件链接均可以在线打开
+   - 使用方式：是否提供典型的“prompt”；若代码中涉及子agent，典型prompt中是否强调“允许子agnet”；
+   - 依赖说明：是否真正给出“外部依赖”列表，而不只是内部文件扫描
+   - 架构概览：是否有“逻辑视图”、“运行视图”、“开发视图”的描述，涉及multi-agent时，是否详细描述主agent、子agent的职责
+2. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
 
 返回格式：
 - unit: <unit-name>
@@ -62,6 +55,9 @@
   - id_hint: <short-slug>
     severity: P0 | P1 | P2
     target: <path-or-url>
+    page_url: <human-reviewable-doc-page-url>
+    problem: <one short human-readable sentence>
+    root_cause: <technical cause with repo paths / manifest fields / HTTP status / script output>
     evidence: <one paragraph>
     note: <one sentence>
 ```
