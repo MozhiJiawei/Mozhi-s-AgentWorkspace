@@ -39,11 +39,7 @@
 - 远端站点：http://docs.haohaoxiaoyu.top:8888/
 
 你的任务：
-1. 检阅内容：
-   - 能力展示：是否图文并茂的展示SKILL的能力；所有内部的交付件链接均可以在线打开
-   - 使用方式：是否提供典型的“prompt”；若代码中涉及子agent，典型prompt中是否强调“允许子agnet”；
-   - 依赖说明：是否真正给出“外部依赖”列表，而不只是内部文件扫描
-   - 架构概览：是否有“逻辑视图”、“运行视图”、“开发视图”的描述，涉及multi-agent时，是否详细描述主agent、子agent的职责
+1. 先阅读 `docs/reference/skill-material-standards.md`，按其中对 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 的要求检阅内容。
 2. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
 
 返回格式：

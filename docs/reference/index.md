@@ -6,6 +6,7 @@ Reference pages describe stable workspace contracts and schemas. They are meant 
 
 - [Main Repo Protocol](./main-repo-protocol)
 - [Skill Repo Protocol](./skill-repo-protocol)
+- [Skill Material Standards](./skill-material-standards)
 - [Skill Docs Manifest](./skill-docs-manifest)
 
 ## Operational References
