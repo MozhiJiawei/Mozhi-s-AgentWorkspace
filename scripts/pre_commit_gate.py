@@ -42,8 +42,18 @@ def main() -> int:
             command=[sys.executable, "scripts/check_skill_docs.py"],
         ),
         Gate(
-            name="material-quality-qa",
-            command=[sys.executable, "loops/material-quality-guardian/qa/run.py"],
+            name="material-docs-skill-surfaces",
+            command=[
+                sys.executable,
+                "loops/material-quality-guardian/qa/check_docs_skill_surfaces.py",
+            ],
+        ),
+        Gate(
+            name="material-docs-publish-state",
+            command=[
+                sys.executable,
+                "loops/material-quality-guardian/qa/check_docs_publish_state.py",
+            ],
         ),
     ]
 

@@ -70,7 +70,7 @@
 
 - 通用自动化检查只负责提供基础证据，不替代子 agent 判断。
 - 当前共享检查入口是：
-  - `python loops/material-quality-guardian/qa/run.py --include-remote --output-root .tmp/loops/material-quality-guardian`
+  - `python loops/material-quality-guardian/qa/run.py --output-root .tmp/loops/material-quality-guardian`
 - 主 agent 或子 agent 可以按需调用这些入口，但不需要在 prompt 里解释脚本内部原理。
 - 这些入口的 CLI 输出应直接给出模型需要的关键信息，例如：
   - 本次检查的目标；

@@ -23,7 +23,7 @@
 ## 每轮步骤
 
 1. 调用 `python loops/material-quality-guardian/issue_db.py list` 读取 GitHub Issue 当前 findings。
-2. 调用 `python loops/material-quality-guardian/qa/run.py --include-remote --output-root .tmp/loops/material-quality-guardian` 执行统一资料 QA，并把输出作为本轮基础证据。
+2. 调用 `python loops/material-quality-guardian/qa/run.py --output-root .tmp/loops/material-quality-guardian` 执行统一资料 QA，并把输出作为本轮基础证据。
 3. 按 `policy.md` 定义的审查执行模型完成本轮资料审查，并按 `issue-state.md` 定义的状态、严重级别和字段格式形成本轮 findings。
 4. Agent 结合历史 Issue 状态和本轮 findings 登记刷新问题：
    - 历史中存在状态为 `已关闭` 的 finding，先用 `issue_db.py delete` 删除；不要继续作为子 agent 前置输入。

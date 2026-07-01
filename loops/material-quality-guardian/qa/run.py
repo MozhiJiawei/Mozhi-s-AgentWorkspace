@@ -71,11 +71,6 @@ def remote_checks(output_root: Path) -> list[Check]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run Material Quality Guardian QA checks.")
     parser.add_argument(
-        "--include-remote",
-        action="store_true",
-        help="Also run remote docs publish/render audits.",
-    )
-    parser.add_argument(
         "--output-root",
         default=DEFAULT_OUTPUT_ROOT.as_posix(),
         help="Output directory for remote audit JSON artifacts.",
@@ -87,8 +82,7 @@ def main() -> int:
     output_root.mkdir(parents=True, exist_ok=True)
 
     checks = local_checks()
-    if args.include_remote:
-        checks.extend(remote_checks(output_root))
+    checks.extend(remote_checks(output_root))
 
     failed = 0
     for check in checks:
