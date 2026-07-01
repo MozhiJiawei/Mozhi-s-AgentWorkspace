@@ -50,36 +50,33 @@ skills:
     macos:
       status: todo
 
-  huawei-pptx-generator:
-    path: skills/hw-ppt-gen
+  hw-ppt-gen-html:
+    path: skills/hw-ppt-gen-html
     dependency_review:
-      source_fingerprint: sha256:453feec3352ab80694051bad243e59d9ca0ed33c64068ca684d8b2f9ad410323
-      reviewed_at: "2026-05-22"
+      source_fingerprint: sha256:9856c278127d6f6eb854951b76bf1c427ac445f5c3093e12de0df3ba8891f63c
+      reviewed_at: "2026-06-30"
       reviewed_by: agent
-      note: Reviewed hw-ppt-gen update to dccd00d; SKILL, reference, QA, helper, and smoke-test changes add no new runtime dependencies beyond Node.js, pptxgenjs, sharp, roughjs, JSZip, and PPT rendering toolchain requirements.
+      note: Initial review; wrapper uses Python plus Playwright/Chromium for HTML screenshot export, and delegates HTML deck runtime to the nested html-ppt-skill submodule.
     windows:
-      node_packages:
-        - pptxgenjs
-        - jszip
-        - roughjs
-        - sharp
+      python_packages:
+        - playwright
+      playwright_browsers:
+        - chromium
       external:
-        - Node.js and npm
-        - Microsoft PowerPoint desktop COM automation for native PPTX image export
+        - Python 3
+        - html-ppt-skill nested submodule content
       verify:
-        - python skills/hw-ppt-gen/verify_dependencies.py
+        - python skills/hw-ppt-gen-html/verify_dependencies.py
     macos:
-      node_packages:
-        - pptxgenjs
-        - jszip
-        - roughjs
-        - sharp
+      python_packages:
+        - playwright
+      playwright_browsers:
+        - chromium
       external:
-        - Node.js and npm
-        - LibreOffice
-        - Poppler
+        - Python 3
+        - html-ppt-skill nested submodule content
       verify:
-        - python skills/hw-ppt-gen/verify_dependencies.py
+        - python skills/hw-ppt-gen-html/verify_dependencies.py
 
   ppt-deep-search:
     path: skills/ppt-deep-search
@@ -102,6 +99,30 @@ skills:
         - network access only when the research task itself requires supplemental web sources
       verify:
         - python skills/ppt-deep-search/verify_dependencies.py
+
+  web-article-capture:
+    path: skills/web-article-capture
+    dependency_review:
+      source_fingerprint: sha256:1acf592afa760cd3faf375d786ec522d347393703196f46a54e21ec1f3aaa783
+      reviewed_at: "2026-06-30"
+      reviewed_by: agent
+      note: Initial review; validator uses Python standard library only, while real webpage capture depends on Codex in-app Browser and network access to target pages/assets.
+    windows:
+      python_packages: []
+      external:
+        - Codex in-app Browser for real webpage capture
+      optional:
+        - network access to target webpages and image assets during capture
+      verify:
+        - python skills/web-article-capture/verify_dependencies.py
+    macos:
+      python_packages: []
+      external:
+        - Codex in-app Browser for real webpage capture
+      optional:
+        - network access to target webpages and image assets during capture
+      verify:
+        - python skills/web-article-capture/verify_dependencies.py
 
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill

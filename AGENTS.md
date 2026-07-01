@@ -64,27 +64,29 @@
 - 若任务会产生中间稿、日志、草图或阶段性结果，必须以 `.tmp/` 为工作根目录，并按该 skill 的目录约定拼接子路径
 - 若用户明确要求分析当前仓库，也应把本仓库视为目标仓库，但临时架构产物仍必须落在 `.tmp/` 下
 
-### `skills/hw-ppt-gen`
+### `skills/hw-ppt-gen-html`
 
-- 加载路径：`skills/hw-ppt-gen/SKILL.md`
-- skill 名称：`huawei-pptx-generator`
-- 主要用途：基于网页、Markdown、论文解析结果、仓库分析、纯文本或用户 prompt，生成华为风格的新 `.pptx` deck，并通过内置硬规则 QA、导出图片和视觉检查完成交付前校验
+- 加载路径：`skills/hw-ppt-gen-html/SKILL.md`
+- skill 名称：`hw-ppt-gen-html`
+- 主要用途：基于材料生成 HTML PPT、网页 slides、deck 或 HTML 演示文稿，并在完成后导出 PNG、委派独立视觉 QA checker 校验
 
 当任务满足以下任一条件时，agent 应加载并使用这个 skill：
 
-- 用户要求创建、生成、编写、重做或导出 PPT / PowerPoint
-- 用户要求基于已有材料生成华为风格 PPTX
-- 用户要求制作论文汇报、技术汇报、方法介绍、benchmark 评审、业务材料或技术 deck
-- 用户要求使用华为视觉风格、华为红灰配色、中文正文或可导出的 PPTX 交付物
-- 用户明确要求检查 PPT 布局安全性、文字是否溢出、是否裁切、是否重叠，且任务目标是生成新 deck
+- 用户要求创建、生成、编写、重做或导出 PPT、slides、deck、演讲稿页面或技术汇报页面
+- 用户要求生成 HTML PPT、HTML slides、网页演示文稿、Web deck 或可在浏览器中打开的幻灯片
+- 用户要求基于已有材料生成华为风格汇报、华为红灰配色汇报、中文正文或可导出的演示文稿
+- 用户要求用 HTML/CSS/前端方式制作 deck、slides、演讲稿页面或技术汇报页面
+- 用户提供 `ppt_content_brief.md`，并希望继续生成 PPT / slides / deck
+- 用户要求对已完成的 HTML 演示文稿进行导出 PNG 和独立视觉 QA
+- 用户明确提到 `hw-ppt-gen-html`、`html-ppt-skill`、`render_html_ppt.py` 或 `html-ppt-visual-qa-rubric.md`
 
-当任务只是整理普通文档、写纯文本大纲、修改代码或处理与 PPT 无关的内容时，不应加载这个 skill。该 skill 不用于深度编辑、合并、拆分或修复已有 PPT；这类任务应先确认是否需要改为“重新生成新 deck”。
+当任务只是整理普通文档、写纯文本大纲、修改代码或处理与 PPT 无关的内容时，不应加载这个 skill。
 
 使用这个 skill 时：
 
-- 先读取 `skills/hw-ppt-gen/SKILL.md`
-- 若任务会产生中间稿、图片、图表素材、生成脚本、检查结果、导出图片或阶段性 PPT，必须以 `.tmp/` 为工作根目录，并按该 skill 的 `.tmp/<deck>/` 目录约定拼接子路径
-- 生成 PPT 后，应按该 skill 的要求运行参考图审阅、内容 QA、硬规则 QA、PPTX 图片导出和视觉 QA，再交付结果
+- 先读取 `skills/hw-ppt-gen-html/SKILL.md`
+- 若任务会产生中间稿、HTML、导出图片、视觉 QA 记录或阶段性结果，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/hw-ppt-gen-html/<task-name>/`
+- 完成 HTML 演示文稿后，必须按该 skill 要求运行 `scripts/render_html_ppt.py` 导出 PNG，并委派独立视觉 QA checker；`visual-qa.md` 必须包含逐页 `Primary Visual Checks`
 
 ### `skills/ppt-deep-search`
 
@@ -92,7 +94,7 @@
 - skill 名称：`ppt-deep-search`
 - 主要用途：在生成 PPT 前做人机协同的深度研究、观点对齐、故事线规划和证据审计，产出 `ppt_content_brief.md` 与 `research_audit.md` 供后续 PPT 生成 skill 使用
 
-只有当人类明确提到“PPT深度研究”时，agent 才应加载并使用这个 skill。用户只是说“做 PPT”“生成 PPT”“制作 PPT”“PPT 汇报”或类似普通 PPT 制作需求时，不应触发该 skill，应直接使用 `skills/hw-ppt-gen`。
+只有当人类明确提到“PPT深度研究”时，agent 才应加载并使用这个 skill。用户只是说“做 PPT”“生成 PPT”“制作 PPT”“PPT 汇报”或类似普通 PPT 制作需求时，不应触发该 skill，应直接使用 `skills/hw-ppt-gen-html`。
 
 当任务满足以下任一条件时，agent 应加载并使用这个 skill：
 
@@ -106,7 +108,29 @@
 - 先读取 `skills/ppt-deep-search/SKILL.md`
 - 所有临时笔记、基线、草稿、QA 输出和最终 handoff 文件必须写入 `.tmp/ppt-deep-search/<task-name>/`
 - 完成深度研究后，必须按该 skill 要求运行 `validate_ppt_content_brief.py` 校验 `ppt_content_brief.md`
-- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策	
+- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen-html` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策	
+
+### `skills/web-article-capture`
+
+- 加载路径：`skills/web-article-capture/SKILL.md`
+- skill 名称：`web-article-capture`
+- 主要用途：使用 Codex in-app Browser 抽取网页 article/main 正文文本和原始正文图片，生成可供下游 agent 使用的紧凑 source package
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求抓取、抽取、保存或打包网页正文内容
+- 用户要求把网页文章、官方页面、博客、公告、文档页或媒体丰富页面整理成下游可引用的 source package
+- 用户需要网页原始正文图片、图表、图注或图片与附近文本的对应关系
+- 用户明确提到 `web-article-capture`、`validate_capture_package.py`、网页 capture package 或 `source.md`
+
+当任务只是检索网页事实、总结少量网页信息、制作 PPT、解析 PDF、处理 GitHub Issue 或无需浏览器渲染正文和图片资产时，不应加载这个 skill。
+
+使用这个 skill 时：
+
+- 先读取 `skills/web-article-capture/SKILL.md`
+- 若任务会产生 source package、图片、review.html、日志或调试产物，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/web-article-capture/<task-name>/`
+- 需要真实网页抓取时，应按 skill 说明优先使用 Codex in-app Browser；被阻断、超时或只能部分抓取时，要在 `source.md` 记录 capture mode、blocked stage 或 fallback source
+- 交付前必须运行 `python skills/web-article-capture/scripts/validate_capture_package.py <output-root> --require-images when-referenced`
 
 ### `skills/grobid_pdf_skill`
 

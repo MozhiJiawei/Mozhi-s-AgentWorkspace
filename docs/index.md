@@ -30,10 +30,11 @@ features:
 | Skill | 能力 |
 | --- | --- |
 | [ppt-deep-search](/skills/ppt-deep-search/) | 在生成 PPT 前完成深度研究、观点对齐、故事线规划和证据审计。 |
-| [huawei-pptx-generator](/skills/hw-ppt-gen/) | 基于材料生成华为风格 PPTX，并完成布局、导出和视觉 QA。 |
-| [grobid-docling-pdf](/skills/grobid_pdf_skill/) | 解析论文或技术 PDF，输出结构化 XML、图表图片和可追踪中间结果。 |
+| [hw-ppt-gen-html](/skills/hw-ppt-gen-html/) | 基于材料生成 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
 | [gh-issue-comment-monitor](/skills/gh-issue-comment-monitor/) | 增量读取 GitHub Issue 新评论，避免重复加载完整讨论历史。 |
+| [grobid-docling-pdf](/skills/grobid_pdf_skill/) | 解析论文或技术 PDF，输出结构化 XML、图表图片和可追踪中间结果。 |
 | [send-qq-email](/skills/send-qq-email/) | 通过 QQ 邮箱 SMTP dry-run 或发送邮件，并生成 `.eml` 快照。 |
+| [web-article-capture](/skills/web-article-capture/) | 抓取网页正文文本和原始正文图片，生成下游可复用的 source package。 |
 | [[beta] generate-3plus1-diagrams](/skills/architecture_4-1/) | 分析代码仓库架构，生成 3+1 / 4+1 架构视图和可编辑 draw.io 图。 |
 
 更多细节见 [Skills](/skills/)。

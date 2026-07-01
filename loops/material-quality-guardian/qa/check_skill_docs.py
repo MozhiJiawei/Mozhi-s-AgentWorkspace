@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 import sys
 
+from common import repo_root
+
 
 MANIFEST_PATH = Path("docs/skill-docs.yml")
 DOCS_MANIFEST_NAME = "docs.manifest.yml"
@@ -209,7 +211,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parent.parent
+    root = repo_root()
     manifest_path = root / MANIFEST_PATH
     if not manifest_path.exists():
         print(f"缺少 {MANIFEST_PATH.as_posix()}")
@@ -308,7 +310,7 @@ def main() -> int:
         if expected != actual:
             errors.append(
                 f"{name}: 与文档相关的文件已变化；请复核发布文档，并使用 "
-                "`python scripts/check_skill_docs.py --update-fingerprints` "
+                "`python loops/material-quality-guardian/qa/check_skill_docs.py --update-fingerprints` "
                 "刷新 docs_review.source_fingerprint。"
             )
 

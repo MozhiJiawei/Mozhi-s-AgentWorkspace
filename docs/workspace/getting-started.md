@@ -56,7 +56,7 @@ TBD
 | Skill | 依赖说明 |
 | --- | --- |
 | `ppt-deep-search` | [依赖说明](/skills/ppt-deep-search/dependencies) |
-| `huawei-pptx-generator` | [依赖说明](/skills/hw-ppt-gen/dependencies) |
+| `hw-ppt-gen-html` | [依赖说明](/skills/hw-ppt-gen-html/dependencies) |
 | `grobid-docling-pdf` | [依赖说明](/skills/grobid_pdf_skill/dependencies) |
 | `gh-issue-comment-monitor` | [依赖说明](/skills/gh-issue-comment-monitor/dependencies) |
 | `send-qq-email` | [依赖说明](/skills/send-qq-email/dependencies) |
@@ -70,43 +70,43 @@ TBD
 
 ### 3.1 PPT 生成（zero-shot）：PDF 论文
 
-典型场景：你有一篇论文 PDF，希望根据输入材料直接生成中文技术汇报 PPT，不先进入深度研究流程。
+典型场景：你有一篇论文 PDF，希望根据输入材料直接生成中文技术汇报 HTML 演示文稿，不先进入深度研究流程。
 
 Prompt 示例：
 
 - `请解析这篇论文 PDF，输出结构化 XML 和图表图片索引，用于后续分析。`
-- `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的业务汇报 deck，并导出图片做视觉检查。`
+- `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的 HTML 业务汇报 deck，并导出 PNG 做视觉检查。`
 
 预期调用的 Skills：
 
 - `grobid-docling-pdf`
-- `huawei-pptx-generator`
+- `hw-ppt-gen-html`
 
 预期产物：
 
 - 论文结构化 XML
 - 图表图片索引
-- PPTX 文件
-- PPT 导出图片
+- HTML 演示文稿
+- PNG 导出图片
 - 视觉 QA 和规则检查结果
 
 ### 3.2 PPT 生成（zero-shot）：新闻
 
-典型场景：你有新闻、网页或文字材料，希望根据输入内容直接生成汇报 PPT，不先进入深度研究流程。
+典型场景：你有新闻、网页或文字材料，希望根据输入内容直接生成 HTML 汇报演示文稿，不先进入深度研究流程。
 
 Prompt 示例：
 
-- `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的业务汇报 deck，并导出图片做视觉检查。`
-- `请读取这个仓库的分析结果，生成一份华为风格技术方案 PPTX，重点检查正文内容不要重叠或裁切。`
+- `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的 HTML 业务汇报 deck，并导出 PNG 做视觉检查。`
+- `请读取这个仓库的分析结果，生成一份华为风格 HTML 技术方案 slides，重点检查正文内容不要重叠或裁切。`
 
 预期调用的 Skills：
 
-- `huawei-pptx-generator`
+- `hw-ppt-gen-html`
 
 预期产物：
 
-- PPTX 文件
-- PPT 导出图片
+- HTML 演示文稿
+- PNG 导出图片
 - 视觉 QA 和规则检查结果
 - 可直接复用的汇报材料
 

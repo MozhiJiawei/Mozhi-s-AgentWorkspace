@@ -14,7 +14,7 @@ PUBLIC_STATIC_ROOT = Path("docs/public/skill-static")
 BETA_SKILL_NAMES = {"generate-3plus1-diagrams"}
 SKILL_ORDER = {
     "ppt-deep-search": 0,
-    "huawei-pptx-generator": 1,
+    "hw-ppt-gen-html": 1,
 }
 
 
@@ -132,6 +132,13 @@ def copy_declared_docs(root: Path, skill_path: str) -> dict[str, object]:
     if docs_root.is_dir():
         shutil.copytree(docs_root, static_root)
         create_html_clean_url_aliases(static_root)
+        for static_markdown in static_root.rglob("*.md"):
+            relative_static = static_markdown.relative_to(static_root).as_posix()
+            text = static_markdown.read_text(encoding="utf-8")
+            static_markdown.write_text(
+                rewrite_static_links(text, skill_slug, f"docs/{relative_static}"),
+                encoding="utf-8",
+            )
         for child in sorted(docs_root.iterdir(), key=lambda path: path.name):
             if child.is_dir():
                 shutil.copytree(child, target_root / child.name)

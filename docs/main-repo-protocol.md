@@ -50,7 +50,7 @@
 - 依赖验证命令。
 - 外部服务、浏览器、硬件或可选依赖。
 
-主仓依赖指纹覆盖可能影响运行依赖的文件。当前覆盖范围由 `scripts/check_skill_dependencies.py` 定义，包括：
+主仓依赖指纹覆盖可能影响运行依赖的文件。当前覆盖范围由 `loops/material-quality-guardian/qa/check_skill_dependencies.py` 定义，包括：
 
 - `SKILL.md`
 - `verify_dependencies.py`
@@ -67,7 +67,7 @@
 这些文件变化后，必须复核依赖并刷新指纹：
 
 ```powershell
-python scripts/check_skill_dependencies.py --update-fingerprints
+python loops/material-quality-guardian/qa/check_skill_dependencies.py --update-fingerprints
 ```
 
 刷新指纹只表示依赖已经被复核，不表示可以跳过实际依赖验证。

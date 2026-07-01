@@ -200,6 +200,8 @@ def remote_install_script(package_name: str, deploy_path: str, remote_tmp: str) 
     return f"""set -euo pipefail
 DEPLOY_PATH={sh_quote(deploy_path)}
 PACKAGE={sh_quote(package_path)}
+DOCS_PORT="${{DOCS_PORT:-8888}}"
+export DOCS_PORT
 WORKDIR=$(mktemp -d /tmp/mozhi-agent-workspace-release.XXXXXX)
 trap 'rm -rf "$WORKDIR"' EXIT
 tar -xzf "$PACKAGE" -C "$WORKDIR"
@@ -211,11 +213,36 @@ mkdir -p "$PARENT"
 rm -rf "$DEPLOY_PATH"
 mv "$SRC" "$DEPLOY_PATH"
 cd "$DEPLOY_PATH"
-docker compose -f compose.docs.yml restart docs
+if docker image inspect mozhi-agent-workspace-docs:local >/dev/null 2>&1; then
+  echo "[build] using existing mozhi-agent-workspace-docs:local as the base image"
+  cat > Dockerfile.docs-hotfix <<'EOF'
+FROM mozhi-agent-workspace-docs:local
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/entrypoint.sh /usr/local/bin/mozhi-docs-entrypoint
+RUN chmod +x /usr/local/bin/mozhi-docs-entrypoint
+EOF
+  docker build -f Dockerfile.docs-hotfix -t mozhi-agent-workspace-docs:local .
+else
+  echo "[build] local docs image is missing; running full docs image build"
+  docker compose -f compose.docs.yml build docs
+fi
+docker compose -f compose.docs.yml up -d --no-build --force-recreate docs
 docker compose -f compose.docs.yml ps
+verify_contains() {{
+  url="$1"
+  needle="$2"
+  tmp=$(mktemp)
+  if curl -fsS "$url" -o "$tmp" && grep -F "$needle" "$tmp" >/dev/null; then
+    rm -f "$tmp"
+    return 0
+  fi
+  rm -f "$tmp"
+  return 1
+}}
 for i in $(seq 1 30); do
-  if curl -fsS http://127.0.0.1:8888/ -o /dev/null && \
-     curl -fsS http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm -o /dev/null; then
+  if verify_contains "http://127.0.0.1:$DOCS_PORT/" "Mozhi" && \
+     verify_contains "http://127.0.0.1:$DOCS_PORT/skills/ppt-deep-search/reference" "ppt-deep-search 效果展示" && \
+     verify_contains "http://127.0.0.1:$DOCS_PORT/skill-static/ppt-deep-search/showcase/latest/rtx-spark-agent-pc/source_understanding.html" "Source Understanding"; then
     break
   fi
   if [ "$i" -eq 30 ]; then

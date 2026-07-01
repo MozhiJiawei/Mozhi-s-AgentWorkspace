@@ -4,9 +4,6 @@
 [submodule "skills/grobid_pdf_skill"]
 	path = skills/grobid_pdf_skill
 	url = https://github.com/MozhiJiawei/grobid_pdf_skill.git
-[submodule "skills/hw-ppt-gen"]
-	path = skills/hw-ppt-gen
-	url = https://github.com/MozhiJiawei/hw-ppt-gen.git
 [submodule "skills/send-qq-email"]
 	path = skills/send-qq-email
 	url = https://github.com/MozhiJiawei/send-qq-email.git
@@ -19,3 +16,9 @@
 [submodule "ccn-report"]
 	path = ccn-report
 	url = https://github.com/MozhiJiawei/ccn-report.git
+[submodule "skills/web-article-capture"]
+	path = skills/web-article-capture
+	url = https://github.com/MozhiJiawei/web-article-capture.git
+[submodule "skills/hw-ppt-gen-html"]
+	path = skills/hw-ppt-gen-html
+	url = https://github.com/MozhiJiawei/hw-ppt-gen-html.git

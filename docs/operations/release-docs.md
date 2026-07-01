@@ -19,11 +19,13 @@ python scripts\release_docs_package.py --remote root@39.105.78.135 --push-tag
 3. 用主仓和各 skill 子仓的 `git ls-files` 生成干净源码包。
 4. 上传源码包到远端 `/tmp/mozhi-agent-workspace-releases/`。
 5. 清理并替换远端 `/opt/mozhi-agent-workspace-docs/`。
-6. 重启 `mozhi-agent-workspace-docs` 文档容器。
-7. 检查首页和静态 HTML 展示页是否可访问。
+6. 优先复用远端已有 `mozhi-agent-workspace-docs:local` 镜像更新容器配置；若本地镜像不存在，再执行完整镜像构建。
+7. 检查首页、Skill reference 页和静态 HTML 展示页是否返回真实内容。
 8. 部署成功后尝试推送 tag 到 GitHub。
 
 远端上线不依赖 GitHub。`--push-tag` 只是部署后的版本同步动作；如果 GitHub 连接卡住，脚本会在默认 30 秒后告警并继续结束，不会影响已经完成的远端发布。
+
+远端部署默认优先使用服务器本地已有的 `mozhi-agent-workspace-docs:local` 镜像，只把最新 `docker/nginx.conf` 和 `docker/entrypoint.sh` 覆盖进镜像后重新创建 docs 容器。只有本地 docs 镜像不存在时，才会走完整 Docker build 并拉取 `NODE_IMAGE`。
 
 ## 指定 tag
 
@@ -98,11 +100,12 @@ python scripts\pre_commit_gate.py
 
 ## 发布后验证
 
-脚本会自动验证两个地址：
+脚本会自动验证三个地址，并检查页面签名文本，避免 HTML 首页兜底页被 `curl -fsS` 误判为成功：
 
 ```text
 http://127.0.0.1:8888/
-http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/rtx-spark-agent-pc/review/source_understanding_review.htm
+http://127.0.0.1:8888/skills/ppt-deep-search/reference
+http://127.0.0.1:8888/skill-static/ppt-deep-search/showcase/latest/rtx-spark-agent-pc/source_understanding.html
 ```
 
 如果需要人工复查，可以登录服务器执行：

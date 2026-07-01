@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "docs:dev": "python scripts/sync_skill_docs.py && vitepress dev docs --host 127.0.0.1",
-    "docs:build": "python scripts/sync_skill_docs.py && vitepress build docs",
+    "docs:build": "python scripts/sync_skill_docs.py && vitepress build docs && python scripts/write_docs_publish_state.py --output docs/.vitepress/dist/material-quality/publish-state.json",
     "docs:preview": "vitepress preview docs --host 127.0.0.1"
   },
   "devDependencies": {

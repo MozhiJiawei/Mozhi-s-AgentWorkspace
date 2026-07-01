@@ -32,8 +32,8 @@ git add skills/<source-or-skill-name>
 ## 变更后复核
 
 ```powershell
-python scripts/check_skill_docs.py
-python scripts/check_skill_dependencies.py
+python loops/material-quality-guardian/qa/check_skill_docs.py
+python loops/material-quality-guardian/qa/check_skill_dependencies.py
 python scripts/pre_commit_gate.py
 ```
 

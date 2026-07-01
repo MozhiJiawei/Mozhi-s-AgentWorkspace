@@ -32,17 +32,17 @@ skills:
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
 
-  huawei-pptx-generator:
-    path: skills/hw-ppt-gen
-    mount: docs/skills/hw-ppt-gen
+  hw-ppt-gen-html:
+    path: skills/hw-ppt-gen-html
+    mount: docs/skills/hw-ppt-gen-html
     status: bootstrap
     publish:
       mode: subrepo-manifest
-      entry: docs/skills/hw-ppt-gen/index.md
+      entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:bd22068ffcc9308a4523bb68068cbbaa7620346ed2a1c84a1a101e1af3dc136f
-      reviewed_at: "2026-06-04"
+      source_fingerprint: sha256:f885d6eadc297fec9a0f7baec281cb4807263dc7317d8d7ce8a76889291e4127
+      reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
 
@@ -55,8 +55,22 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:b6abbbe7aa56a8f8d5fa791ebff1999fb81c1bf3f72e1d59fd6710645d73c9b1
+      source_fingerprint: sha256:1fd04d4c7e1b5142744bd6411715069099240449bcd6cf73569e97206cc5dfd1
       reviewed_at: "2026-06-04"
+      reviewed_by: agent
+      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+
+  web-article-capture:
+    path: skills/web-article-capture
+    mount: docs/skills/web-article-capture
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/web-article-capture/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:e96371e75fce25d33bb458c3a916b8127035290946d11e3296d74c9be0bf5f69
+      reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
 

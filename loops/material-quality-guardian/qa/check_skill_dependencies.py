@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 import sys
 
+from common import repo_root
+
 
 MANIFEST_PATH = Path("docs/skill-dependencies.yml")
 SELF_CHECK_SCRIPT = "verify_dependencies.py"
@@ -146,7 +148,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parent.parent
+    root = repo_root()
     manifest_path = root / MANIFEST_PATH
     if not manifest_path.exists():
         print(f"Missing {MANIFEST_PATH.as_posix()}")
@@ -204,7 +206,7 @@ def main() -> int:
             errors.append(
                 f"{name}: dependency-relevant files changed; review dependencies and refresh "
                 f"dependency_review.source_fingerprint with "
-                f"`python scripts/check_skill_dependencies.py --update-fingerprints`."
+                f"`python loops/material-quality-guardian/qa/check_skill_dependencies.py --update-fingerprints`."
             )
 
     if args.update_fingerprints:

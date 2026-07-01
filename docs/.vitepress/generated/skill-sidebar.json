@@ -26,24 +26,20 @@
     ]
   },
   {
-    "text": "huawei-pptx-generator",
+    "text": "hw-ppt-gen-html",
     "collapsed": true,
     "items": [
       {
-        "text": "能力展示",
-        "link": "/skills/hw-ppt-gen/reference"
+        "text": "使用方式",
+        "link": "/skills/hw-ppt-gen-html/usage"
       },
       {
-        "text": "使用方式",
-        "link": "/skills/hw-ppt-gen/usage"
+        "text": "能力边界",
+        "link": "/skills/hw-ppt-gen-html/reference"
       },
       {
         "text": "依赖说明",
-        "link": "/skills/hw-ppt-gen/dependencies"
-      },
-      {
-        "text": "架构概览",
-        "link": "/skills/hw-ppt-gen/architecture_design"
+        "link": "/skills/hw-ppt-gen-html/dependencies"
       }
     ]
   },
@@ -110,6 +106,28 @@
       {
         "text": "架构概览",
         "link": "/skills/send-qq-email/"
+      }
+    ]
+  },
+  {
+    "text": "web-article-capture",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Overview",
+        "link": "/skills/web-article-capture/"
+      },
+      {
+        "text": "Usage",
+        "link": "/skills/web-article-capture/usage"
+      },
+      {
+        "text": "Dependencies",
+        "link": "/skills/web-article-capture/dependencies"
+      },
+      {
+        "text": "Output Contract",
+        "link": "/skills/web-article-capture/output-contract"
       }
     ]
   },
