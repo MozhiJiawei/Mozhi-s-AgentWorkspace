@@ -13,6 +13,7 @@ HOME_INDEX_PATH = Path("docs/index.md")
 SKILL_INDEX_PATH = Path("docs/skills/index.md")
 SIDEBAR_PATH = Path("docs/.vitepress/generated/skill-sidebar.json")
 DOCS_MANIFEST_NAME = "docs.manifest.yml"
+REQUIRED_SKILL_NAV_TITLES = ("能力展示", "使用方式", "依赖说明", "架构概览")
 
 
 def strip_yaml_scalar(value: str) -> str:
@@ -52,6 +53,35 @@ def parse_skill_docs_manifest(text: str) -> dict[str, dict[str, str]]:
             skills[current_name]["mount"] = strip_yaml_scalar(mount_match.group(1))
 
     return skills
+
+
+def parse_subrepo_docs_manifest(text: str) -> dict[str, object]:
+    data: dict[str, object] = {"nav": []}
+    current_nav_item: dict[str, str] | None = None
+
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+
+        scalar_match = re.match(r"^([A-Za-z0-9_-]+):\s*(.+?)\s*$", line)
+        if scalar_match:
+            data[scalar_match.group(1)] = strip_yaml_scalar(scalar_match.group(2))
+            current_nav_item = None
+            continue
+
+        nav_item_match = re.match(r"^  - title:\s*(.+?)\s*$", line)
+        if nav_item_match:
+            current_nav_item = {"title": strip_yaml_scalar(nav_item_match.group(1))}
+            nav = data.setdefault("nav", [])
+            assert isinstance(nav, list)
+            nav.append(current_nav_item)
+            continue
+
+        nav_path_match = re.match(r"^    path:\s*(.+?)\s*$", line)
+        if nav_path_match and current_nav_item is not None:
+            current_nav_item["path"] = strip_yaml_scalar(nav_path_match.group(1))
+
+    return data
 
 
 def repo_skill_paths(root: Path) -> set[str]:
@@ -126,6 +156,60 @@ def sidebar_skill_links(path: Path) -> set[str]:
     return links
 
 
+def sidebar_skill_nav(path: Path) -> dict[str, list[str]]:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    nav: dict[str, list[str]] = {}
+    if not isinstance(data, list):
+        return nav
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        direct_link = item.get("link")
+        if isinstance(direct_link, str) and direct_link == "/skills/":
+            continue
+        child_items = item.get("items", [])
+        if not isinstance(child_items, list):
+            continue
+        skill_slug: str | None = None
+        titles: list[str] = []
+        for child in child_items:
+            if not isinstance(child, dict):
+                continue
+            link = child.get("link")
+            title = child.get("text")
+            if isinstance(link, str) and link.startswith("/skills/"):
+                parts = link.strip("/").split("/")
+                if len(parts) >= 2:
+                    skill_slug = skill_slug or parts[1]
+            if isinstance(title, str):
+                titles.append(title)
+        if skill_slug:
+            nav[skill_slug] = titles
+    return nav
+
+
+def validate_required_skill_nav(root: Path, skills: dict[str, dict[str, str]], errors: list[str]) -> None:
+    for name, data in skills.items():
+        skill_path = data.get("path", "").replace("\\", "/")
+        if not skill_path:
+            continue
+        manifest_path = root / skill_path / DOCS_MANIFEST_NAME
+        if not manifest_path.is_file():
+            errors.append(f"{skill_path} 缺少 {DOCS_MANIFEST_NAME}")
+            continue
+        manifest = parse_subrepo_docs_manifest(manifest_path.read_text(encoding="utf-8"))
+        nav = manifest.get("nav", [])
+        nav_titles = [
+            item.get("title")
+            for item in nav
+            if isinstance(item, dict) and isinstance(item.get("title"), str)
+        ]
+        missing = [title for title in REQUIRED_SKILL_NAV_TITLES if title not in nav_titles]
+        if missing:
+            errors.append(f"{skill_path}/{DOCS_MANIFEST_NAME} 缺少必选资料导航项：")
+            errors.extend(f"  - {title}" for title in missing)
+
+
 def validate_link_surface(
     label: str,
     actual_links: set[str],
@@ -177,6 +261,7 @@ def main() -> int:
     expected_links = expected_skill_links(skills)
     if len(expected_links) != len(skills):
         errors.append("docs/skill-docs.yml 中存在缺少 docs/skills mount 的 skill。")
+    validate_required_skill_nav(root, skills, errors)
 
     home_path = root / HOME_INDEX_PATH
     if not home_path.is_file():
@@ -214,6 +299,14 @@ def main() -> int:
             expected_links,
             errors,
         )
+        sidebar_nav = sidebar_skill_nav(sidebar_path)
+        for name, link in expected_links.items():
+            skill_slug = link.strip("/").split("/")[-1]
+            nav_titles = sidebar_nav.get(skill_slug, [])
+            missing = [title for title in REQUIRED_SKILL_NAV_TITLES if title not in nav_titles]
+            if missing:
+                errors.append(f"{SIDEBAR_PATH.as_posix()} 中 {name} 缺少必选资料导航项：")
+                errors.extend(f"  - {title}" for title in missing)
 
     if errors:
         for error in errors:

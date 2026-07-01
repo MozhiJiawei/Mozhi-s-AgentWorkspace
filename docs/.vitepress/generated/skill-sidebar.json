@@ -30,16 +30,20 @@
     "collapsed": true,
     "items": [
       {
+        "text": "能力展示",
+        "link": "/skills/hw-ppt-gen-html/reference"
+      },
+      {
         "text": "使用方式",
         "link": "/skills/hw-ppt-gen-html/usage"
       },
       {
-        "text": "能力边界",
-        "link": "/skills/hw-ppt-gen-html/reference"
-      },
-      {
         "text": "依赖说明",
         "link": "/skills/hw-ppt-gen-html/dependencies"
+      },
+      {
+        "text": "架构概览",
+        "link": "/skills/hw-ppt-gen-html/"
       }
     ]
   },
@@ -114,20 +118,20 @@
     "collapsed": true,
     "items": [
       {
-        "text": "Overview",
-        "link": "/skills/web-article-capture/"
+        "text": "能力展示",
+        "link": "/skills/web-article-capture/reference"
       },
       {
-        "text": "Usage",
+        "text": "使用方式",
         "link": "/skills/web-article-capture/usage"
       },
       {
-        "text": "Dependencies",
+        "text": "依赖说明",
         "link": "/skills/web-article-capture/dependencies"
       },
       {
-        "text": "Output Contract",
-        "link": "/skills/web-article-capture/output-contract"
+        "text": "架构概览",
+        "link": "/skills/web-article-capture/"
       }
     ]
   },
