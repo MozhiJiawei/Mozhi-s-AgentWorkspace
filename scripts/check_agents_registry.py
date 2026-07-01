@@ -6,8 +6,6 @@ from pathlib import Path
 import re
 import sys
 
-from common import repo_root
-
 
 def parse_gitmodules(gitmodules_path: Path) -> list[str]:
     parser = configparser.ConfigParser()
@@ -27,7 +25,7 @@ def parse_registered_skills(agents_path: Path) -> list[str]:
 
 
 def main() -> int:
-    root = repo_root()
+    root = Path(__file__).resolve().parent.parent
     gitmodules_path = root / ".gitmodules"
     agents_path = root / "AGENTS.md"
 

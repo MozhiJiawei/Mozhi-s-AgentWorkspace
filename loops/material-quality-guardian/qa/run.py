@@ -31,16 +31,6 @@ def run_check(root: Path, check: Check) -> int:
 def local_checks() -> list[Check]:
     qa_root = Path(__file__).resolve().parent
     return [
-        Check("agents-registry", [sys.executable, str(qa_root / "check_agents_registry.py")]),
-        Check(
-            "readme-skill-prompts",
-            [sys.executable, str(qa_root / "check_readme_skill_prompts.py")],
-        ),
-        Check(
-            "skill-dependencies",
-            [sys.executable, str(qa_root / "check_skill_dependencies.py")],
-        ),
-        Check("skill-docs", [sys.executable, str(qa_root / "check_skill_docs.py")]),
         Check(
             "docs-skill-surfaces",
             [sys.executable, str(qa_root / "check_docs_skill_surfaces.py")],

@@ -4,8 +4,6 @@ from pathlib import Path
 import re
 import sys
 
-from common import repo_root
-
 
 README_SECTION_TITLE = "## Skill Prompt 示例"
 
@@ -16,7 +14,7 @@ def parse_registered_skills(agents_path: Path) -> list[str]:
 
 
 def main() -> int:
-    root = repo_root()
+    root = Path(__file__).resolve().parent.parent
     readme_path = root / "README.md"
     agents_path = root / "AGENTS.md"
 

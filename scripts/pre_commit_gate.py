@@ -26,6 +26,22 @@ def main() -> int:
     root = Path(__file__).resolve().parent.parent
     gates = [
         Gate(
+            name="agents-registry",
+            command=[sys.executable, "scripts/check_agents_registry.py"],
+        ),
+        Gate(
+            name="readme-skill-prompts",
+            command=[sys.executable, "scripts/check_readme_skill_prompts.py"],
+        ),
+        Gate(
+            name="skill-dependencies",
+            command=[sys.executable, "scripts/check_skill_dependencies.py"],
+        ),
+        Gate(
+            name="skill-docs",
+            command=[sys.executable, "scripts/check_skill_docs.py"],
+        ),
+        Gate(
             name="material-quality-qa",
             command=[sys.executable, "loops/material-quality-guardian/qa/run.py"],
         ),

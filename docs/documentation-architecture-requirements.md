@@ -70,8 +70,8 @@ manifest 应声明：
 
 主仓必须能够感知 skill 子仓内与文档相关的变化。该要求与现有依赖复核流程保持一致：
 
-- 依赖变化由 `loops/material-quality-guardian/qa/check_skill_dependencies.py` 守护
-- 文档变化由 `loops/material-quality-guardian/qa/check_skill_docs.py` 守护
+- 依赖变化由 `scripts/check_skill_dependencies.py` 守护
+- 文档变化由 `scripts/check_skill_docs.py` 守护
 
 当文档文件、文档 manifest 或公开 skill 解释文件变化时，主仓门禁必须失败；只有在复核后刷新文档指纹，门禁才应恢复通过。
 
