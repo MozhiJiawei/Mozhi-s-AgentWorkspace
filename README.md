@@ -145,7 +145,7 @@ Skill 子仓负责：
 
 ## 维护
 
-修改 skill 资料前，先阅读 [Skill 资料规范](./docs/reference/skill-material-standards.md)。该规范定义 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 四个必选页面的写作要求，也是 Agent 补写或审查资料时的参考入口。
+修改 skill 资料前，先阅读 [文档架构需求](./docs/documentation-architecture-requirements.md)。其中的 `Skill 资料页面要求` 定义 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 四个必选页面的写作要求，也是 Agent 补写或审查资料时的参考入口。
 
 提交仓库改动前，运行统一门禁：
 

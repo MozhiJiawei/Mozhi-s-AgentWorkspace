@@ -39,7 +39,7 @@
 - 远端站点：http://docs.haohaoxiaoyu.top:8888/
 
 你的任务：
-1. 先阅读 `docs/reference/skill-material-standards.md`，按其中对 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 的要求检阅内容。
+1. 先阅读 `docs/documentation-architecture-requirements.md` 中的 `Skill 资料页面要求`，按其中对 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 的要求检阅内容。
 2. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
 
 返回格式：

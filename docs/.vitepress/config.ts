@@ -53,7 +53,6 @@ export default {
           { text: "参考索引", link: "/reference/" },
           { text: "主仓协议", link: "/reference/main-repo-protocol" },
           { text: "Skill 子仓协议", link: "/reference/skill-repo-protocol" },
-          { text: "Skill 资料规范", link: "/reference/skill-material-standards" },
           { text: "文档 Manifest", link: "/reference/skill-docs-manifest" }
         ]
       }
