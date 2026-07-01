@@ -39,14 +39,16 @@
 - 远端站点：http://docs.haohaoxiaoyu.top:8888/
 
 你的任务：
-1. 先阅读 `docs/documentation-architecture-requirements.md` 中的 `Skill 资料页面要求`，按其中对 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 的要求检阅内容。
-2. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
+1. 先阅读 `docs/documentation-architecture-requirements.md`，把它作为本轮资料校验标准。
+2. 按该规范审查目标范围内的本地资料、相关实现证据和远端页面。
+3. 只登记能被页面或仓库文件直接复现的问题。
+4. 只返回这个单元的 findings 候选，不要替主 agent 改 Issue。
 
 返回格式：
 - unit: <unit-name>
 - status: ok | findings
 - evidence:
-  - <bullet>
+  - <short review evidence>
 - findings:
   - id_hint: <short-slug>
     severity: P0 | P1 | P2
