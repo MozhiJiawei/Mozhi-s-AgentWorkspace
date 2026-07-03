@@ -53,7 +53,7 @@ skills:
   hw-ppt-gen-html:
     path: skills/hw-ppt-gen-html
     dependency_review:
-      source_fingerprint: sha256:9856c278127d6f6eb854951b76bf1c427ac445f5c3093e12de0df3ba8891f63c
+      source_fingerprint: sha256:4544788d4fa29ca33ef3057b7f089e09dfec01d239aae5785ccd15f3905d2da4
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: Initial review; wrapper uses Python plus Playwright/Chromium for HTML screenshot export, and delegates HTML deck runtime to the nested html-ppt-skill submodule.
@@ -81,7 +81,7 @@ skills:
   ppt-deep-search:
     path: skills/ppt-deep-search
     dependency_review:
-      source_fingerprint: sha256:6f7a5b8002664a65aff9f1f614105f52b9c0eba629576993b869ca8901303af9
+      source_fingerprint: sha256:10cfcc30a077a0a586991a8ef417fa3b0087d6dbf86880f02c89fc14cf929c21
       reviewed_at: "2026-06-05"
       reviewed_by: agent
       note: Reviewed ppt-deep-search update; new web evidence capture workflow and validators still use Python standard library only with no external service, browser, or package dependency.
