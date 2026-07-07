@@ -62,6 +62,7 @@ http://127.0.0.1:5173/
 .
 |-- AGENTS.md          # agent 可读的 skill 注册表和使用约束
 |-- README.md          # 面向人类读者的 GitHub 入口
+|-- .codex/            # Codex 原生子 agent 的主仓级配置
 |-- docs/              # 主仓文档和统一文档站
 |-- skills/            # skill 子仓；每个 skill 拥有自己的文档
 |-- scripts/           # 主仓检查脚本和文档编排脚本
@@ -154,6 +155,8 @@ python scripts/pre_commit_gate.py
 ```
 
 该入口会编排文档漂移检查、skill 依赖复核检查、注册表检查和 README prompt 示例覆盖检查。准备提交时不要绕过它单独挑选检查项。
+
+接入带 Codex 原生子 agent 的 skill 时，先运行 `python scripts/check_codex_agents_config.py --update`，由脚本把子仓 `.codex/agents/*.toml` 同步到主仓 `.codex/config.toml`，再运行统一门禁。
 
 ## 原则
 

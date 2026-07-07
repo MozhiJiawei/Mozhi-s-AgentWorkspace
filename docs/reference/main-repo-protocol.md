@@ -17,6 +17,7 @@
 | `.gitmodules` | 记录 `skills/` 下的 submodule 来源。 |
 | `AGENTS.md` | 记录已暴露 skill 的加载路径、触发条件和主仓侧使用约束。 |
 | `README.md` | 记录工作区说明、日常操作说明和 skill prompt 示例。 |
+| `.codex/config.toml` | 登记 Codex 原生子 agent 的主仓级入口。 |
 | `docs/skill-dependencies.yml` | 登记 skill 运行依赖与复核指纹。 |
 | `docs/skill-docs.yml` | 登记 skill 文档发布来源与复核指纹。 |
 | `scripts/pre_commit_gate.py` | 提交前统一门禁入口。 |
@@ -43,9 +44,10 @@
 1. 将 skill 作为 submodule 添加到 `skills/<skill-source>`。
 2. 确认子仓满足 [Skill 子仓协议](./skill-repo-protocol)。
 3. 更新 `AGENTS.md`、`README.md`、`docs/skill-dependencies.yml` 和 `docs/skill-docs.yml`。
-4. 运行 skill 的依赖验证命令。
-5. 刷新依赖和文档复核指纹。
-6. 运行 `python scripts/pre_commit_gate.py`。
+4. 如果子仓提供 `.codex/agents/*.toml`，运行 `python scripts/check_codex_agents_config.py --update` 刷新 `.codex/config.toml`。
+5. 运行 skill 的依赖验证命令。
+6. 刷新依赖和文档复核指纹。
+7. 运行 `python scripts/pre_commit_gate.py`。
 
 任一步失败时，不应提交接入变更。
 

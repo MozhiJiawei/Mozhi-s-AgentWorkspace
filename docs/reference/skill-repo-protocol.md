@@ -46,6 +46,14 @@ python verify_dependencies.py
 - 输出具体失败原因。
 - 不要求 Agent 手工打开 IDE 或图形界面才能判断是否通过。
 
+## Codex 原生子 Agent
+
+如果 skill 子仓提供 Codex 原生子 agent，应把稳定定义放在 `.codex/agents/*.toml`。
+
+每个 agent TOML 必须包含 `name`、`description` 和 `developer_instructions`。`name` 必须在整个工作区内唯一。
+
+主仓会通过 `scripts/check_codex_agents_config.py` 扫描这些定义，并要求根目录 `.codex/config.toml` 中存在一致的 `[agents.<name>]` 登记。主仓只登记描述和 `config_file` 引用，不复制子仓的 `developer_instructions` 正文。
+
 ## 临时产物边界
 
 skill 子仓不应要求把运行时中间产物写回子仓自身目录。
@@ -61,5 +69,6 @@ skill 子仓不应要求把运行时中间产物写回子仓自身目录。
 - 必需依赖缺失时返回非零退出码。
 - 可选依赖缺失时给出明确警告。
 - 若存在可检查最终产物，提供脚本化校验入口。
+- 若提供 `.codex/agents/*.toml`，agent TOML 字段完整、名称唯一，并可被主仓 `.codex/config.toml` 引用。
 - 不要求临时产物写入 skill 子仓。
 - 不依赖未声明的外部环境。

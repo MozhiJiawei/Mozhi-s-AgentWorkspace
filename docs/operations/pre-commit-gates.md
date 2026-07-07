@@ -13,6 +13,7 @@ python scripts/pre_commit_gate.py
 门禁用于保持工作区在以下方面一致：
 
 - `AGENTS.md` 中的 skill 注册
+- `.codex/config.toml` 中 Codex 原生子 agent 登记
 - skill 文档 manifest 和源文件指纹
 - skill 依赖复核指纹
 - README 中的 skill prompt 示例覆盖
@@ -28,6 +29,7 @@ python scripts/pre_commit_gate.py
 | --- | --- |
 | Skill 文档变化 | 复核 docs manifest，并在需要时刷新文档指纹。 |
 | 依赖相关文件变化 | 复核运行依赖，并刷新依赖指纹。 |
+| Codex 子 agent 配置漂移 | 复核子仓 `.codex/agents/*.toml`，运行 `python scripts/check_codex_agents_config.py --update` 刷新根配置。 |
 | 注册表不一致 | 更新对应注册表条目。 |
 | README prompt 覆盖失败 | 补充或更新对应 prompt 示例。 |
 

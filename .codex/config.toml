@@ -1,0 +1,15 @@
+[agents.html_ppt_visual_qa_checker]
+description = "HTML PPT 独立视觉 QA checker，只审查导出 PNG 和 HTML，不改文件。"
+config_file = "../skills/hw-ppt-gen-html/.codex/agents/html_ppt_visual_qa_checker.toml"
+
+[agents.paper_source_parser]
+description = "单论文下载、解析、图表/XML 产物整理。"
+config_file = "../skills/ppt-deep-search/.codex/agents/paper_source_parser.toml"
+
+[agents.source_understanding_deck_maker]
+description = "基于 source packages 生成 Source Understanding HTML review deck。"
+config_file = "../skills/ppt-deep-search/.codex/agents/source_understanding_deck_maker.toml"
+
+[agents.web_source_capturer]
+description = "单网页 source package 抓取与校验。"
+config_file = "../skills/ppt-deep-search/.codex/agents/web_source_capturer.toml"

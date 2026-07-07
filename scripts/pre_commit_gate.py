@@ -26,6 +26,10 @@ def main() -> int:
     root = Path(__file__).resolve().parent.parent
     gates = [
         Gate(
+            name="codex-agents-config",
+            command=[sys.executable, "scripts/check_codex_agents_config.py"],
+        ),
+        Gate(
             name="agents-registry",
             command=[sys.executable, "scripts/check_agents_registry.py"],
         ),

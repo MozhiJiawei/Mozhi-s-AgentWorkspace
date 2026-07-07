@@ -53,6 +53,24 @@ python verify_dependencies.py --skip-services
 
 校验脚本不要求统一命名，但必须能在 `SKILL.md` 或主仓注册说明中被明确找到。
 
+## Codex 原生子 Agent
+
+如果 skill 子仓提供 Codex 原生子 agent，应把稳定定义放在：
+
+```text
+.codex/agents/*.toml
+```
+
+每个 agent TOML 必须包含：
+
+- `name`
+- `description`
+- `developer_instructions`
+
+`name` 必须在整个工作区内唯一。主仓会通过 `scripts/check_codex_agents_config.py` 扫描所有 skill 子仓的 `.codex/agents/*.toml`，并要求根目录 `.codex/config.toml` 中存在一致的 `[agents.<name>]` 登记。
+
+子仓不应要求主仓复制 `developer_instructions` 正文；主仓只登记 `description` 和指向子仓 TOML 的 `config_file`。
+
 ## 依赖声明要求
 
 skill 子仓不应依赖未声明的外部环境。
@@ -88,5 +106,6 @@ skill 子仓不应要求把运行时中间产物写回子仓自身目录。
 - 必需依赖缺失时返回非零退出码。
 - 可选依赖缺失时给出明确警告。
 - 若存在可检查最终产物，提供脚本化校验入口。
+- 若提供 `.codex/agents/*.toml`，agent TOML 字段完整、名称唯一，并可被主仓 `.codex/config.toml` 引用。
 - 不要求临时产物写入 skill 子仓。
 - 不依赖未声明的外部环境。

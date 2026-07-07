@@ -20,6 +20,12 @@ git submodule add <repo-url> skills/<source-or-skill-name>
 - `docs/skill-docs.yml`
 - `docs/skill-dependencies.yml`
 
+如果子仓提供 Codex 原生子 agent 定义，还需要刷新根配置：
+
+```powershell
+python scripts/check_codex_agents_config.py --update
+```
+
 ## 更新 Skill
 
 ```powershell
@@ -34,7 +40,9 @@ git add skills/<source-or-skill-name>
 ```powershell
 python scripts/check_skill_docs.py
 python scripts/check_skill_dependencies.py
+python scripts/check_codex_agents_config.py
 python scripts/pre_commit_gate.py
 ```
 
 如果依赖相关文件发生变化，确认依赖状态后刷新依赖复核指纹。
+如果子仓 `.codex/agents/*.toml` 发生变化，先运行 `python scripts/check_codex_agents_config.py --update`，再重新运行统一门禁。
