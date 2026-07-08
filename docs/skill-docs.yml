@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:f8783bd1ed7ecfc1a6af58320f568c9766c97fe2afeb666057ba274aa97735a5
+      source_fingerprint: sha256:f01a1d11b22cef33ea10a2889e8a609f60f15c3ed32a4711a3077173b30d8361
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:dcb79816ecf1ff03a31eeea9420de56b9cadf7bc37feb7490a3ff8e4b5903bb1
+      source_fingerprint: sha256:69855be47c30a2439318ac7dc2362b84bc11e4b644360329c2d0735f9d6a2653
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

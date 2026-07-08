@@ -29,7 +29,7 @@ features:
 
 | Skill | 能力 |
 | --- | --- |
-| [ppt-deep-search](/skills/ppt-deep-search/) | 在生成 PPT 前完成深度研究、观点对齐、故事线规划和证据审计。 |
+| [ppt-deep-search](/skills/ppt-deep-search/) | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | [hw-ppt-gen-html](/skills/hw-ppt-gen-html/) | 基于材料生成 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
 | [gh-issue-comment-monitor](/skills/gh-issue-comment-monitor/) | 增量读取 GitHub Issue 新评论，避免重复加载完整讨论历史。 |
 | [grobid-docling-pdf](/skills/grobid_pdf_skill/) | 解析论文或技术 PDF，输出结构化 XML、图表图片和可追踪中间结果。 |

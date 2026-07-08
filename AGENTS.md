@@ -76,7 +76,6 @@
 - 用户要求生成 HTML PPT、HTML slides、网页演示文稿、Web deck 或可在浏览器中打开的幻灯片
 - 用户要求基于已有材料生成华为风格汇报、华为红灰配色汇报、中文正文或可导出的演示文稿
 - 用户要求用 HTML/CSS/前端方式制作 deck、slides、演讲稿页面或技术汇报页面
-- 用户提供 `ppt_content_brief.md`，并希望继续生成 PPT / slides / deck
 - 用户要求对已完成的 HTML 演示文稿进行导出 PNG 和独立视觉 QA
 - 用户明确提到 `hw-ppt-gen-html`、`html-ppt-skill`、`render_html_ppt.py` 或 `html-ppt-visual-qa-rubric.md`
 
@@ -92,23 +91,23 @@
 
 - 加载路径：`skills/ppt-deep-search/SKILL.md`
 - skill 名称：`ppt-deep-search`
-- 主要用途：在生成 PPT 前做人机协同的深度研究、观点对齐、故事线规划和证据审计，产出 `ppt_content_brief.md` 与 `research_audit.md` 供后续 PPT 生成 skill 使用
+- 主要用途：在生成 PPT 前做人机协同的来源理解审阅，产出 `source_understanding_review.html`、截图、视觉 QA、审批 baseline 和 sources 解析结果
 
 只有当人类明确提到“PPT深度研究”时，agent 才应加载并使用这个 skill。用户只是说“做 PPT”“生成 PPT”“制作 PPT”“PPT 汇报”或类似普通 PPT 制作需求时，不应触发该 skill，应直接使用 `skills/hw-ppt-gen-html`。
 
 当任务满足以下任一条件时，agent 应加载并使用这个 skill：
 
 - 用户明确要求进行“PPT深度研究”
-- 用户明确要求在生成 PPT 前先做深度研究、观点对齐、证据审计或故事线规划，并且使用了“PPT深度研究”这个触发词
-- 用户明确要求基于材料先产出 PPT Content Brief / Research Audit，再交给 PPT 生成流程
-- 用户明确提到 `ppt-deep-search`、`ppt_content_brief.md`、`research_audit.md` 或 `validate_ppt_content_brief.py`
+- 用户明确要求在生成 PPT 前先做深度研究、来源理解审阅或证据审计，并且使用了“PPT深度研究”这个触发词
+- 用户明确要求基于材料先产出 `source_understanding_review.html`
+- 用户明确提到 `ppt-deep-search` 或 Source Understanding 审阅
 
 使用这个 skill 时：
 
 - 先读取 `skills/ppt-deep-search/SKILL.md`
-- 所有临时笔记、基线、草稿、QA 输出和最终 handoff 文件必须写入 `.tmp/ppt-deep-search/<task-name>/`
-- 完成深度研究后，必须按该 skill 要求运行 `validate_ppt_content_brief.py` 校验 `ppt_content_brief.md`
-- 若用户随后要求生成 PPT，应把已通过校验的 `ppt_content_brief.md` 作为 `skills/hw-ppt-gen-html` 的输入；不要在深度研究阶段做视觉模板、字体、配色、版式或导出决策	
+- 所有临时笔记、基线、草稿、QA 输出和最终审阅产物必须写入 `.tmp/ppt-deep-search/<task-name>/`
+- 完成 Source Understanding HTML 后，必须按该 skill 要求导出截图、委派独立视觉 QA，并保存 `baselines/015-source-understanding.md`
+- 用户批准 `source_understanding_review.html` 后，本 skill 职责结束；不要在深度研究阶段做 PPT 页数、目录、SCQA、逐页观点、视觉模板、字体、配色、版式或导出决策
 
 ### `skills/web-article-capture`
 

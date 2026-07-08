@@ -112,12 +112,12 @@ Prompt 示例：
 
 ### 3.3 PPT 深度研究
 
-典型场景：你不想马上生成 PPT，而是先把观点、证据边界和页面故事线想清楚。
+典型场景：你不想马上生成 PPT，而是先把来源材料、技术理解、可用图表和证据边界审清楚。
 
 Prompt 示例：
 
-- `请对这篇论文做 PPT深度研究，先帮我确定读者、核心观点和页面故事线，不要直接生成 PPT。`
-- `请基于这些材料进行 PPT深度研究，产出通过校验的 ppt_content_brief.md 和 research_audit.md。`
+- `请对这篇论文做 PPT深度研究，先产出 source_understanding_review.html，不要直接生成 PPT。`
+- `请基于这些材料进行 PPT深度研究，产出可审阅的 Source Understanding HTML、截图和视觉 QA。`
 
 预期调用的 Skills：
 
@@ -126,9 +126,11 @@ Prompt 示例：
 
 预期产物：
 
-- `ppt_content_brief.md`
-- `research_audit.md`
-- 可交给 PPT 生成流程继续使用的内容 brief
+- `review/source_understanding_review.html`
+- `review/source-understanding-images/`
+- `review/visual-qa.md`
+- `baselines/015-source-understanding.md`
+- `sources/**`
 
 ### 3.4 GitHub Issue 跟进
 

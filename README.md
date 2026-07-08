@@ -23,7 +23,7 @@
 
 可复用的 Agent skills 工作区，用来沉淀高质量技术规划、软件开发和日常工作技能。
 
-Mozhi's Agent Workspace 面向真实工作中的 Agent 生产力沉淀：把 PPT 深度研究、HTML 演示文稿生成、论文 PDF 解析、Issue 跟进、邮件发送和架构画图等 skills 组织到同一个可维护、可发布、可校验的工作区里。
+Mozhi's Agent Workspace 面向真实工作中的 Agent 生产力沉淀：把 PPT 来源理解审阅、HTML 演示文稿生成、论文 PDF 解析、Issue 跟进、邮件发送和架构画图等 skills 组织到同一个可维护、可发布、可校验的工作区里。
 
 | 架构目标 | 说明 |
 | --- | --- |
@@ -96,7 +96,7 @@ Skill 子仓负责：
 
 | Skill | 用途 |
 | --- | --- |
-| `ppt-deep-search` | 在生成 PPT 前完成内容研究、故事线规划和证据审计。 |
+| `ppt-deep-search` | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | `web-article-capture` | 抓取网页正文文本和原始正文图片，生成下游可复用的 source package。 |
 | `hw-ppt-gen-html` | 生成浏览器可打开的 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
 | `grobid-docling-pdf` | 将论文或技术 PDF 解析成结构化 XML 和图表图片。 |
@@ -116,13 +116,12 @@ Skill 子仓负责：
 ### `skills/hw-ppt-gen-html`
 
 - `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的 HTML 业务汇报 deck，并导出 PNG 做视觉检查。`
-- `请基于这份 ppt_content_brief.md 生成一个浏览器可打开的 HTML 演示文稿，并导出 PNG 做独立视觉 QA。`
 - `请用 HTML/CSS 做一份技术汇报 slides，交付 index.html、导出图片和 visual-qa.md。`
 
 ### `skills/ppt-deep-search`
 
-- `请对这篇论文做 PPT深度研究，先帮我确定读者、核心观点和页面故事线，不要直接生成 PPT。`
-- `请基于这些材料进行 PPT深度研究，产出通过校验的 ppt_content_brief.md 和 research_audit.md。`
+- `请对这篇论文做 PPT深度研究，先产出 source_understanding_review.html，不要直接生成 PPT。`
+- `请基于这些材料进行 PPT深度研究，产出可审阅的 source_understanding_review.html。`
 
 ### `skills/web-article-capture`
 
