@@ -1,24 +1,24 @@
-# Reference
+# 参考资料
 
-Reference pages describe stable workspace contracts and schemas. They are meant to be precise and searchable, not introductory.
+参考资料页用于说明稳定的工作区契约和数据结构，重点是准确、可检索，而不是承担入门介绍。
 
-## Workspace Contracts
+## 工作区契约
 
-- [Main Repo Protocol](./main-repo-protocol)
-- [Skill Repo Protocol](./skill-repo-protocol)
-- [Skill Docs Manifest](./skill-docs-manifest)
+- [主仓协议](./main-repo-protocol)
+- [Skill 子仓协议](./skill-repo-protocol)
+- [Skill 文档 Manifest](./skill-docs-manifest)
 
-## Operational References
+## 运维参考
 
 - [文档服务器](/operations/docs-server)
-- [Submodules](/operations/submodules)
-- [Pre-Commit Gates](/operations/pre-commit-gates)
-- [Docker Deployment](/deployment-docker)
+- [Git 子模块](/operations/submodules)
+- [Pre-Commit 门禁](/operations/pre-commit-gates)
+- [Docker 部署](/deployment-docker)
 
-## Registry Files
+## 注册表文件
 
-| File | Purpose |
+| 文件 | 用途 |
 | --- | --- |
-| `docs/skill-docs.yml` | Main registry for skill documentation integration and review fingerprints. |
-| `docs/skill-dependencies.yml` | Main registry for skill dependency review state. |
-| `AGENTS.md` | Agent-facing skill exposure and usage constraints. |
+| `docs/skill-docs.yml` | 记录 Skill 文档集成信息与复核指纹的主注册表。 |
+| `docs/skill-dependencies.yml` | 记录 Skill 依赖复核状态的主注册表。 |
+| `AGENTS.md` | 面向 Agent 的 Skill 暴露说明与使用约束。 |
