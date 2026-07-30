@@ -14,6 +14,7 @@
 - Loop 不启动修复，也不把问题自动改成 `已忽略`。
 - Loop 不回复 Issue，不追加评论；Issue body 是唯一状态面。
 - 所有 finding 新增、刷新、忽略和删除都必须通过 `issue_db.py` 完成。
+- Guardian Loop 新增或刷新本轮 findings 时，必须先聚合成一个 JSON 输入，再调用 `issue_db.py batch-upsert` 一次性写回；不要对每个 finding 逐条调用 GitHub API。
 - Issue body 中 marker 外的状态协议必须通过 `issue_db.py sync-protocol` 同步。
 
 ## Issue Body 结构
@@ -31,7 +32,7 @@ Issue body 应包含一段状态协议和一段问题列表。其他 Agent 可�
 - 每个 finding 必须包含 `问题描述`、`页面链接` 和 `代码根因`：问题描述给人类快速判断，页面链接用于打开有问题的资料页，代码根因承载路径、脚本输出、HTTP 状态、指纹等技术细节。
 - 已完成的 finding 必须通过 `python loops/material-quality-guardian/issue_db.py delete <id>` 从 Issue 中移除。
 - 所有 finding 状态变更必须通过 `python loops/material-quality-guardian/issue_db.py status ...` 或 `delete` 写回 Issue body。
-- Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `upsert` 新增或刷新 `待处理` 问题。
+- Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `batch-upsert` 一次性新增或刷新本轮全部 `待处理` 问题。
 - Guardian Loop 不负责修复，也不负责把问题改成 `已忽略`；读取到 `已关闭` finding 时应清理删除。
 - Guardian Loop 不回复 Issue，不追加评论；Issue body 是唯一状态面。
 - 人类或其他修复 Agent 修复完成后必须用 `issue_db.py delete` 删除问题；确认无需处理时用 `issue_db.py status` 标记为 `已忽略` 并填写 `更新人`、`更新时间`、`处理结论`。
@@ -54,7 +55,7 @@ Issue body 应包含一段状态协议和一段问题列表。其他 Agent 可�
 <!-- guardian-findings:end -->
 ```
 
-Guardian 只能通过 `issue_db.py upsert/status/delete` 重写 `guardian-findings` marker 内的问题列表，不应手写 marker 内容。marker 外的状态协议只能通过 `issue_db.py sync-protocol` 更新。
+Guardian 只能通过 `issue_db.py batch-upsert/status/delete` 重写 `guardian-findings` marker 内的问题列表，不应手写 marker 内容。marker 外的状态协议只能通过 `issue_db.py sync-protocol` 更新。
 
 ## Finding 字段
 
@@ -121,8 +122,9 @@ Guardian 使用三个优先级：
 1. 读取 Issue 中已有 findings。
 2. 清理状态为 `已关闭` 的历史 finding。
 3. 对本次扫描仍发现的问题：
-   - 如果历史中不存在同 ID finding，新增为 `待处理`。
-   - 如果历史中存在同 ID finding 且状态是 `待处理`，刷新 `最近发现`、`证据` 和 `处理建议`。
+   - 先把本轮所有新增或刷新 finding 写入 `.tmp/loops/material-quality-guardian/findings-to-upsert.json`。
+   - 如果历史中不存在同 ID finding，batch 写入时新增为 `待处理`。
+   - 如果历史中存在同 ID finding 且状态是 `待处理`，batch 写入时刷新 `最近发现`、`证据` 和 `处理建议`。
    - 如果历史中存在同 ID finding 且状态是 `已忽略`，保留该状态，不自动重开。
 4. 对本次扫描没有发现的问题：
    - 不自动删除 `待处理` 或 `已忽略` finding。
@@ -132,8 +134,25 @@ Guardian 使用三个优先级：
 
 ```powershell
 python loops/material-quality-guardian/issue_db.py list
-python loops/material-quality-guardian/issue_db.py upsert --id MQG-docs-example-missing-source-note --severity P2 --target docs/example.md --page-url "http://docs.haohaoxiaoyu.top:8888/example" --problem "示例页面提到了外部资料，但读者无法直接判断该资料从哪里核验。" --root-cause "docs/example.md 引用了外部来源，但没有维护对应的来源说明或可访问链接。" --evidence "..." --note "..."
+python loops/material-quality-guardian/issue_db.py batch-upsert --input .tmp/loops/material-quality-guardian/findings-to-upsert.json
 python loops/material-quality-guardian/issue_db.py sync-protocol
+```
+
+`findings-to-upsert.json` 推荐格式：
+
+```json
+[
+  {
+    "id": "MQG-docs-example-missing-source-note",
+    "severity": "P2",
+    "target": "docs/example.md",
+    "page_url": "http://docs.haohaoxiaoyu.top:8888/example",
+    "problem": "示例页面提到了外部资料，但读者无法直接判断该资料从哪里核验。",
+    "root_cause": "docs/example.md 引用了外部来源，但没有维护对应的来源说明或可访问链接。",
+    "evidence": "docs/example.md 引用了外部来源，但没有说明去哪里核验该来源。",
+    "note": "请确认这个文档是否需要补充来源说明。"
+  }
+]
 ```
 
 ## 人类和修复 Agent 更新规则
@@ -142,7 +161,7 @@ python loops/material-quality-guardian/issue_db.py sync-protocol
 
 - 修复完成后，用 `issue_db.py delete <id>` 从 Issue 中删除该 finding。
 - 确认无需处理时，用 `issue_db.py status <id> 已忽略`，并写明 `更新人`、`更新时间` 和 `处理结论`。
-- 如果需要重新关注一个已忽略的问题，用 `issue_db.py status <id> 待处理`，并按需再用 `upsert` 更新证据和处理建议。
+- 如果需要重新关注一个已忽略的问题，用 `issue_db.py status <id> 待处理`，并按需在下一次 `batch-upsert` 中更新证据和处理建议。
 - 不要手写 Issue markdown，不要通过 Issue 评论表达状态变更。
 
 建议命令：

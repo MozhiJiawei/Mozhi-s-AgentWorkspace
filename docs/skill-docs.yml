@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:237cbb949ccfe49d1c61272ade7ab2a72fc9435bc90e87cddb75671fd1cc7c15
+      source_fingerprint: sha256:a4a045cd62f18ddd7d73f7c7a84e3568f8529d3307bd57fc0399739f00aa397e
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

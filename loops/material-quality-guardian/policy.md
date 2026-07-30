@@ -19,7 +19,7 @@
 - 主 agent 职责：
   - 决定本轮审查单元，委派子agnet执行审查。
   - 为每个子 agent 提供明确边界、目标路径、目标 skill 和当前已忽略的问题。
-  - 汇总子 agent 结果，并按 `issue-state.md` 定义的结构整理 findings 后通过 `issue_db.py upsert/status` 写回 Issue。
+  - 汇总子 agent 结果，并按 `issue-state.md` 定义的结构整理 findings JSON 后通过 `issue_db.py batch-upsert` 一次性写回 Issue；单个状态变化才使用 `issue_db.py status`。
   - 执行远端文档站规则检查，包括一致性检查和骨架渲染正确性检查。
 - 子 agent 职责：
   - 只负责被分配的审查单元，不扩张到别的 skill 或全仓。

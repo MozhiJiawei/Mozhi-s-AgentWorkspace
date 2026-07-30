@@ -60,7 +60,8 @@ CANONICAL_PREFIX = """# Material Quality Guardian
 - 每个 finding 必须包含 `问题描述`、`页面链接` 和 `代码根因`：问题描述给人类快速判断，页面链接用于打开有问题的资料页，代码根因承载路径、脚本输出、HTTP 状态、指纹等技术细节。
 - 已完成的 finding 必须通过 `python loops/material-quality-guardian/issue_db.py delete <id>` 从 Issue 中移除。
 - 所有 finding 状态变更必须通过 `python loops/material-quality-guardian/issue_db.py status ...` 或 `delete` 写回 Issue body。
-- Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `upsert` 新增或刷新 `待处理` 问题。
+- Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `batch-upsert` 一次性新增或刷新本轮全部 `待处理` 问题。
+- Guardian Loop 不应逐条写入 finding；应先聚合 `.tmp/loops/material-quality-guardian/findings-to-upsert.json`，再调用 `python loops/material-quality-guardian/issue_db.py batch-upsert --input ...`。
 - Guardian Loop 不负责修复，也不负责把问题改成 `已忽略`；读取到 `已关闭` finding 时应清理删除。
 - Guardian Loop 不回复 Issue，不追加评论；Issue body 是唯一状态面。
 - 人类或其他修复 Agent 修复完成后必须用 `issue_db.py delete` 删除问题；确认无需处理时用 `issue_db.py status` 标记为 `已忽略` 并填写 `更新人`、`更新时间`、`处理结论`。
@@ -219,24 +220,36 @@ def cmd_get(args: argparse.Namespace) -> None:
     print(json.dumps({"问题ID": finding.id, **finding.fields}, ensure_ascii=False, indent=2))
 
 
-def cmd_upsert(args: argparse.Namespace) -> None:
-    prefix, findings, suffix = load_db(args.repo, args.issue)
-    index = find_index(findings, args.id)
+def upsert_finding(
+    findings: list[Finding],
+    *,
+    finding_id: str,
+    severity: str,
+    target: str,
+    page_url: str,
+    problem: str,
+    root_cause: str,
+    evidence: str,
+    note: str,
+    first_seen: str | None = None,
+    last_seen: str | None = None,
+) -> Finding:
+    index = find_index(findings, finding_id)
     today = date.today().isoformat()
     if index is None:
         finding = Finding(
-            args.id,
+            finding_id,
             {
                 FIELD_STATUS: STATUS_PENDING,
-                FIELD_SEVERITY: validate_severity(args.severity),
-                FIELD_TARGET: args.target,
-                FIELD_PAGE_URL: args.page_url,
-                FIELD_PROBLEM: args.problem,
-                FIELD_ROOT_CAUSE: args.root_cause,
-                FIELD_FIRST_SEEN: args.first_seen or today,
-                FIELD_LAST_SEEN: args.last_seen or today,
-                FIELD_EVIDENCE: args.evidence,
-                FIELD_NOTE: args.note,
+                FIELD_SEVERITY: validate_severity(severity),
+                FIELD_TARGET: target,
+                FIELD_PAGE_URL: page_url,
+                FIELD_PROBLEM: problem,
+                FIELD_ROOT_CAUSE: root_cause,
+                FIELD_FIRST_SEEN: first_seen or today,
+                FIELD_LAST_SEEN: last_seen or today,
+                FIELD_EVIDENCE: evidence,
+                FIELD_NOTE: note,
             },
         )
         findings.append(finding)
@@ -245,21 +258,84 @@ def cmd_upsert(args: argparse.Namespace) -> None:
         if finding.status == STATUS_PENDING:
             finding.fields.update(
                 {
-                    FIELD_SEVERITY: validate_severity(args.severity),
-                    FIELD_TARGET: args.target,
-                    FIELD_PAGE_URL: args.page_url,
-                    FIELD_PROBLEM: args.problem,
-                    FIELD_ROOT_CAUSE: args.root_cause,
-                    FIELD_LAST_SEEN: args.last_seen or today,
-                    FIELD_EVIDENCE: args.evidence,
-                    FIELD_NOTE: args.note,
+                    FIELD_SEVERITY: validate_severity(severity),
+                    FIELD_TARGET: target,
+                    FIELD_PAGE_URL: page_url,
+                    FIELD_PROBLEM: problem,
+                    FIELD_ROOT_CAUSE: root_cause,
+                    FIELD_LAST_SEEN: last_seen or today,
+                    FIELD_EVIDENCE: evidence,
+                    FIELD_NOTE: note,
                 }
             )
-            finding.fields.setdefault(FIELD_FIRST_SEEN, args.first_seen or today)
+            finding.fields.setdefault(FIELD_FIRST_SEEN, first_seen or today)
         else:
-            finding.fields.setdefault(FIELD_LAST_SEEN, args.last_seen or today)
+            finding.fields.setdefault(FIELD_LAST_SEEN, last_seen or today)
+    return finding
+
+
+def load_batch_items(input_path: str) -> list[dict[str, str]]:
+    if input_path == "-":
+        raw = sys.stdin.read()
+    else:
+        raw = Path(input_path).read_text(encoding="utf-8")
+    payload = json.loads(raw)
+    if isinstance(payload, dict):
+        payload = payload.get("findings")
+    if not isinstance(payload, list):
+        raise SystemExit("batch-upsert 输入必须是 finding 数组，或包含 findings 数组的对象。")
+    return payload
+
+
+def require_string(item: dict[str, str], key: str) -> str:
+    value = item.get(key)
+    if not isinstance(value, str) or value.strip() == "":
+        item_id = item.get("id") or "<missing-id>"
+        raise SystemExit(f"{item_id}: 缺少必填字符串字段 {key}")
+    return value
+
+
+def cmd_batch_upsert(args: argparse.Namespace) -> None:
+    items = load_batch_items(args.input)
+    prefix, findings, suffix = load_db(args.repo, args.issue)
+    written: list[str] = []
+    ignored: list[str] = []
+    for item in items:
+        if not isinstance(item, dict):
+            raise SystemExit("batch-upsert 输入数组中的每一项都必须是对象。")
+        finding_id = require_string(item, "id")
+        existing_index = find_index(findings, finding_id)
+        existing_status = findings[existing_index].status if existing_index is not None else STATUS_PENDING
+        finding = upsert_finding(
+            findings,
+            finding_id=finding_id,
+            severity=item.get("severity") or SEVERITY_P1,
+            target=require_string(item, "target"),
+            page_url=require_string(item, "page_url"),
+            problem=require_string(item, "problem"),
+            root_cause=require_string(item, "root_cause"),
+            evidence=require_string(item, "evidence"),
+            note=require_string(item, "note"),
+            first_seen=item.get("first_seen"),
+            last_seen=item.get("last_seen"),
+        )
+        if existing_status == STATUS_IGNORED:
+            ignored.append(finding.id)
+        else:
+            written.append(finding.id)
     save_db(args.repo, args.issue, prefix, findings, suffix)
-    print(f"已写入问题 {args.id}（{findings[find_index(findings, args.id)].status}）")
+    print(
+        json.dumps(
+            {
+                "已写入": written,
+                "已保留忽略状态": ignored,
+                "写入数量": len(written),
+                "忽略数量": len(ignored),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 def cmd_status(args: argparse.Namespace) -> None:
@@ -313,18 +389,16 @@ def build_parser() -> argparse.ArgumentParser:
     get_parser.add_argument("id")
     get_parser.set_defaults(func=cmd_get)
 
-    upsert_parser = subparsers.add_parser("upsert", help="新增或刷新一个待处理问题")
-    upsert_parser.add_argument("--id", required=True)
-    upsert_parser.add_argument("--target", required=True)
-    upsert_parser.add_argument("--page-url", required=True)
-    upsert_parser.add_argument("--problem", required=True)
-    upsert_parser.add_argument("--root-cause", required=True)
-    upsert_parser.add_argument("--severity", default=SEVERITY_P1, choices=[SEVERITY_P0, SEVERITY_P1, SEVERITY_P2])
-    upsert_parser.add_argument("--evidence", required=True)
-    upsert_parser.add_argument("--note", required=True)
-    upsert_parser.add_argument("--first-seen")
-    upsert_parser.add_argument("--last-seen")
-    upsert_parser.set_defaults(func=cmd_upsert)
+    batch_upsert_parser = subparsers.add_parser(
+        "batch-upsert",
+        help="从 JSON 文件或 stdin 一次性新增/刷新多个待处理问题",
+    )
+    batch_upsert_parser.add_argument(
+        "--input",
+        required=True,
+        help="JSON 文件路径；使用 - 从 stdin 读取。格式为 finding 数组，或包含 findings 数组的对象。",
+    )
+    batch_upsert_parser.set_defaults(func=cmd_batch_upsert)
 
     status_parser = subparsers.add_parser("status", help="更新问题状态")
     status_parser.add_argument("id")

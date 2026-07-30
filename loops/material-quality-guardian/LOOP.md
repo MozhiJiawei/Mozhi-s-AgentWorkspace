@@ -17,7 +17,7 @@
 - 本 Loop 必须通过 `issue_db.py` 重写 GitHub Issue 中由 guardian 管理的 findings 区块。
 - 本 Loop 只新增或刷新 `待处理` finding，不自动改成 `已关闭` 或 `已忽略`；如果读取到 `已关闭` finding，应通过 `issue_db.py delete` 从 Issue 中移除。
 - 本 Loop 不回复 Issue，不追加评论；所有状态都写在 Issue body 中。
-- 本 Loop 和修复 Agent 都不要手写 Issue markdown；状态协议通过 `issue_db.py sync-protocol` 同步，finding 状态通过 `issue_db.py status` 更新。
+- 本 Loop 和修复 Agent 都不要手写 Issue markdown；状态协议通过 `issue_db.py sync-protocol` 同步，本轮新增/刷新 findings 必须先聚合为 JSON 后通过 `issue_db.py batch-upsert` 一次性写回，单个 finding 状态通过 `issue_db.py status` 更新。
 - 本 Loop 的单轮临时产物必须写入 `.tmp/loops/material-quality-guardian/`。
 
 ## 每轮步骤
@@ -27,8 +27,10 @@
 3. 按 `policy.md` 定义的审查执行模型完成本轮资料审查，并按 `issue-state.md` 定义的状态、严重级别和字段格式形成本轮 findings。
 4. Agent 结合历史 Issue 状态和本轮 findings 登记刷新问题：
    - 历史中存在状态为 `已关闭` 的 finding，先用 `issue_db.py delete` 删除；不要继续作为子 agent 前置输入。
-   - 历史中不存在同 ID finding，则用 `issue_db.py upsert` 新增为 `待处理`。
-   - 历史中存在同 ID finding 且状态是 `待处理`，用 `issue_db.py upsert` 刷新证据和 `最近发现`。
+   - 先把本轮所有新增或刷新候选写入 `.tmp/loops/material-quality-guardian/findings-to-upsert.json`，不要逐条访问 GitHub API。
+   - 历史中不存在同 ID finding，则在 batch 输入中登记为新增 `待处理`。
+   - 历史中存在同 ID finding 且状态是 `待处理`，则在 batch 输入中刷新证据和 `最近发现`。
    - 历史中存在同 ID finding 且状态是 `已忽略`，保留该状态，不自动重开。
    - 本次未扫描到的历史 `待处理` 或 `已忽略` finding，保留原状态，不自动删除或关闭。
-5. 如果状态协议需要更新，调用 `python loops/material-quality-guardian/issue_db.py sync-protocol`，不要手写 Issue body。
+5. 调用 `python loops/material-quality-guardian/issue_db.py batch-upsert --input .tmp/loops/material-quality-guardian/findings-to-upsert.json` 一次性写回本轮 findings。
+6. 如果状态协议需要更新，调用 `python loops/material-quality-guardian/issue_db.py sync-protocol`，不要手写 Issue body。

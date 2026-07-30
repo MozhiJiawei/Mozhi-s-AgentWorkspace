@@ -12,6 +12,12 @@
 - 若 skill 文档中给出了临时产物目录规则，应将该规则视为相对于 `.tmp/` 的子路径规则，而不是写到 skill 仓库或其他位置。
 - 除非用户明确要求生成正式、可追踪的仓库内容，否则不要把这类产物直接写到仓库正式位置。
 
+## Codex Custom Agent 调用约束
+
+- 使用 `spawn_agent` 启动 custom `agent_type` 时，不要设置 `fork_turns: "all"`；完整历史 fork 会继承父 agent 类型，不能同时选择 custom agent。
+- 默认使用 `fork_turns: "none"`，并在 `message` 中显式传递任务所需的工作区、输入文件、输出文件和约束。
+- 只有确实需要部分对话上下文时，才使用正整数字符串形式的有限 `fork_turns`。
+
 ## Pre-Commit Gates
 
 - agent 每次提交代码前，都必须运行统一门禁入口：`python scripts/pre_commit_gate.py`
