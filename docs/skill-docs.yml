@@ -13,7 +13,7 @@ skills:
       entry: docs/skills/gh-issue-comment-monitor/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:6cc1f0cabc0c1aeb0456fb2ce5e1716c4244df147bf0bfd6cecc6c7c93f2e206
+      source_fingerprint: sha256:ce86edaf04a2cf715bf0d9dad01cfc472cd363311f837c5ce902fc0732b43e08
       reviewed_at: "2026-06-05"
       reviewed_by: agent
       note: 已复核 ppt-deep-search 文档更新；继续通过子仓 docs.manifest.yml 构建时同步文档。
@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:a4a045cd62f18ddd7d73f7c7a84e3568f8529d3307bd57fc0399739f00aa397e
+      source_fingerprint: sha256:0ad160a7682c6de359d8df679d2a3a6d2ef87d755de1992e749231b70d6f7dc1
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -69,7 +69,7 @@ skills:
       entry: docs/skills/web-article-capture/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:bedf13c1cc6cc1169d648fa701a1cc0d79a2de7f3916a4746ed7dd36b56d143b
+      source_fingerprint: sha256:f1b5cf56f0818d0baa0ce41e46c799cf6ba37c242b1d151871e706ea6e18e442
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -83,7 +83,7 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:6d21145218e68e09c17ced750d5f38357e514bddd7db62712aac997287435d66
+      source_fingerprint: sha256:4559e8a1d7008a48fa23614260efcf58aa21187ac8daa2379d2b092f81f19649
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -97,7 +97,7 @@ skills:
       entry: docs/skills/send-qq-email/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:927a29d0a2b2b9c4d9b13fe56f8a8286adfa560ab40228deb75fbab4f3aa8fd1
+      source_fingerprint: sha256:2fe0bebc1bc8cc8d120911d84cdb1ae95a96af84e2524eb4d6823ed5176feef6
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

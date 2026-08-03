@@ -7,7 +7,7 @@ skills:
   gh-issue-comment-monitor:
     path: skills/gh-issue-comment-monitor
     dependency_review:
-      source_fingerprint: sha256:65b502e50fbacd7992391b102deecfe0b8ade76be64e6bacaf36f54ef9dee6d3
+      source_fingerprint: sha256:591c1991bc591fdd5a1a3fd6ed5754cf956a3e8e23365449c777a95469e80c2f
       reviewed_at: "2026-05-13"
       reviewed_by: agent
       note: Initial review; scripts use Python standard library, with GitHub API access supplied by GITHUB_TOKEN/GH_TOKEN or authenticated gh CLI fallback.
@@ -152,7 +152,7 @@ skills:
   send-qq-email:
     path: skills/send-qq-email
     dependency_review:
-      source_fingerprint: sha256:01f0c9d5b019ba8ad70ddb0e7598bdd3f4bc7fbb8c206addfadc826614e4e3c8
+      source_fingerprint: sha256:618a474287763600b0cc48027c9973fa4939926cf0b702e90675d20be15edf0f
       reviewed_at: "2026-05-08"
       reviewed_by: agent
       note: Initial review; runtime uses Python standard library only, with QQ Mail SMTP credentials supplied from environment variables or a private config file.
