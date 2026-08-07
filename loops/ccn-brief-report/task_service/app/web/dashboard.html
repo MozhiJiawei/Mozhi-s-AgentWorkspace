@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>CCN 任务状态台</title>
+    <link rel="stylesheet" href="/dashboard-assets/dashboard.css?v=3">
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">CCN BRIEF REPORT</p>
+        <h1>任务状态台</h1>
+        <p class="subtitle">查看资料服务器中的任务、处理状态和最近回传结果</p>
+      </div>
+      <div class="header-actions">
+        <span id="connection-state" class="connection-state">等待连接</span>
+        <button id="refresh-button" class="button button-primary" type="button">刷新数据</button>
+        <button id="logout-button" class="button button-quiet" type="button">退出</button>
+      </div>
+    </header>
+
+    <main>
+      <nav class="page-tabs" aria-label="页面功能">
+        <button id="records-tab" class="page-tab active" type="button" aria-selected="true">任务记录</button>
+        <button id="api-docs-tab" class="page-tab" type="button" aria-selected="false">API 接口文档</button>
+      </nav>
+
+      <section id="records-view" class="tab-view">
+      <section class="metrics" aria-label="当前页状态统计">
+        <article class="metric metric-total">
+          <span>当前页任务</span>
+          <strong id="metric-total">0</strong>
+        </article>
+        <article class="metric metric-pending">
+          <span>待处理</span>
+          <strong id="metric-pending">0</strong>
+        </article>
+        <article class="metric metric-completed">
+          <span>已完成</span>
+          <strong id="metric-completed">0</strong>
+        </article>
+        <article class="metric metric-failed">
+          <span>失败</span>
+          <strong id="metric-failed">0</strong>
+        </article>
+      </section>
+
+      <section class="panel filter-panel" aria-labelledby="filters-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">FILTERS</p>
+            <h2 id="filters-title">过滤筛选</h2>
+          </div>
+          <button id="reset-button" class="text-button" type="button">清除条件</button>
+        </div>
+        <form id="filter-form" class="filters">
+          <label>
+            <span>状态</span>
+            <select id="status-filter" name="status">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="completed">已完成</option>
+              <option value="failed">失败</option>
+            </select>
+          </label>
+          <label class="filter-wide">
+            <span>关键词</span>
+            <input id="query-filter" name="q" type="search" maxlength="128" placeholder="任务 ID / 热点 ID / 周期">
+          </label>
+          <label>
+            <span>热点 ID</span>
+            <input id="hotspot-filter" name="hotspot_id" type="search" maxlength="128" placeholder="例如 HS-1024">
+          </label>
+          <label>
+            <span>周期</span>
+            <input id="period-filter" name="period" type="search" maxlength="64" placeholder="例如 2026-W32">
+          </label>
+          <label>
+            <span>每页数量</span>
+            <select id="limit-filter" name="limit">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+            </select>
+          </label>
+          <button class="button button-primary filter-submit" type="submit">应用筛选</button>
+        </form>
+      </section>
+
+      <section class="panel table-panel" aria-labelledby="records-title">
+        <div class="panel-heading table-heading">
+          <div>
+            <p class="section-kicker">TASK RECORDS</p>
+            <h2 id="records-title">任务记录</h2>
+          </div>
+          <p id="updated-at" class="updated-at">尚未加载</p>
+        </div>
+        <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+        <div id="selection-bar" class="selection-bar" hidden>
+          <span>已选择 <strong id="selected-count">0</strong> 项</span>
+          <button id="delete-selected-button" class="button button-danger" type="button">删除选中</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th class="select-cell"><input id="select-all" type="checkbox" aria-label="全选当前页任务"></th>
+                <th>序号</th>
+                <th>任务 ID</th>
+                <th>状态</th>
+                <th>热点 ID</th>
+                <th>周期</th>
+                <th>内容摘要</th>
+                <th>最近更新</th>
+                <th>结果</th>
+                <th><span class="sr-only">操作</span></th>
+              </tr>
+            </thead>
+            <tbody id="task-rows"></tbody>
+          </table>
+        </div>
+        <div id="empty-state" class="empty-state" hidden>
+          <strong>没有符合条件的任务</strong>
+          <span>调整筛选条件后再试。</span>
+        </div>
+        <div class="pagination">
+          <span id="page-label">第 1 页</span>
+          <div>
+            <button id="previous-button" class="button button-quiet" type="button" disabled>上一页</button>
+            <button id="next-button" class="button button-quiet" type="button" disabled>下一页</button>
+          </div>
+        </div>
+      </section>
+      </section>
+
+      <section id="api-docs-view" class="tab-view api-docs" hidden>
+        <div class="docs-hero panel">
+          <div>
+            <p class="section-kicker">API QUICKSTART</p>
+            <h2>CCN 任务接口使用说明</h2>
+            <p>以下命令可直接粘贴到 PowerShell 中运行。先配置地址和密钥，再按顺序执行五个典型接口。</p>
+          </div>
+          <span class="api-version">REST · JSON · v1</span>
+        </div>
+
+        <aside class="security-notice">
+          <strong>使用前必须替换 API Key 占位符</strong>
+          <p>将 <code>&lt;API_KEY&gt;</code> 替换为真正的密钥。不要把生产密钥提交到 Git、写入公开脚本、URL、截图或聊天记录。</p>
+        </aside>
+
+        <section class="docs-section panel" aria-labelledby="auth-title">
+          <div class="docs-heading">
+            <div>
+              <span class="step-number">00</span>
+              <h3 id="auth-title">准备地址与鉴权</h3>
+            </div>
+            <button class="copy-button" type="button" data-copy-target="code-auth">复制命令</button>
+          </div>
+          <p class="docs-copy">所有接口和任务状态台都使用同一个 API Key。</p>
+          <pre><code id="code-auth">$ApiBase = "https://ccn-api.haohaoxiaoyu.top"
+
+# 必须替换成真实密钥；不要保留尖括号占位符
+$ApiKey = "&lt;API_KEY&gt;"
+
+$Headers = @{
+    Authorization = "Bearer $ApiKey"
+}</code></pre>
+        </section>
+
+        <div class="endpoint-grid">
+          <section class="docs-section panel" aria-labelledby="create-title">
+            <div class="docs-heading">
+              <div>
+                <span class="step-number">01</span>
+                <h3 id="create-title">添加任务</h3>
+              </div>
+              <span class="method method-post">POST</span>
+            </div>
+            <p class="endpoint-path">/api/v1/tasks</p>
+            <p class="docs-copy">使用统一 API Key。建议每次请求提供唯一的 <code>Idempotency-Key</code>。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-create">复制命令</button></div>
+            <pre><code id="code-create">$TaskId = "TASK-$(Get-Date -Format 'yyyyMMddHHmmss')-$((New-Guid).ToString('N').Substring(0, 8))"
+$CreateHeaders = $Headers.Clone()
+$CreateHeaders["Idempotency-Key"] = "create-$TaskId"
+
+$TaskBody = @{
+    task_id    = $TaskId
+    content    = "需要处理的任务正文"
+    url        = "https://example.com/source"
+    hotspot_id = "HS-001"
+    period     = "2026-W32"
+} | ConvertTo-Json
+
+$CreatedTask = Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ApiBase/api/v1/tasks" `
+    -Headers $CreateHeaders `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $TaskBody
+
+$CreatedTask.data</code></pre>
+          </section>
+
+          <section class="docs-section panel" aria-labelledby="get-title">
+            <div class="docs-heading">
+              <div>
+                <span class="step-number">02</span>
+                <h3 id="get-title">按 ID 获取任务</h3>
+              </div>
+              <span class="method method-get">GET</span>
+            </div>
+            <p class="endpoint-path">/api/v1/tasks/{task_id}</p>
+            <p class="docs-copy">使用统一 API Key。返回任务正文、状态、时间及最近一次结果。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-get">复制命令</button></div>
+            <pre><code id="code-get">$Task = Invoke-RestMethod `
+    -Method Get `
+    -Uri "$ApiBase/api/v1/tasks/$TaskId" `
+    -Headers $Headers
+
+$Task.data</code></pre>
+          </section>
+
+          <section class="docs-section panel" aria-labelledby="filter-title">
+            <div class="docs-heading">
+              <div>
+                <span class="step-number">03</span>
+                <h3 id="filter-title">筛选任务</h3>
+              </div>
+              <span class="method method-get">GET</span>
+            </div>
+            <p class="endpoint-path">/api/v1/tasks?status=...</p>
+            <p class="docs-copy">支持 <code>status</code>、<code>q</code>、<code>hotspot_id</code>、<code>period</code>、<code>limit</code> 和 <code>cursor</code>。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-filter">复制命令</button></div>
+            <pre><code id="code-filter">$PendingTasks = Invoke-RestMethod `
+    -Method Get `
+    -Uri "$ApiBase/api/v1/tasks?status=pending&amp;hotspot_id=HS-001&amp;period=2026-W32&amp;limit=50" `
+    -Headers $Headers
+
+$PendingTasks.data | Format-Table `
+    row_number, task_id, status, hotspot_id, period
+
+# 状态可选：pending、completed、failed
+# q 可模糊匹配任务 ID、热点 ID 或周期</code></pre>
+          </section>
+
+          <section class="docs-section panel" aria-labelledby="result-title">
+            <div class="docs-heading">
+              <div>
+                <span class="step-number">04</span>
+                <h3 id="result-title">回传处理结果</h3>
+              </div>
+              <span class="method method-post">POST</span>
+            </div>
+            <p class="endpoint-path">/api/v1/tasks/{task_id}/results</p>
+            <p class="docs-copy">使用统一 API Key。结果采用追加模式，不覆盖历史记录。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-result">复制命令</button></div>
+            <pre><code id="code-result">$ResultHeaders = $Headers.Clone()
+$ResultHeaders["Idempotency-Key"] = "result-$TaskId-attempt-1"
+
+$ResultBody = @{
+    outcome       = "completed"
+    artifact_urls = @("https://github.com/MozhiJiawei/ccn-report/tree/main/开源软件分析/Example/20260805-example-source-understanding-codex")
+} | ConvertTo-Json -Depth 5
+
+$Result = Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ApiBase/api/v1/tasks/$TaskId/results" `
+    -Headers $ResultHeaders `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $ResultBody
+
+$Result.data</code></pre>
+          </section>
+
+          <section class="docs-section panel" aria-labelledby="delete-title">
+            <div class="docs-heading">
+              <div>
+                <span class="step-number">05</span>
+                <h3 id="delete-title">删除任务</h3>
+              </div>
+              <span class="method method-delete">DELETE</span>
+            </div>
+            <p class="endpoint-path">/api/v1/tasks/{task_id}</p>
+            <p class="docs-copy">永久删除任务及其全部历史结果。重复删除保持成功，并通过 <code>deleted</code> 标记是否实际删除。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-delete">复制命令</button></div>
+            <pre><code id="code-delete">$DeletedTask = Invoke-RestMethod `
+    -Method Delete `
+    -Uri "$ApiBase/api/v1/tasks/$TaskId" `
+    -Headers $Headers
+
+$DeletedTask.data</code></pre>
+            <p class="docs-copy batch-delete-copy"><strong>批量删除：</strong>一次最多提交 200 个任务 ID，只计为一次写请求。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-batch-delete">复制批量删除命令</button></div>
+            <pre><code id="code-batch-delete">$BatchDeleteBody = @{
+    task_ids = @($TaskId, "TASK-20260804-002")
+} | ConvertTo-Json
+
+$BatchDeleted = Invoke-RestMethod `
+    -Method Delete `
+    -Uri "$ApiBase/api/v1/tasks" `
+    -Headers $Headers `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $BatchDeleteBody
+
+$BatchDeleted.data</code></pre>
+          </section>
+        </div>
+
+        <section class="docs-section panel reference-panel" aria-labelledby="reference-title">
+          <div class="docs-heading">
+            <div>
+              <span class="step-number">REF</span>
+              <h3 id="reference-title">返回与错误约定</h3>
+            </div>
+          </div>
+          <div class="reference-grid">
+            <div><strong>成功响应</strong><p><code>{ "status": "success", "data": ... }</code></p></div>
+            <div><strong>401</strong><p>Key 缺失或无效。</p></div>
+            <div><strong>409</strong><p>任务 ID 或幂等键冲突。</p></div>
+            <div><strong>422</strong><p>请求字段或状态值不合法。</p></div>
+            <div><strong>429</strong><p>请求频率超过限制，请稍后重试。</p></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-dialog-title">
+      <div class="confirm-icon" aria-hidden="true">!</div>
+      <h2 id="delete-dialog-title">确认删除任务</h2>
+      <p id="delete-summary"></p>
+      <p class="confirm-warning">此操作不可撤销，任务的全部历史结果也会被删除。</p>
+      <div class="confirm-actions">
+        <button id="cancel-delete-button" class="button button-quiet" type="button">取消</button>
+        <button id="confirm-delete-button" class="button button-danger" type="button">确认删除</button>
+      </div>
+    </dialog>
+
+    <div id="login-layer" class="login-layer">
+      <form id="login-form" class="login-card">
+        <p class="eyebrow">SECURE ACCESS</p>
+        <h2>连接任务状态台</h2>
+        <p>请输入 API Key。密钥仅保存在当前浏览器标签页，关闭标签页后自动清除。</p>
+        <label>
+          <span>Bearer API Key</span>
+          <input id="api-key" type="password" autocomplete="off" required placeholder="粘贴 API Key">
+        </label>
+        <p id="login-error" class="login-error" role="alert" hidden></p>
+        <button class="button button-primary button-block" type="submit">安全连接</button>
+        <button id="login-docs-button" class="button button-quiet button-block login-docs-button" type="button">先查看 API 接口文档</button>
+      </form>
+    </div>
+
+    <script src="/dashboard-assets/dashboard.js?v=3" defer></script>
+  </body>
+</html>

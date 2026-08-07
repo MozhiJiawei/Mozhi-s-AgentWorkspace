@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="http://docs.haohaoxiaoyu.top:8888/">文档站</a>
+  <a href="https://docs.haohaoxiaoyu.top/">文档站</a>
   ·
   <a href="./docs/workspace/getting-started.md">快速开始</a>
   ·
@@ -63,6 +63,7 @@ http://127.0.0.1:5173/
 |-- AGENTS.md          # agent 可读的 skill 注册表和使用约束
 |-- README.md          # 面向人类读者的 GitHub 入口
 |-- .codex/            # Codex 原生子 agent 的主仓级配置
+|-- deploy/            # 资料服务器、统一网关和服务部署
 |-- docs/              # 主仓文档和统一文档站
 |-- skills/            # skill 子仓；每个 skill 拥有自己的文档
 |-- scripts/           # 主仓检查脚本和文档编排脚本
@@ -144,6 +145,12 @@ Skill 子仓负责：
 - `请梳理当前仓库的模块边界和关键运行路径，并给我一套可编辑的 3+1 架构图。`
 
 ## 维护
+
+资料服务器的文档站、统一网关和CCN任务服务部署统一由`deploy/resource-server/`维护；服务器只接收本仓生成的发布包，不直接维护部署源码。
+
+```powershell
+python deploy/resource-server/scripts/release.py deploy --component docs
+```
 
 修改 skill 资料前，先阅读 [文档架构需求](./docs/documentation-architecture-requirements.md)。其中的 `Skill 资料页面要求` 定义 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 四个必选页面的写作要求，也是 Agent 补写或审查资料时的参考入口。
 

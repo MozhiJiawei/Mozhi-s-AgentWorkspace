@@ -1,0 +1,58 @@
+name: mozhi-resource-server-local
+
+services:
+  docs:
+    build:
+      context: ../..
+      dockerfile: deploy/resource-server/docs/Dockerfile
+    image: mozhi-agent-workspace-docs:local
+    ports:
+      - "127.0.0.1:${DOCS_PORT:-8080}:8080"
+    volumes:
+      - ../..:/workspace:ro
+    environment:
+      DOCS_SOURCE: /workspace
+      DOCS_WORKDIR: /tmp/mozhi-agent-workspace
+      DOCS_OUTPUT: /site
+
+  ccn-api:
+    build:
+      context: ../..
+      dockerfile: deploy/resource-server/ccn-api/Dockerfile
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim-bookworm}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    image: ccn-brief-task-api:local
+    ports:
+      - "127.0.0.1:${CCN_API_PORT:-18000}:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://ccn:local-postgres-password@postgres:5432/ccn
+      REDIS_URL: redis://:local-redis-password@redis:6379/0
+      CCN_API_KEY: local-api-key-change-me
+      ENABLE_API_DOCS: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    environment:
+      POSTGRES_DB: ccn
+      POSTGRES_USER: ccn
+      POSTGRES_PASSWORD: local-postgres-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ccn -d ccn"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:8-alpine}
+    command: ["redis-server", "--requirepass", "local-redis-password"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "local-redis-password", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 20

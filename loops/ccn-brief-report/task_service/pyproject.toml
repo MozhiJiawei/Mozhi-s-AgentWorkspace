@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ccn-brief-task-service"
+version = "0.1.0"
+description = "Authenticated task intake and result API for the CCN briefing loop."
+requires-python = ">=3.11"
+dependencies = [
+  "alembic==1.18.5",
+  "fastapi==0.141.1",
+  "psycopg[binary]==3.3.4",
+  "pydantic-settings==2.14.2",
+  "redis==8.1.0",
+  "sqlalchemy==2.0.51",
+  "uvicorn[standard]==0.52.1",
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx2==2.9.1",
+  "pytest==9.1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

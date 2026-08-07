@@ -1,67 +1,38 @@
-# Docker 文档站部署
+# Docker 资料服务器部署
 
-本文档说明如何用 Docker / Compose 启动在线文档站。
+资料服务器的Docker配置统一位于`deploy/resource-server/`，同时管理文档站、统一网关和CCN任务接口。
 
-## 架构
-
-镜像只提供运行环境：
-
-- Node.js / VitePress
-- Python
-- Nginx
-- 文档同步与构建入口
-
-仓库内容通过 volume 挂载到容器内：
-
-```text
-./ -> /workspace:ro
-```
-
-容器启动时会：
-
-1. 将 `/workspace` 复制到容器临时构建目录。
-2. 运行 `python3 scripts/sync_skill_docs.py`，真实加载各子仓 `docs.manifest.yml` 声明的文档。
-3. 运行 VitePress 构建静态 HTML。
-4. 用 Nginx 从 `/site` 提供访问。
-
-因此，文档内容更新后只需要在宿主机执行：
-
-```bash
-git pull
-git submodule update --init --recursive
-docker compose -f compose.docs.yml restart docs
-```
-
-不需要重新构建镜像，除非 Dockerfile、Node 依赖或站点运行环境发生变化。
-
-## 本地启动
+## 本地文档站
 
 ```powershell
-.\scripts\docs_compose.ps1 -Port 8080
+.\deploy\resource-server\scripts\docs-local.ps1 -Port 8080
 ```
 
-或直接运行：
+打开`http://127.0.0.1:8080/`，健康检查地址为`http://127.0.0.1:8080/healthz`。
+
+## 本地CCN接口
 
 ```powershell
-docker compose -f compose.docs.yml up --build
+docker compose -f deploy/resource-server/compose.local.yml up --build -d postgres redis
+docker compose -f deploy/resource-server/compose.local.yml build ccn-api
+docker compose -f deploy/resource-server/compose.local.yml run --rm ccn-api alembic upgrade head
+docker compose -f deploy/resource-server/compose.local.yml up -d ccn-api
 ```
 
-如果服务器访问 Docker Hub 不稳定，可以使用镜像源：
+默认地址为`http://127.0.0.1:18000`。本地Compose中的测试密钥不得用于服务器。
 
-```bash
-NODE_IMAGE=m.daocloud.io/docker.io/library/node:24.13.1-alpine3.22 \
-ALPINE_MIRROR=https://mirrors.aliyun.com/alpine \
-  docker compose -f compose.docs.yml up --build -d
+## 生产部署
+
+```powershell
+python deploy/resource-server/scripts/release.py deploy --component all
 ```
 
-访问：
+也可以只发布一个组件：
 
-```text
-http://127.0.0.1:8080/
+```powershell
+python deploy/resource-server/scripts/release.py deploy --component docs
+python deploy/resource-server/scripts/release.py deploy --component ccn
+python deploy/resource-server/scripts/release.py deploy --component edge
 ```
 
-健康检查：
-
-```text
-http://127.0.0.1:8080/healthz
-```
+生产部署、密钥、备份与恢复说明见`deploy/resource-server/README.md`。

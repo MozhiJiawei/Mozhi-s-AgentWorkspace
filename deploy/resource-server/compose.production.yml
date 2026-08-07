@@ -1,0 +1,126 @@
+name: mozhi-resource-server
+
+services:
+  edge:
+    build:
+      context: ../..
+      dockerfile: deploy/resource-server/edge/Dockerfile
+    image: mozhi-agent-service-edge:local
+    container_name: mozhi-agent-service-edge
+    restart: unless-stopped
+    env_file:
+      - ${RESOURCE_SERVER_CONFIG_ROOT:-/etc/mozhi-agent-workspace}/edge.env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "7000:7000"
+      - "8888:8888"
+    volumes:
+      - mozhi-caddy-data:/data
+    networks:
+      - edge
+    depends_on:
+      docs:
+        condition: service_healthy
+      ccn-api:
+        condition: service_healthy
+
+  docs:
+    build:
+      context: ../..
+      dockerfile: deploy/resource-server/docs/Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24.13.1-alpine3.22}
+        ALPINE_MIRROR: ${ALPINE_MIRROR:-}
+    image: mozhi-agent-workspace-docs:local
+    container_name: mozhi-agent-workspace-docs
+    restart: unless-stopped
+    volumes:
+      - ../..:/workspace:ro
+    environment:
+      DOCS_SOURCE: /workspace
+      DOCS_WORKDIR: /tmp/mozhi-agent-workspace
+      DOCS_OUTPUT: /site
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    networks:
+      - edge
+
+  ccn-api:
+    build:
+      context: ../..
+      dockerfile: deploy/resource-server/ccn-api/Dockerfile
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim-bookworm}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    image: ccn-brief-task-api:local
+    container_name: ccn-brief-task-api
+    restart: unless-stopped
+    read_only: true
+    volumes:
+      - ../../loops/ccn-brief-report/task_service:/app:ro
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    env_file:
+      - ${RESOURCE_SERVER_CONFIG_ROOT:-/etc/mozhi-agent-workspace}/ccn-api.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.health"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    networks:
+      - edge
+      - ccn-data
+
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    container_name: ccn-brief-postgres
+    restart: unless-stopped
+    env_file:
+      - ${RESOURCE_SERVER_CONFIG_ROOT:-/etc/mozhi-agent-workspace}/ccn-api.env
+    volumes:
+      - /var/lib/mozhi-agent-workspace/ccn-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - ccn-data
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:8-alpine}
+    container_name: ccn-brief-redis
+    restart: unless-stopped
+    env_file:
+      - ${RESOURCE_SERVER_CONFIG_ROOT:-/etc/mozhi-agent-workspace}/ccn-api.env
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    volumes:
+      - /var/lib/mozhi-agent-workspace/ccn-redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - ccn-data
+
+networks:
+  edge:
+    name: mozhi-agent-services-edge
+    external: true
+  ccn-data:
+    name: ccn-brief-data
+    internal: true
+
+volumes:
+  mozhi-caddy-data:
+    external: true

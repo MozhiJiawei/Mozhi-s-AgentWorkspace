@@ -1,0 +1,78 @@
+{
+    admin off
+    auto_https disable_redirects
+    default_sni 39.105.78.135
+}
+
+:80 {
+    encode zstd gzip
+    handle /health {
+        reverse_proxy 127.0.0.1:${HEALTH_PROXY_PORT}
+    }
+    handle /api/* {
+        respond "API requires HTTPS" 426
+    }
+    handle {
+        respond "Mozhi resource server edge" 404
+    }
+}
+
+${AGENT_HTTPS_SITE_ADDRESS} {
+    ${AGENT_TLS_DIRECTIVE}
+    encode zstd gzip
+    header Strict-Transport-Security "max-age=31536000"
+    handle /health {
+        reverse_proxy 127.0.0.1:${HEALTH_PROXY_PORT}
+    }
+    handle /api/* {
+        request_body {
+            max_size ${API_MAX_BODY_SIZE}
+        }
+        reverse_proxy 127.0.0.1:${DESKTOP_API_PROXY_PORT}
+    }
+    handle {
+        respond "Mozhi Agent Service edge gateway" 404
+    }
+}
+
+http://${RED_FLOWER_API_DOMAIN}, http://${DOCS_DOMAIN}, http://${CCN_API_DOMAIN} {
+    redir https://{host}{uri} permanent
+}
+
+https://${RED_FLOWER_API_DOMAIN} {
+    encode zstd gzip
+    header Strict-Transport-Security "max-age=31536000"
+    request_body {
+        max_size 10MB
+    }
+    reverse_proxy ${RED_FLOWER_API_UPSTREAM}
+}
+
+https://${DOCS_DOMAIN} {
+    encode zstd gzip
+    header Strict-Transport-Security "max-age=31536000"
+    reverse_proxy ${DOCS_UPSTREAM}
+}
+
+https://${CCN_API_DOMAIN} {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+    }
+    request_body {
+        max_size ${API_MAX_BODY_SIZE}
+    }
+    reverse_proxy ${CCN_API_UPSTREAM} {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 30s
+        }
+    }
+}
+
+:8888 {
+    redir https://${DOCS_DOMAIN}{uri} permanent
+}

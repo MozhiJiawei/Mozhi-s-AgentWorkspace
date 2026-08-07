@@ -36,4 +36,4 @@ npm run docs:preview
 
 ## Docker 部署
 
-Docker 和 Compose 部署说明见 [Docker 部署](/deployment-docker)。
+文档站由`deploy/resource-server/`统一管理。Docker和Compose部署说明见[Docker部署](/deployment-docker)。

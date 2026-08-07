@@ -20,3 +20,4 @@ docs/public/skill-static/
 
 __pycache__/
 *.py[cod]
+*.egg-info/

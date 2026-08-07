@@ -1,0 +1,7 @@
+{
+  "api_base": "https://ccn-api.haohaoxiaoyu.top",
+  "request_timeout_seconds": 30,
+  "max_parallel_tasks": 3,
+  "run_lock_stale_hours": 20,
+  "ccn_report_repository_url": "https://github.com/MozhiJiawei/ccn-report"
+}

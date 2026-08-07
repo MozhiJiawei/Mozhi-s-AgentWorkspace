@@ -9,7 +9,7 @@ import urllib.request
 from docs_publish_state import ROOT, collect_publish_state
 
 
-DEFAULT_REMOTE_BASE_URL = "http://docs.haohaoxiaoyu.top:8888"
+DEFAULT_REMOTE_BASE_URL = "https://docs.haohaoxiaoyu.top"
 DEFAULT_REMOTE_STATE_PATH = "/material-quality/publish-state.json"
 
 

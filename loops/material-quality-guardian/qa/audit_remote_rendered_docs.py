@@ -167,7 +167,7 @@ def crawl_rendered_docs(remote_base_url: str, timeout: int, attempts: int) -> di
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit rendered remote docs pages and same-site content links.")
-    parser.add_argument("--remote-base-url", default="http://docs.haohaoxiaoyu.top:8888")
+    parser.add_argument("--remote-base-url", default="https://docs.haohaoxiaoyu.top")
     parser.add_argument("--timeout", type=int, default=20)
     parser.add_argument("--attempts", type=int, default=3)
     parser.add_argument("--output")

@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | workspace 仓文档 | `README.md`<br>`AGENTS.md`<br>`docs/` | 工作区入口、指令约束、工作区文档是否仍准确；同时检查与 skills 仓文档不重复的内容 | `workspace docs` 子 agent |
 | Skills 仓文档 | `skills/*/docs/`<br>`skills/*/docs.manifest.yml` | skill 文档入口、依赖说明、使用说明与 manifest 声明是否仍能和对应内容互相印证 | 每个已注册 skill 各自一个子 agent |
-| 远端文档站规则检查 | `http://docs.haohaoxiaoyu.top:8888/` | 远端站点与本地源码是否一致，以及远端骨架渲染是否正确 | 主 agent |
+| 远端文档站规则检查 | `https://docs.haohaoxiaoyu.top/` | 远端站点与本地源码是否一致，以及远端骨架渲染是否正确 | 主 agent |
 
 ## 角色分工
 
@@ -36,7 +36,7 @@
 目标范围：
 - 本地文档：<docs paths>
 - 相关实现证据：<implementation paths>
-- 远端站点：http://docs.haohaoxiaoyu.top:8888/
+- 远端站点：https://docs.haohaoxiaoyu.top/
 
 你的任务：
 1. 先阅读 `docs/documentation-architecture-requirements.md`，把它作为本轮资料校验标准。
