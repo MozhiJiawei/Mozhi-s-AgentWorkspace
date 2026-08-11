@@ -97,6 +97,7 @@ Skill 子仓负责：
 
 | Skill | 用途 |
 | --- | --- |
+| `aurora-tun-bypass` | 修改 Aurora Slim 的进程直连规则，让指定 Windows 应用绕过 TUN 代理并保留其他流量的代理兜底。 |
 | `ppt-deep-search` | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | `web-article-capture` | 抓取网页正文文本和原始正文图片，生成下游可复用的 source package。 |
 | `hw-ppt-gen-html` | 生成浏览器可打开的 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
@@ -108,6 +109,11 @@ Skill 子仓负责：
 ## Skill Prompt 示例
 
 下面这些 prompt 可以作为快速入口。完整说明仍以各 skill 子仓自己的文档为准。
+
+### `skills/aurora-tun-bypass`
+
+- `请用 aurora-tun-bypass 把梦幻西游排除在 Aurora 的 TUN 全局代理外，但保留 ChatGPT 走代理；先识别进程名，再备份并修改规则。`
+- `请只检查 Aurora 当前的 TUN 进程直连规则，不要修改配置。`
 
 ### `skills/gh-issue-comment-monitor`
 

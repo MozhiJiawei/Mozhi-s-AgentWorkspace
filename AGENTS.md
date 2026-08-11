@@ -27,6 +27,26 @@
 
 ## Registered Skills
 
+### `skills/aurora-tun-bypass`
+
+- 加载路径：`skills/aurora-tun-bypass/SKILL.md`
+- skill 名称：`aurora-tun-bypass`
+- 主要用途：安全检查、备份、修改和恢复 Aurora Slim 的加密 TUN 配置，让指定 Windows 进程命中现有直连规则，同时保留其他流量的代理兜底
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求把游戏或应用排除在 Aurora TUN 全局或智能代理之外
+- 用户要求在 Aurora 规则中添加 `process_name` 直连项
+- 用户要求检查、备份、修补或恢复 Aurora Slim 的加密配置
+- 用户明确提到 `aurora-tun-bypass` 或 `aurora_tun_bypass.py`
+
+使用这个 skill 时：
+
+- 先读取 `skills/aurora-tun-bypass/SKILL.md`
+- 修改真实配置前必须获得用户授权，并先 dry-run；所有候选配置、备份和日志必须写入 `.tmp/aurora-tun-bypass/`
+- 默认要求用户完全退出 Aurora 后再执行写入，不要擅自停止或重启用户进程
+- 不要输出完整解密配置，不要把用户配置、账号、节点或备份提交到仓库
+
 ### `skills/gh-issue-comment-monitor`
 
 - 加载路径：`skills/gh-issue-comment-monitor/SKILL.md`

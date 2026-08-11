@@ -4,6 +4,24 @@ description: >
   or dependency-relevant files change, review this file and refresh the
   dependency_review.source_fingerprint value.
 skills:
+  aurora-tun-bypass:
+    path: skills/aurora-tun-bypass
+    dependency_review:
+      source_fingerprint: sha256:b75c6c889d028cec083cf5fea66a3763c2ec60bd6be737ee21585c2b27d68eb5
+      reviewed_at: "2026-08-11"
+      reviewed_by: agent
+      note: Initial review; runtime requires Windows, Python, the cryptography package, and an Aurora Slim local configuration. The script does not require network access or Aurora credentials.
+    windows:
+      python_packages:
+        - cryptography
+      external:
+        - Windows installation of Aurora Slim with a local config file
+      optional: []
+      verify:
+        - python skills/aurora-tun-bypass/verify_dependencies.py
+    macos:
+      status: unsupported
+
   gh-issue-comment-monitor:
     path: skills/gh-issue-comment-monitor
     dependency_review:

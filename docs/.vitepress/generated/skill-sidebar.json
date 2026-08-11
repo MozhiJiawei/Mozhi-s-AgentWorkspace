@@ -48,6 +48,28 @@
     ]
   },
   {
+    "text": "aurora-tun-bypass",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "能力展示",
+        "link": "/skills/aurora-tun-bypass/reference"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/aurora-tun-bypass/usage"
+      },
+      {
+        "text": "依赖说明",
+        "link": "/skills/aurora-tun-bypass/dependencies"
+      },
+      {
+        "text": "架构概览",
+        "link": "/skills/aurora-tun-bypass/"
+      }
+    ]
+  },
+  {
     "text": "gh-issue-comment-monitor",
     "collapsed": true,
     "items": [

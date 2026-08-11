@@ -55,6 +55,7 @@ TBD
 
 | Skill | 依赖说明 |
 | --- | --- |
+| `aurora-tun-bypass` | [依赖说明](/skills/aurora-tun-bypass/dependencies) |
 | `ppt-deep-search` | [依赖说明](/skills/ppt-deep-search/dependencies) |
 | `hw-ppt-gen-html` | [依赖说明](/skills/hw-ppt-gen-html/dependencies) |
 | `grobid-docling-pdf` | [依赖说明](/skills/grobid_pdf_skill/dependencies) |
@@ -195,3 +196,23 @@ Prompt 示例：
 - 用例视图
 - draw.io 文件
 - 导出预览和校验结果
+
+### 3.7 Aurora TUN 进程绕过
+
+典型场景：ChatGPT 等应用必须继续走 Aurora 的 TUN 全局代理，但游戏或本地应用需要按进程直连。
+
+Prompt 示例：
+
+- `请用 aurora-tun-bypass 把梦幻西游排除在 Aurora 的 TUN 全局代理外，但保留 ChatGPT 走代理；先识别进程名，再备份并修改规则。`
+- `请只检查 Aurora 当前的 TUN 进程直连规则，不要修改配置。`
+
+预期调用的 Skills：
+
+- `aurora-tun-bypass`
+
+预期产物：
+
+- 脱敏路由检查结果
+- 加密候选配置
+- 写入前时间戳备份
+- 摘要与 round-trip 校验结果

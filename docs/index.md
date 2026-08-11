@@ -29,6 +29,7 @@ features:
 
 | Skill | 能力 |
 | --- | --- |
+| [aurora-tun-bypass](/skills/aurora-tun-bypass/) | 为指定 Windows 进程添加 Aurora TUN 直连规则，同时保留其他流量的代理兜底。 |
 | [ppt-deep-search](/skills/ppt-deep-search/) | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | [hw-ppt-gen-html](/skills/hw-ppt-gen-html/) | 基于材料生成 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
 | [gh-issue-comment-monitor](/skills/gh-issue-comment-monitor/) | 增量读取 GitHub Issue 新评论，避免重复加载完整讨论历史。 |

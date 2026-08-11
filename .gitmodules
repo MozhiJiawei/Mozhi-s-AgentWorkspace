@@ -22,3 +22,6 @@
 [submodule "skills/hw-ppt-gen-html"]
 	path = skills/hw-ppt-gen-html
 	url = https://github.com/MozhiJiawei/hw-ppt-gen-html.git
+[submodule "skills/aurora-tun-bypass"]
+	path = skills/aurora-tun-bypass
+	url = https://github.com/MozhiJiawei/aurora-tun-bypass.git
