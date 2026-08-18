@@ -88,6 +88,7 @@ class DeploymentLayoutTests(unittest.TestCase):
         self.assertIn("mozhi-agent-service-edge:previous", updater)
         self.assertIn("Dockerfile.source", updater)
         self.assertNotIn('docker compose -f "$COMPOSE" build edge', updater)
+        self.assertIn("https://ccn-api.haohaoxiaoyu.top/healthz", updater)
         self.assertIn("restore", updater)
         self.assertNotIn("docker compose down", updater)
 

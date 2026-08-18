@@ -61,7 +61,7 @@ docker compose -f "$COMPOSE" up -d --no-deps edge
 for attempt in $(seq 1 60); do
   if curl -kfsS https://127.0.0.1/health >/dev/null \
     && curl -fsS --resolve docs.haohaoxiaoyu.top:443:127.0.0.1 https://docs.haohaoxiaoyu.top/healthz >/dev/null \
-    && curl -fsS --resolve ccn-api.haohaoxiaoyu.top:443:127.0.0.1 https://ccn-api.haohaoxiaoyu.top/api/v1/health >/dev/null \
+    && curl -fsS --resolve ccn-api.haohaoxiaoyu.top:443:127.0.0.1 https://ccn-api.haohaoxiaoyu.top/healthz >/dev/null \
     && curl -fsS --resolve inferenceviz.haohaoxiaoyu.top:443:127.0.0.1 https://inferenceviz.haohaoxiaoyu.top/healthz >/dev/null; then
     break
   fi
