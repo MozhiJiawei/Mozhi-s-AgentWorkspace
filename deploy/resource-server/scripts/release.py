@@ -24,6 +24,7 @@ EDGE_SOURCE_FILES = (
     "deploy/resource-server/compose.production.yml",
     "deploy/resource-server/edge/Caddyfile.template",
     "deploy/resource-server/edge/Dockerfile",
+    "deploy/resource-server/edge/Dockerfile.source",
     "deploy/resource-server/edge/entrypoint.sh",
     "deploy/resource-server/scripts/update-edge-source.sh",
 )

@@ -14,6 +14,7 @@ class DeploymentLayoutTests(unittest.TestCase):
             "compose.production.yml",
             "compose.local.yml",
             "edge/Dockerfile",
+            "edge/Dockerfile.source",
             "edge/entrypoint.sh",
             "edge/Caddyfile.template",
             "docs/Dockerfile",
@@ -85,6 +86,8 @@ class DeploymentLayoutTests(unittest.TestCase):
         self.assertIn("ensure_paths_clean(EDGE_SOURCE_FILES)", release)
         self.assertIn("sha256sum", release)
         self.assertIn("mozhi-agent-service-edge:previous", updater)
+        self.assertIn("Dockerfile.source", updater)
+        self.assertNotIn('docker compose -f "$COMPOSE" build edge', updater)
         self.assertIn("restore", updater)
         self.assertNotIn("docker compose down", updater)
 

@@ -12,6 +12,7 @@ case "$DEPLOY_PATH" in /opt/*) ;; *) exit 64 ;; esac
 test -f "$COMPOSE"
 test -f "$INCOMING/edge/Caddyfile.template"
 test -f "$INCOMING/edge/Dockerfile"
+test -f "$INCOMING/edge/Dockerfile.source"
 test -f "$INCOMING/edge/entrypoint.sh"
 test -f "$INCOMING/compose.production.yml"
 
@@ -50,7 +51,11 @@ rm -rf "$TARGET/edge"
 cp -a "$INCOMING/edge" "$TARGET/edge"
 cp -a "$INCOMING/compose.production.yml" "$COMPOSE"
 cp -a "$INCOMING/scripts/update-edge-source.sh" "$TARGET/scripts/update-edge-source.sh"
-docker compose -f "$COMPOSE" build edge
+docker build \
+  --build-arg EDGE_BASE_IMAGE=mozhi-agent-service-edge:previous \
+  --file "$TARGET/edge/Dockerfile.source" \
+  --tag mozhi-agent-service-edge:local \
+  "$DEPLOY_PATH"
 docker compose -f "$COMPOSE" up -d --no-deps edge
 
 for attempt in $(seq 1 60); do
