@@ -13,10 +13,10 @@ skills:
       entry: docs/skills/aurora-tun-bypass/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:29c601f93640fdb98ac83970d25fe867485d1d1658a48afaf601585df3700cb5
-      reviewed_at: "2026-08-11"
+      source_fingerprint: sha256:56a8ae9ccf750cee0e9b2fe530bbfb602f3a00713b4567a2ce7f9b83a247d556
+      reviewed_at: "2026-08-18"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已复核持久化维护器、精确规则验证和卸载流程文档；继续通过子仓 docs.manifest.yml 构建同步。
 
   gh-issue-comment-monitor:
     path: skills/gh-issue-comment-monitor

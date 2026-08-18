@@ -7,16 +7,18 @@ skills:
   aurora-tun-bypass:
     path: skills/aurora-tun-bypass
     dependency_review:
-      source_fingerprint: sha256:b75c6c889d028cec083cf5fea66a3763c2ec60bd6be737ee21585c2b27d68eb5
-      reviewed_at: "2026-08-11"
+      source_fingerprint: sha256:dd0a3008803d357fe3e68a6fbe4627120206d74b5223d535cf96e1cd4e7c46c1
+      reviewed_at: "2026-08-18"
       reviewed_by: agent
-      note: Initial review; runtime requires Windows, Python, the cryptography package, and an Aurora Slim local configuration. The script does not require network access or Aurora credentials.
+      note: Reviewed after removing the deprecated file watcher and closing the Frida hook install, update, uninstall, and exact active-rule verification paths. Runtime dependencies remain Windows, Python, cryptography, frida, Aurora's loopback APIs, and HKCU Run access; initial Frida acquisition may require PyPI network access. No Aurora credentials are required.
     windows:
       python_packages:
         - cryptography
+        - frida
       external:
         - Windows installation of Aurora Slim with a local config file
-      optional: []
+      optional:
+        - network access to PyPI for initial Frida acquisition
       verify:
         - python skills/aurora-tun-bypass/verify_dependencies.py
     macos:
@@ -145,10 +147,10 @@ skills:
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
-      source_fingerprint: sha256:90ddfadbd62cd28f0dc323815777cf80b0cb8e441098d227b1a7ff4c2bfcc65a
-      reviewed_at: "2026-04-28"
+      source_fingerprint: sha256:202bd16a1a564236f375e85086bd4dcccc1f61ffba02107996ae6d53ea979b30
+      reviewed_at: "2026-08-18"
       reviewed_by: agent
-      note: Initial Windows dependency review from hybrid PDF pipeline scripts.
+      note: Revalidated the existing hybrid PDF pipeline dependencies; the stale fingerprint was refreshed with no dependency changes.
     windows:
       python_packages:
         - docling

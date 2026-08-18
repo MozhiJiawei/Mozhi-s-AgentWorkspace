@@ -44,7 +44,8 @@
 
 - 先读取 `skills/aurora-tun-bypass/SKILL.md`
 - 修改真实配置前必须获得用户授权，并先 dry-run；所有候选配置、备份和日志必须写入 `.tmp/aurora-tun-bypass/`
-- 默认要求用户完全退出 Aurora 后再执行写入，不要擅自停止或重启用户进程
+- 默认保持 Aurora GUI 运行，先 dry-run；`--reload-core --apply` 和 `--allow-running` 只用于诊断生成配置覆盖，不作为持久化方案。开始持久化工作前必须阅读 `docs/behavior-findings.md`
+- 用户明确要求“一劳永逸”、跨 Aurora/Windows 重启持久化或自动修复刷新覆盖时，获得授权后使用 `install-memory-hook` 安装 `SetConfig` 内存维护器，并核对 `HKCU Run`、维护器进程、`active_rules_verified: ok=true`、活动 `/rules` 以及一次强制 stop/start 后仍命中；旧 `install-watch` 已移除
 - 不要输出完整解密配置，不要把用户配置、账号、节点或备份提交到仓库
 
 ### `skills/gh-issue-comment-monitor`
