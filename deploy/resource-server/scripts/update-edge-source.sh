@@ -55,7 +55,7 @@ docker build \
   --build-arg EDGE_BASE_IMAGE=mozhi-agent-service-edge:previous \
   --file "$TARGET/edge/Dockerfile.source" \
   --tag mozhi-agent-service-edge:local \
-  "$DEPLOY_PATH"
+  "$TARGET"
 docker compose -f "$COMPOSE" up -d --no-deps edge
 
 for attempt in $(seq 1 60); do
