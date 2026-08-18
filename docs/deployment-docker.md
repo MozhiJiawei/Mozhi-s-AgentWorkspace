@@ -33,6 +33,9 @@ python deploy/resource-server/scripts/release.py deploy --component all
 python deploy/resource-server/scripts/release.py deploy --component docs
 python deploy/resource-server/scripts/release.py deploy --component ccn
 python deploy/resource-server/scripts/release.py deploy --component edge
+python deploy/resource-server/scripts/release.py deploy-edge-source
 ```
 
 生产部署、密钥、备份与恢复说明见`deploy/resource-server/README.md`。
+
+`deploy-edge-source`只发布统一网关的 Compose 与 edge 文件，可在工作区存在其他未提交业务改动时使用；命令仍要求所有 edge 发布文件已经提交。InferenceViz 由其自身仓库发布并加入`mozhi-agent-services-edge`，统一网关上游为`inferenceviz-web:8080`。

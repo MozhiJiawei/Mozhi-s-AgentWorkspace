@@ -35,7 +35,7 @@ ${AGENT_HTTPS_SITE_ADDRESS} {
     }
 }
 
-http://${RED_FLOWER_API_DOMAIN}, http://${DOCS_DOMAIN}, http://${CCN_API_DOMAIN} {
+http://${RED_FLOWER_API_DOMAIN}, http://${DOCS_DOMAIN}, http://${CCN_API_DOMAIN}, http://${INFERENCEVIZ_DOMAIN} {
     redir https://{host}{uri} permanent
 }
 
@@ -69,6 +69,25 @@ https://${CCN_API_DOMAIN} {
         transport http {
             dial_timeout 5s
             response_header_timeout 30s
+        }
+    }
+}
+
+https://${INFERENCEVIZ_DOMAIN} {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+    }
+    request_body {
+        max_size ${API_MAX_BODY_SIZE}
+    }
+    reverse_proxy ${INFERENCEVIZ_UPSTREAM} {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 300s
         }
     }
 }

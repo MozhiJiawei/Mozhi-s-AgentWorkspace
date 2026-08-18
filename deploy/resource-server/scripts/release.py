@@ -20,6 +20,13 @@ CCN_SOURCE_ROOT = ROOT / "loops" / "ccn-brief-report" / "task_service"
 DEFAULT_REMOTE = "root@39.105.78.135"
 DEFAULT_DEPLOY_PATH = "/opt/mozhi-agent-workspace-services"
 DEFAULT_REMOTE_TMP = "/tmp/mozhi-agent-workspace-releases"
+EDGE_SOURCE_FILES = (
+    "deploy/resource-server/compose.production.yml",
+    "deploy/resource-server/edge/Caddyfile.template",
+    "deploy/resource-server/edge/Dockerfile",
+    "deploy/resource-server/edge/entrypoint.sh",
+    "deploy/resource-server/scripts/update-edge-source.sh",
+)
 
 
 def run(args: list[str], *, cwd: Path = ROOT, capture: bool = False) -> str:
@@ -41,6 +48,12 @@ def ensure_clean() -> None:
     status = run(["git", "status", "--porcelain"], capture=True)
     if status.strip():
         raise SystemExit("Working tree is not clean. Commit or use --allow-dirty.\n" + status)
+
+
+def ensure_paths_clean(paths: tuple[str, ...]) -> None:
+    dirty = run(["git", "status", "--porcelain", "--", *paths], capture=True)
+    if dirty.strip():
+        raise SystemExit("Edge 发布文件存在未提交改动：\n" + dirty)
 
 
 def git_files(repo: Path, *, include_untracked: bool = False) -> list[str]:
@@ -140,6 +153,22 @@ def create_ccn_source_package(output_dir: Path) -> Path:
     return package
 
 
+def create_edge_source_package(output_dir: Path) -> Path:
+    ensure_paths_clean(EDGE_SOURCE_FILES)
+    missing = [relative for relative in EDGE_SOURCE_FILES if not (ROOT / relative).is_file()]
+    if missing:
+        raise SystemExit("Missing required edge source files: " + ", ".join(missing))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = dt.datetime.now(dt.UTC).strftime("%Y%m%d-%H%M%S")
+    package = output_dir / f"mozhi-resource-server-edge-source-{timestamp}.tar.gz"
+    top = f"mozhi-resource-server-edge-source-{timestamp}"
+    with tarfile.open(package, "w:gz", format=tarfile.PAX_FORMAT) as archive:
+        for relative in EDGE_SOURCE_FILES:
+            archive.add(ROOT / relative, arcname=posixpath.join(top, relative), recursive=False)
+    print(package)
+    return package
+
+
 def sh_quote(value: str) -> str:
     return "'" + value.replace("'", "'\"'\"'") + "'"
 
@@ -203,6 +232,25 @@ def deploy_ccn_source(
     run(["ssh", remote, command])
 
 
+def deploy_edge_source(package: Path, remote: str, deploy_path: str, remote_tmp: str) -> None:
+    remote_package = posixpath.join(remote_tmp, package.name)
+    expected_sha256 = sha256_file(package)
+    prepare_remote_upload_dir(remote, remote_tmp)
+    run(["scp", str(package), f"{remote}:{remote_package}"])
+    command = (
+        f"package={sh_quote(remote_package)} && "
+        f"actual=$(sha256sum \"$package\" | awk '{{print $1}}') && "
+        f"[ \"$actual\" = {sh_quote(expected_sha256)} ] && "
+        f"tmp=$(mktemp -d /tmp/mozhi-edge-source.XXXXXX) && "
+        f"trap 'rm -rf \"$tmp\"; rm -f \"$package\"' EXIT && "
+        f"tar -xzf \"$package\" -C \"$tmp\" && "
+        f"src=$(find \"$tmp\" -mindepth 1 -maxdepth 1 -type d | head -n 1) && "
+        f"DEPLOY_PATH={sh_quote(deploy_path)} bash "
+        f"\"$src/deploy/resource-server/scripts/update-edge-source.sh\" \"$src\""
+    )
+    run(["ssh", remote, command])
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-dirty", action="store_true")
@@ -225,6 +273,12 @@ def parse_args() -> argparse.Namespace:
     source_deploy.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
     source_deploy.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
     source_deploy.add_argument("--bootstrap-mount", action="store_true")
+
+    edge_source = sub.add_parser("deploy-edge-source")
+    edge_source.add_argument("--remote", default=DEFAULT_REMOTE)
+    edge_source.add_argument("--deploy-path", default=DEFAULT_DEPLOY_PATH)
+    edge_source.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
+    edge_source.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
 
     smoke = sub.add_parser("smoke-test")
     smoke.add_argument("--api-base", default="https://ccn-api.haohaoxiaoyu.top")
@@ -266,6 +320,9 @@ def main() -> None:
             args.remote_tmp,
             bootstrap_mount=args.bootstrap_mount,
         )
+    elif args.command == "deploy-edge-source":
+        package = create_edge_source_package(Path(args.output_dir).resolve())
+        deploy_edge_source(package, args.remote, args.deploy_path, args.remote_tmp)
     elif args.command == "smoke-test":
         command = [
             sys.executable,

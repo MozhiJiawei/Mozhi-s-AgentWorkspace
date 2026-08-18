@@ -27,6 +27,7 @@ class DeploymentLayoutTests(unittest.TestCase):
             "scripts/restore-ccn.sh",
             "scripts/smoke-test.py",
             "scripts/update-ccn-source.sh",
+            "scripts/update-edge-source.sh",
         ]
         self.assertEqual([], [path for path in required if not (DEPLOY / path).is_file()])
 
@@ -55,7 +56,7 @@ class DeploymentLayoutTests(unittest.TestCase):
         self.assertIn('sub.add_parser("deploy-ccn-source")', release)
         self.assertIn("sha256sum", release)
         self.assertIn('cmp -s "$INCOMING/pyproject.toml"', updater)
-        self.assertIn('diff -qr "$INCOMING/migrations"', updater)
+        self.assertIn('"$INCOMING/migrations" "$TARGET/migrations"', updater)
         self.assertNotIn('cp -a "$TARGET/." "$backup/" 2>/dev/null || true', updater)
         self.assertIn("trap finish EXIT", updater)
 
@@ -68,6 +69,24 @@ class DeploymentLayoutTests(unittest.TestCase):
     def test_release_passes_custom_deploy_path_to_rollback(self):
         release = (DEPLOY / "scripts/release.py").read_text(encoding="utf-8")
         self.assertIn('DEPLOY_PATH={sh_quote(args.deploy_path)} COMPONENT=', release)
+
+    def test_inferenceviz_route_uses_shared_edge_network_upstream(self):
+        template = (DEPLOY / "edge/Caddyfile.template").read_text(encoding="utf-8")
+        entrypoint = (DEPLOY / "edge/entrypoint.sh").read_text(encoding="utf-8")
+        self.assertIn("https://${INFERENCEVIZ_DOMAIN}", template)
+        self.assertIn("reverse_proxy ${INFERENCEVIZ_UPSTREAM}", template)
+        self.assertIn("inferenceviz.haohaoxiaoyu.top", entrypoint)
+        self.assertIn("inferenceviz-web:8080", entrypoint)
+
+    def test_edge_source_release_is_scoped_and_rolls_back(self):
+        release = (DEPLOY / "scripts/release.py").read_text(encoding="utf-8")
+        updater = (DEPLOY / "scripts/update-edge-source.sh").read_text(encoding="utf-8")
+        self.assertIn('sub.add_parser("deploy-edge-source")', release)
+        self.assertIn("ensure_paths_clean(EDGE_SOURCE_FILES)", release)
+        self.assertIn("sha256sum", release)
+        self.assertIn("mozhi-agent-service-edge:previous", updater)
+        self.assertIn("restore", updater)
+        self.assertNotIn("docker compose down", updater)
 
     def test_legacy_client_files_remain_outside_service(self):
         loop = ROOT / "loops" / "ccn-brief-report"
