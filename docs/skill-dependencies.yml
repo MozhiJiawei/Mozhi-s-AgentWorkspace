@@ -147,7 +147,7 @@ skills:
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
-      source_fingerprint: sha256:202bd16a1a564236f375e85086bd4dcccc1f61ffba02107996ae6d53ea979b30
+      source_fingerprint: sha256:9c7d218f0f79e23110305cca16bab02da43c56e366cd19bfae11b6e8ada19858
       reviewed_at: "2026-08-18"
       reviewed_by: agent
       note: Revalidated the existing hybrid PDF pipeline dependencies; the stale fingerprint was refreshed with no dependency changes.
@@ -156,18 +156,25 @@ skills:
         - docling
         - lxml
         - torch
-      services:
-        - GROBID service at http://localhost:8070
       external:
-        - Java or Docker runtime for running GROBID
+        - WSL2 and Docker Desktop
+        - Local Docker image whose repository name contains grobid
       optional:
         - CUDA-capable PyTorch for --docling-device cuda
       verify:
-        - python skills/grobid_pdf_skill/verify_dependencies.py --skip-services
-      service_verify:
-        - python skills/grobid_pdf_skill/verify_dependencies.py --grobid-url http://localhost:8070
+        - python skills/grobid_pdf_skill/verify_dependencies.py
     macos:
-      status: todo
+      python_packages:
+        - docling
+        - lxml
+        - torch
+      external:
+        - Docker Desktop for Mac
+        - Local Docker image whose repository name contains grobid
+      optional:
+        - CUDA is not available on macOS; use --docling-device auto or cpu
+      verify:
+        - python skills/grobid_pdf_skill/verify_dependencies.py
 
   send-qq-email:
     path: skills/send-qq-email

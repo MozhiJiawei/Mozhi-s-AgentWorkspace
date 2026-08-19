@@ -97,7 +97,7 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:4559e8a1d7008a48fa23614260efcf58aa21187ac8daa2379d2b092f81f19649
+      source_fingerprint: sha256:67348e8b0f99ef79e80e1eb95e9b63777821066105d2ddd465532a27c640e402
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
