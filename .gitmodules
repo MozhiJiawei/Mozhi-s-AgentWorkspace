@@ -25,3 +25,6 @@
 [submodule "skills/aurora-tun-bypass"]
 	path = skills/aurora-tun-bypass
 	url = https://github.com/MozhiJiawei/aurora-tun-bypass.git
+[submodule "skills/create-single-page-tech-report"]
+	path = skills/create-single-page-tech-report
+	url = https://github.com/Real-UtopiaNo/create-single-page-tech-report.git

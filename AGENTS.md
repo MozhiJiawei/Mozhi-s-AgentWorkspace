@@ -115,6 +115,28 @@
 - 若任务会产生中间稿、HTML、导出图片、视觉 QA 记录或阶段性结果，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/hw-ppt-gen-html/<task-name>/`
 - 完成 HTML 演示文稿后，必须按该 skill 要求运行 `scripts/render_html_ppt.py` 导出 PNG，并委派独立视觉 QA checker；`visual-qa.md` 必须包含逐页 `Primary Visual Checks`
 
+### `skills/create-single-page-tech-report`
+
+- 加载路径：`skills/create-single-page-tech-report/SKILL.md`
+- skill 名称：`create-single-page-tech-report`
+- 主要用途：把技术论文、技术进展、技术结果或技术新闻材料制作成严格一页、证据驱动、可编辑的中文 PowerPoint 技术洞察汇报
+
+当任务满足以下任一条件时，agent 应加载并使用这个 skill：
+
+- 用户要求生成或修订一页式、单页或 one-slide 技术汇报 PPTX
+- 用户要求把技术论文按“问题 → 方法 → 效果”压缩成一页中文技术洞察
+- 用户要求制作包含一句话事件标题、量化证据和底部洞察启示的单页技术快报
+- 用户明确提到 `create-single-page-tech-report` 或 `validate_single_page_report.py`
+
+当用户要求多页 deck、HTML PPT 或网页 slides 时，应使用 `skills/hw-ppt-gen-html`；当用户明确要求“PPT深度研究”或先做来源理解审阅时，应先使用 `skills/ppt-deep-search`，不应直接触发本 skill。
+
+使用这个 skill 时：
+
+- 先读取 `skills/create-single-page-tech-report/SKILL.md`
+- 草稿、渲染预览、校验日志和阶段性文件必须写入 `.tmp/create-single-page-tech-report/<task-name>/`
+- 必须交付可编辑 `.pptx` 和渲染预览，不能只交付图片；仅当用户明确指定正式路径时才把最终文件写入仓库正式目录
+- 交付前必须运行 `python skills/create-single-page-tech-report/scripts/validate_single_page_report.py <pptx-path>`，并人工复核标题语义、证据边界、字体字号、溢出、遮挡和图表清晰度
+
 ### `skills/ppt-deep-search`
 
 - 加载路径：`skills/ppt-deep-search/SKILL.md`

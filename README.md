@@ -101,6 +101,7 @@ Skill 子仓负责：
 | `ppt-deep-search` | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | `web-article-capture` | 抓取网页正文文本和原始正文图片，生成下游可复用的 source package。 |
 | `hw-ppt-gen-html` | 生成浏览器可打开的 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
+| `create-single-page-tech-report` | 将技术论文、技术进展或技术新闻制作成严格一页、证据驱动、可编辑的中文 PowerPoint 技术洞察。 |
 | `grobid-docling-pdf` | 将论文或技术 PDF 解析成结构化 XML 和图表图片。 |
 | `gh-issue-comment-monitor` | 增量监控 GitHub Issue 评论。 |
 | `send-qq-email` | 通过 QQ 邮箱 SMTP 发送或 dry-run 邮件，并生成快照。 |
@@ -124,6 +125,11 @@ Skill 子仓负责：
 
 - `请基于这份 Markdown 材料提炼故事线，生成一份华为红灰配色的 HTML 业务汇报 deck，并导出 PNG 做视觉检查。`
 - `请用 HTML/CSS 做一份技术汇报 slides，交付 index.html、导出图片和 visual-qa.md。`
+
+### `skills/create-single-page-tech-report`
+
+- `请把这篇论文按问题、方法、效果整理成一页中文技术洞察 PPT，优先使用论文原图，并交付可编辑 PPTX、预览图和校验摘要。`
+- `请把这份技术发布材料做成一页事件快报，用一句话标题总结事件，突出量化结果，并在底部给出面向技术决策者的洞察启示。`
 
 ### `skills/ppt-deep-search`
 
