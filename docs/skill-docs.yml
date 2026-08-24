@@ -111,7 +111,7 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:120a27712fa75bdd7d164c14b3ac3322fc72b2d4c9a692d652dd47eca94f089f
+      source_fingerprint: sha256:5387ce61505e2da4f75f3133c61dff485e5dab47307ecd1143a5d84a97b1d4af
       reviewed_at: "2026-08-24"
       reviewed_by: agent
       note: 已复核当前 manifest、四个固定中文入口及 PDF 混合解析架构说明；继续通过子仓 docs.manifest.yml 构建同步。

@@ -173,27 +173,34 @@ skills:
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
-      source_fingerprint: sha256:86dd061c38c43470604964d6612ac1225e90eb5ca974bb15366e4bfc0421dbfd
+      source_fingerprint: sha256:121da46337f30033bc621bbe6fd9898195fd01a98c7bb48b8c5bb2ec190f08af
       reviewed_at: "2026-08-24"
       reviewed_by: agent
-      note: Revalidated the hybrid PDF pipeline. Docling, lxml, torch, and CUDA passed; the GROBID service check was intentionally skipped by the registered offline verification command, with Java or Docker still declared for service operation.
+      note: Revalidated the updated hybrid PDF pipeline. Docling, lxml, torch, and CUDA passed; the required Docker Desktop/WSL2 engine and local GROBID image are now checked directly by the registered verification command.
     windows:
       python_packages:
         - docling
         - lxml
         - torch
-      services:
-        - GROBID service at http://localhost:8070
       external:
-        - Java or Docker runtime for running GROBID
+        - WSL2 and Docker Desktop
+        - Local Docker image whose repository name contains grobid
       optional:
         - CUDA-capable PyTorch for --docling-device cuda
       verify:
-        - python skills/grobid_pdf_skill/verify_dependencies.py --skip-services
-      service_verify:
-        - python skills/grobid_pdf_skill/verify_dependencies.py --grobid-url http://localhost:8070
+        - python skills/grobid_pdf_skill/verify_dependencies.py
     macos:
-      status: todo
+      python_packages:
+        - docling
+        - lxml
+        - torch
+      external:
+        - Docker Desktop for Mac
+        - Local Docker image whose repository name contains grobid
+      optional:
+        - CUDA is not available on macOS; use --docling-device auto or cpu
+      verify:
+        - python skills/grobid_pdf_skill/verify_dependencies.py
 
   send-qq-email:
     path: skills/send-qq-email
