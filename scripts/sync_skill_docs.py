@@ -11,24 +11,14 @@ SKILL_DOCS_ROOT = Path("docs/skills")
 SUBREPO_MANIFEST = "docs.manifest.yml"
 GENERATED_ROOT = Path("docs/.vitepress/generated")
 PUBLIC_STATIC_ROOT = Path("docs/public/skill-static")
-BETA_SKILL_NAMES = {"generate-3plus1-diagrams"}
 SKILL_ORDER = {
     "ppt-deep-search": 0,
     "hw-ppt-gen-html": 1,
 }
 
 
-def display_skill_title(skill: dict[str, object]) -> str:
-    title = str(skill["title"])
-    if title in BETA_SKILL_NAMES:
-        return f"[beta] {title}"
-    return title
-
-
 def skill_sort_key(skill: dict[str, object]) -> tuple[int, str]:
     title = str(skill["title"])
-    if title in BETA_SKILL_NAMES:
-        return (99, title)
     return (SKILL_ORDER.get(title, 50), title)
 
 
@@ -261,7 +251,7 @@ def write_skill_index(root: Path, skills: list[dict[str, object]]) -> None:
     ]
 
     for skill in sorted(skills, key=skill_sort_key):
-        lines.append(f"## [{display_skill_title(skill)}](./{skill['slug']}/)")
+        lines.append(f"## [{skill['title']}](./{skill['slug']}/)")
         if skill["description"]:
             lines.append("")
             lines.append(skill["description"])
@@ -281,7 +271,7 @@ def write_skill_sidebar(root: Path, skills: list[dict[str, object]]) -> None:
             items = []
         sidebar_items.append(
             {
-                "text": display_skill_title(skill),
+                "text": skill["title"],
                 "collapsed": True,
                 "items": items,
             }

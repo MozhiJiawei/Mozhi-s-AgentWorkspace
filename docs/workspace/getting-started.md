@@ -61,7 +61,6 @@ TBD
 | `grobid-docling-pdf` | [依赖说明](/skills/grobid_pdf_skill/dependencies) |
 | `gh-issue-comment-monitor` | [依赖说明](/skills/gh-issue-comment-monitor/dependencies) |
 | `send-qq-email` | [依赖说明](/skills/send-qq-email/dependencies) |
-| `[beta] generate-3plus1-diagrams` | [依赖说明](/skills/architecture_4-1/dependencies) |
 
 ## 3. 使用方式
 
@@ -173,31 +172,7 @@ Prompt 示例：
 - SMTP 配置检查结果
 - 邮件主题、正文和收件人记录
 
-### 3.6 [beta] 架构分析与画图
-
-典型场景：你希望 Agent 阅读一个代码仓库，梳理模块边界、运行路径，并生成可编辑架构图。
-
-当前状态：Beta。这个能力还不成熟，建议暂时谨慎使用。
-
-Prompt 示例：
-
-- `请基于这个仓库生成 4+1 架构图，只需要逻辑视图和运行时视图，输出 draw.io 文件。`
-- `请梳理当前仓库的模块边界和关键运行路径，并给我一套可编辑的 3+1 架构图。`
-
-预期调用的 Skills：
-
-- `[beta] generate-3plus1-diagrams`
-
-预期产物：
-
-- 逻辑视图
-- 开发视图
-- 运行时视图
-- 用例视图
-- draw.io 文件
-- 导出预览和校验结果
-
-### 3.7 Aurora TUN 进程绕过
+### 3.6 Aurora TUN 进程绕过
 
 典型场景：ChatGPT 等应用必须继续走 Aurora 的 TUN 全局代理，但游戏或本地应用需要按进程直连。
 

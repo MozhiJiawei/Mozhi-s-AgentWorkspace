@@ -71,27 +71,6 @@
 - 优先使用该 skill 的脚本读取增量评论；只有缺少 checkpoint 或任务确实需要重建上下文时，才读取完整 issue 历史
 - 只有在已成功处理返回评论后，才使用 `--update-state` 更新本地 checkpoint
 
-### [beta] `skills/architecture_4-1`
-
-- 加载路径：`skills/architecture_4-1/SKILL.md`
-- skill 名称：`generate-3plus1-diagrams`
-- 主要用途：[beta] 分析目标仓库并生成 3+1 / 4+1 架构视图的可编辑 `.drawio` 图，以及对应的导出预览和校验结果
-
-当任务满足以下任一条件时，agent 应加载并使用这个 skill：
-
-- 用户要求分析某个代码仓库的架构
-- 用户要求生成架构图、模块图、组件关系图或 draw.io 图
-- 用户明确提到 3+1、4+1、逻辑视图、开发视图、运行时视图、用例视图
-- 用户希望基于代码仓库梳理模块边界、组件关系、运行路径或用户用例结构
-
-当任务只是修改业务代码、修文档、修脚本、维护仓库骨架，且不涉及架构视图产出时，不应加载这个 skill。
-
-使用这个 skill 时：
-
-- 先读取 `skills/architecture_4-1/SKILL.md`
-- 若任务会产生中间稿、日志、草图或阶段性结果，必须以 `.tmp/` 为工作根目录，并按该 skill 的目录约定拼接子路径
-- 若用户明确要求分析当前仓库，也应把本仓库视为目标仓库，但临时架构产物仍必须落在 `.tmp/` 下
-
 ### `skills/hw-ppt-gen-html`
 
 - 加载路径：`skills/hw-ppt-gen-html/SKILL.md`

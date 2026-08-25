@@ -32,20 +32,6 @@ skills:
       reviewed_by: agent
       note: 已复核 ppt-deep-search 文档更新；继续通过子仓 docs.manifest.yml 构建时同步文档。
 
-  generate-3plus1-diagrams:
-    path: skills/architecture_4-1
-    mount: docs/skills/architecture_4-1
-    status: bootstrap
-    publish:
-      mode: subrepo-manifest
-      entry: docs/skills/architecture_4-1/index.md
-      skill_manifest: docs.manifest.yml
-    docs_review:
-      source_fingerprint: sha256:a842fac0094b2bd2681db8d67824144a6c73f1168a154ba85e24a29453f53053
-      reviewed_at: "2026-06-04"
-      reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
-
   hw-ppt-gen-html:
     path: skills/hw-ppt-gen-html
     mount: docs/skills/hw-ppt-gen-html

@@ -48,28 +48,6 @@ skills:
       verify:
         - python skills/gh-issue-comment-monitor/verify_dependencies.py
 
-  generate-3plus1-diagrams:
-    path: skills/architecture_4-1
-    dependency_review:
-      source_fingerprint: sha256:f311ebee9bf1d5a5903ac89bd368d29fb7f839aa683cdf1f86405a8a4677bf53
-      reviewed_at: "2026-04-29"
-      reviewed_by: agent
-      note: Reviewed architecture_4-1 update; no new runtime dependencies, refreshed fingerprint.
-    windows:
-      python_packages:
-        - pillow
-        - playwright
-      playwright_browsers:
-        - chromium
-      external:
-        - diagrams.net embed runtime or VS Code draw.io extension webapp
-      optional:
-        - network access to https://embed.diagrams.net/ when local draw.io webapp is absent
-      verify:
-        - python skills/architecture_4-1/verify_dependencies.py
-    macos:
-      status: todo
-
   hw-ppt-gen-html:
     path: skills/hw-ppt-gen-html
     dependency_review:

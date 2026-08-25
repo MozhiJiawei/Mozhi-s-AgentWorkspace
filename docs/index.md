@@ -36,6 +36,5 @@ features:
 | [grobid-docling-pdf](/skills/grobid_pdf_skill/) | 解析论文或技术 PDF，输出结构化 XML、图表图片和可追踪中间结果。 |
 | [send-qq-email](/skills/send-qq-email/) | 通过 QQ 邮箱 SMTP dry-run 或发送邮件，并生成 `.eml` 快照。 |
 | [web-article-capture](/skills/web-article-capture/) | 抓取网页正文文本和原始正文图片，生成下游可复用的 source package。 |
-| [[beta] generate-3plus1-diagrams](/skills/architecture_4-1/) | 分析代码仓库架构，生成 3+1 / 4+1 架构视图和可编辑 draw.io 图。 |
 
 更多细节见 [Skills](/skills/)。

@@ -1,6 +1,3 @@
-[submodule "skills/architecture_4-1"]
-	path = skills/architecture_4-1
-	url = https://github.com/MozhiJiawei/architecture_4-1.git
 [submodule "skills/grobid_pdf_skill"]
 	path = skills/grobid_pdf_skill
 	url = https://github.com/MozhiJiawei/grobid_pdf_skill.git

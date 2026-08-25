@@ -104,7 +104,6 @@ Skill 子仓负责：
 | `grobid-docling-pdf` | 将论文或技术 PDF 解析成结构化 XML 和图表图片。 |
 | `gh-issue-comment-monitor` | 增量监控 GitHub Issue 评论。 |
 | `send-qq-email` | 通过 QQ 邮箱 SMTP 发送或 dry-run 邮件，并生成快照。 |
-| `[beta] generate-3plus1-diagrams` | 生成 3+1 / 4+1 架构视图和 draw.io 图。 |
 
 ## Skill Prompt 示例
 
@@ -144,11 +143,6 @@ Skill 子仓负责：
 
 - `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/send-qq-email/。`
 - `请检查我的 QQ 邮箱 SMTP 环境变量是否齐全，不要真实发送邮件。`
-
-### `[beta] skills/architecture_4-1`
-
-- `请基于这个仓库生成 4+1 架构图，只需要逻辑视图和运行时视图，输出 draw.io 文件。`
-- `请梳理当前仓库的模块边界和关键运行路径，并给我一套可编辑的 3+1 架构图。`
 
 ## 维护
 
