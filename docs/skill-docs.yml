@@ -46,6 +46,20 @@ skills:
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
 
+  create-single-page-tech-report:
+    path: skills/create-single-page-tech-report
+    mount: docs/skills/create-single-page-tech-report
+    status: bootstrap
+    publish:
+      mode: subrepo-manifest
+      entry: docs/skills/create-single-page-tech-report/index.md
+      skill_manifest: docs.manifest.yml
+    docs_review:
+      source_fingerprint: sha256:bd8e753eee3de86bbb2cee86944cc6cc5271f7663347dca86a856453fe492c93
+      reviewed_at: "2026-08-24"
+      reviewed_by: agent
+      note: 已复核初始能力、使用、依赖和架构页面；通过子仓 docs.manifest.yml 构建同步。
+
   ppt-deep-search:
     path: skills/ppt-deep-search
     mount: docs/skills/ppt-deep-search

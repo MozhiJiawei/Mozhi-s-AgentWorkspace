@@ -32,6 +32,7 @@ features:
 | [aurora-tun-bypass](/skills/aurora-tun-bypass/) | 为指定 Windows 进程添加 Aurora TUN 直连规则，同时保留其他流量的代理兜底。 |
 | [ppt-deep-search](/skills/ppt-deep-search/) | 在生成 PPT 前完成来源理解审阅、证据边界确认和 Source Understanding HTML。 |
 | [hw-ppt-gen-html](/skills/hw-ppt-gen-html/) | 基于材料生成 HTML PPT / slides，并完成 PNG 导出和独立视觉 QA。 |
+| [create-single-page-tech-report](/skills/create-single-page-tech-report/) | 将技术论文、技术进展或技术新闻制作成严格一页、证据驱动、可编辑的中文 PowerPoint 技术洞察。 |
 | [gh-issue-comment-monitor](/skills/gh-issue-comment-monitor/) | 增量读取 GitHub Issue 新评论，避免重复加载完整讨论历史。 |
 | [grobid-docling-pdf](/skills/grobid_pdf_skill/) | 解析论文或技术 PDF，输出结构化 XML、图表图片和可追踪中间结果。 |
 | [send-qq-email](/skills/send-qq-email/) | 通过 QQ 邮箱 SMTP dry-run 或发送邮件，并生成 `.eml` 快照。 |

@@ -70,6 +70,28 @@
     ]
   },
   {
+    "text": "create-single-page-tech-report",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "能力展示",
+        "link": "/skills/create-single-page-tech-report/reference"
+      },
+      {
+        "text": "使用方式",
+        "link": "/skills/create-single-page-tech-report/usage"
+      },
+      {
+        "text": "依赖说明",
+        "link": "/skills/create-single-page-tech-report/dependencies"
+      },
+      {
+        "text": "架构概览",
+        "link": "/skills/create-single-page-tech-report/"
+      }
+    ]
+  },
+  {
     "text": "gh-issue-comment-monitor",
     "collapsed": true,
     "items": [

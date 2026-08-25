@@ -76,6 +76,32 @@ skills:
       verify:
         - python skills/hw-ppt-gen-html/verify_dependencies.py
 
+  create-single-page-tech-report:
+    path: skills/create-single-page-tech-report
+    dependency_review:
+      source_fingerprint: sha256:7fa57dcc1ca24209add45e5c643a624c2005200c107448f40c63c01e8b0c42d1
+      reviewed_at: "2026-08-24"
+      reviewed_by: agent
+      note: Initial review; dependency and PPTX validation scripts use Python standard library only. Report creation requires an Agent runtime with editable PowerPoint creation and rendering capabilities; ImageGen is optional with an editable-shape fallback.
+    windows:
+      python_packages: []
+      external:
+        - Python 3.10 or newer
+        - Agent runtime with editable PowerPoint creation and rendering capabilities
+      optional:
+        - ImageGen for custom explanatory bitmap visuals when source figures are unavailable
+      verify:
+        - python skills/create-single-page-tech-report/verify_dependencies.py
+    macos:
+      python_packages: []
+      external:
+        - Python 3.10 or newer
+        - Agent runtime with editable PowerPoint creation and rendering capabilities
+      optional:
+        - ImageGen for custom explanatory bitmap visuals when source figures are unavailable
+      verify:
+        - python skills/create-single-page-tech-report/verify_dependencies.py
+
   ppt-deep-search:
     path: skills/ppt-deep-search
     dependency_review:
