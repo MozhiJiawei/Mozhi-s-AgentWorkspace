@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://ccn:ccn@postgres:5432/ccn"
     redis_url: str = "redis://redis:6379/0"
     api_key: str = Field(default="", alias="CCN_API_KEY")
+    dashboard_password_hash: str = Field(default="", alias="CCN_DASHBOARD_PASSWORD_HASH")
+    dashboard_session_ttl_seconds: int = 12 * 60 * 60
+    dashboard_cookie_secure: bool = True
     enable_api_docs: bool = False
     auth_fail_limit_per_minute: int = 10
     read_limit_per_minute: int = 120

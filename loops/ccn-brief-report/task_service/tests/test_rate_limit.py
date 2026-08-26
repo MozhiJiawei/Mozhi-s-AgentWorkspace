@@ -9,6 +9,7 @@ from app.rate_limit.service import RateLimiter
 class FakeRedis:
     def __init__(self) -> None:
         self.values: dict[str, int | str] = {}
+        self.ttls: dict[str, int] = {}
 
     def exists(self, key: str) -> bool:
         return key in self.values
@@ -21,18 +22,20 @@ class FakeRedis:
     def expire(self, _key: str, _seconds: int) -> None:
         return None
 
-    def setex(self, key: str, _seconds: int, value: str) -> None:
+    def setex(self, key: str, seconds: int, value: str) -> None:
         self.values[key] = value
+        self.ttls[key] = seconds
 
 
 def test_auth_failures_create_a_temporary_block():
     limiter = RateLimiter.__new__(RateLimiter)
     limiter.client = FakeRedis()
     for _ in range(2):
-        limiter.check("auth-failure", "127.0.0.1", 2)
+        limiter.check("auth-failure", "127.0.0.1", 2, block_seconds=900)
     with pytest.raises(HTTPException) as exceeded:
-        limiter.check("auth-failure", "127.0.0.1", 2)
+        limiter.check("auth-failure", "127.0.0.1", 2, block_seconds=900)
     assert exceeded.value.status_code == 429
     assert exceeded.value.headers["Retry-After"] == "900"
+    assert limiter.client.ttls["ccn-rate:block:auth-failure:127.0.0.1"] == 900
     with pytest.raises(HTTPException):
-        limiter.check("auth-failure", "127.0.0.1", 2)
+        limiter.check("auth-failure", "127.0.0.1", 2, block_seconds=900)

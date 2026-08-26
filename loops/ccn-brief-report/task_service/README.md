@@ -20,9 +20,10 @@
 
 ## 任务状态台
 
-`GET /dashboard`提供表格化任务状态页面。页面外壳不包含业务数据；使用统一API Key
-登录后，浏览器才会调用受保护的任务列表接口。密钥只保存在当前标签页的
-`sessionStorage`，关闭标签页即清除。
+`GET /dashboard`提供表格化任务状态页面。页面外壳不包含业务数据；输入独立状态台密码
+登录后，浏览器才会调用受保护的任务列表接口。服务端只保存
+`CCN_DASHBOARD_PASSWORD_HASH`中的PBKDF2-SHA256密码哈希，浏览器只接收HttpOnly、
+SameSite=Strict的限时会话Cookie，不保存密码。机器调用仍使用原有Bearer API Key。
 
 页面内的“API 接口文档”页签无需登录即可查看，提供五个主要接口的PowerShell调用示例。
 示例只使用`<API_KEY>`代号，使用者必须替换为实际密钥，

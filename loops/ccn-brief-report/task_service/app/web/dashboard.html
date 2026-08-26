@@ -159,7 +159,7 @@
             </div>
             <button class="copy-button" type="button" data-copy-target="code-auth">复制命令</button>
           </div>
-          <p class="docs-copy">所有接口和任务状态台都使用同一个 API Key。</p>
+          <p class="docs-copy">API 调用继续使用统一 API Key；任务状态台使用独立登录密码。</p>
           <pre><code id="code-auth">$ApiBase = "https://ccn-api.haohaoxiaoyu.top"
 
 # 必须替换成真实密钥；不要保留尖括号占位符
@@ -342,10 +342,10 @@ $BatchDeleted.data</code></pre>
       <form id="login-form" class="login-card">
         <p class="eyebrow">SECURE ACCESS</p>
         <h2>连接任务状态台</h2>
-        <p>请输入 API Key。密钥仅保存在当前浏览器标签页，关闭标签页后自动清除。</p>
+        <p>请输入状态台密码。登录成功后仅保存安全会话 Cookie，不在浏览器中保存密码。</p>
         <label>
-          <span>Bearer API Key</span>
-          <input id="api-key" type="password" autocomplete="off" required placeholder="粘贴 API Key">
+          <span>状态台密码</span>
+          <input id="dashboard-password" type="password" autocomplete="current-password" required placeholder="输入密码">
         </label>
         <p id="login-error" class="login-error" role="alert" hidden></p>
         <button class="button button-primary button-block" type="submit">安全连接</button>
@@ -353,6 +353,6 @@ $BatchDeleted.data</code></pre>
       </form>
     </div>
 
-    <script src="/dashboard-assets/dashboard.js?v=3" defer></script>
+    <script src="/dashboard-assets/dashboard.js?v=4" defer></script>
   </body>
 </html>

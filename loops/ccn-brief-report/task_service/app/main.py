@@ -3,15 +3,22 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
+from pydantic import BaseModel, Field
 
 from app.api.routes import router
-from app.auth.service import source_ip
-from app.config import get_settings
+from app.auth.service import (
+    DASHBOARD_SESSION_COOKIE,
+    create_dashboard_session,
+    source_ip,
+    verify_dashboard_password,
+)
+from app.config import Settings, get_settings
 from app.db.models import AuditEvent
 from app.db.session import SessionLocal
+from app.rate_limit.service import RateLimiter, get_rate_limiter
 
 
 settings = get_settings()
@@ -25,6 +32,10 @@ app = FastAPI(
 app.include_router(router)
 WEB_ROOT = Path(__file__).resolve().parent / "web"
 TASK_PATH = re.compile(r"^/api/v1/tasks/([^/]+)")
+
+
+class DashboardLogin(BaseModel):
+    password: str = Field(min_length=1, max_length=1024)
 
 
 @app.get("/dashboard-assets/{asset_name}", include_in_schema=False)
@@ -54,6 +65,56 @@ def dashboard() -> FileResponse:
             "X-Frame-Options": "DENY",
         },
     )
+
+
+@app.post("/dashboard-auth/login", include_in_schema=False)
+def dashboard_login(
+    body: DashboardLogin,
+    request: Request,
+    response: Response,
+    settings: Settings = Depends(get_settings),
+    limiter: RateLimiter = Depends(get_rate_limiter),
+) -> dict[str, str]:
+    if not settings.dashboard_password_hash:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": "dashboard_unavailable", "message": "Dashboard password is not configured"},
+        )
+    if not verify_dashboard_password(body.password, settings.dashboard_password_hash):
+        limiter.check(
+            "auth-failure",
+            source_ip(request),
+            settings.auth_fail_limit_per_minute,
+            block_seconds=900,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "unauthorized", "message": "Invalid credentials"},
+        )
+    response.set_cookie(
+        DASHBOARD_SESSION_COOKIE,
+        create_dashboard_session(settings),
+        max_age=settings.dashboard_session_ttl_seconds,
+        httponly=True,
+        secure=settings.dashboard_cookie_secure,
+        samesite="strict",
+        path="/",
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return {"status": "success"}
+
+
+@app.post("/dashboard-auth/logout", include_in_schema=False)
+def dashboard_logout(response: Response, settings: Settings = Depends(get_settings)) -> dict[str, str]:
+    response.delete_cookie(
+        DASHBOARD_SESSION_COOKIE,
+        httponly=True,
+        secure=settings.dashboard_cookie_secure,
+        samesite="strict",
+        path="/",
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return {"status": "success"}
 
 
 @app.middleware("http")

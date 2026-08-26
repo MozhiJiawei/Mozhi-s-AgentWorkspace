@@ -26,11 +26,11 @@ cmp -s "$INCOMING/pyproject.toml" "$TARGET/pyproject.toml" || {
   echo "pyproject.toml changed; use a full CCN deployment to update dependencies." >&2
   exit 67
 }
-cmp -s "$INCOMING/alembic.ini" "$TARGET/alembic.ini" || {
+diff -q -B "$INCOMING/alembic.ini" "$TARGET/alembic.ini" >/dev/null || {
   echo "alembic.ini changed; use a full CCN deployment." >&2
   exit 68
 }
-diff -qr "$INCOMING/migrations" "$TARGET/migrations" >/dev/null || {
+diff -qr -B --exclude='__pycache__' --exclude='*.pyc' "$INCOMING/migrations" "$TARGET/migrations" >/dev/null || {
   echo "Database migrations changed; use a full CCN deployment." >&2
   exit 69
 }

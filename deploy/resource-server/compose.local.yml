@@ -29,6 +29,8 @@ services:
       DATABASE_URL: postgresql+psycopg://ccn:local-postgres-password@postgres:5432/ccn
       REDIS_URL: redis://:local-redis-password@redis:6379/0
       CCN_API_KEY: local-api-key-change-me
+      CCN_DASHBOARD_PASSWORD_HASH: pbkdf2_sha256:100000:ZGFzaGJvYXJkLXRlc3Q:MnchJxVsHMIbDFxSWVkv0r-6zfIVrqZbw_LpO8xFix8
+      DASHBOARD_COOKIE_SECURE: "false"
       ENABLE_API_DOCS: "true"
     depends_on:
       postgres:

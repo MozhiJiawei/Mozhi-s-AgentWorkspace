@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import base64
+import hashlib
 from pathlib import Path
 import sys
 
@@ -13,11 +15,16 @@ from sqlalchemy.pool import StaticPool
 
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVICE_ROOT))
+_salt = b"dashboard-test"
+_digest = hashlib.pbkdf2_hmac("sha256", b"dashboard-test-password", _salt, 100_000)
+_encode = lambda value: base64.urlsafe_b64encode(value).decode("ascii").rstrip("=")
 os.environ.update(
     {
         "DATABASE_URL": "sqlite+pysqlite:///:memory:",
         "REDIS_URL": "redis://unused:6379/0",
         "CCN_API_KEY": "single-test-key",
+        "CCN_DASHBOARD_PASSWORD_HASH": f"pbkdf2_sha256:100000:{_encode(_salt)}:{_encode(_digest)}",
+        "DASHBOARD_COOKIE_SECURE": "false",
     }
 )
 
@@ -29,10 +36,10 @@ from app.rate_limit.service import get_rate_limiter  # noqa: E402
 
 class FakeLimiter:
     def __init__(self) -> None:
-        self.calls: list[tuple[str, str, int]] = []
+        self.calls: list[tuple[str, str, int, int]] = []
 
-    def check(self, bucket: str, identifier: str, limit: int) -> None:
-        self.calls.append((bucket, identifier, limit))
+    def check(self, bucket: str, identifier: str, limit: int, *, block_seconds: int = 0) -> None:
+        self.calls.append((bucket, identifier, limit, block_seconds))
 
 
 @pytest.fixture

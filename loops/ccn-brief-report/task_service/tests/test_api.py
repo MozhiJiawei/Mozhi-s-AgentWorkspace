@@ -244,6 +244,34 @@ def test_dashboard_is_public_shell_but_data_remains_protected(client):
     assert "JSON.stringify(task.latest_result" not in dashboard_js.text
     assert "task.latest_result?.summary" not in dashboard_js.text
     assert "task.latest_result?.error" not in dashboard_js.text
-    assert 'dashboard.js?v=3' in dashboard.text
+    assert 'dashboard.js?v=4' in dashboard.text
+    assert 'id="dashboard-password"' in dashboard.text
+    assert 'id="api-key"' not in dashboard.text
     assert client.get("/api/v1/tasks").status_code == 401
     assert client.get("/exec", headers={"Authorization": "Bearer single-test-key"}).status_code == 404
+
+
+def test_dashboard_password_creates_http_only_session(client, sample_task, api_headers):
+    create_task(client, api_headers, sample_task)
+
+    rejected = client.post("/dashboard-auth/login", json={"password": "wrong-password"})
+    assert rejected.status_code == 401
+    assert client.fake_limiter.calls[-1][0] == "auth-failure"
+    assert client.fake_limiter.calls[-1][3] == 900
+    assert client.get("/api/v1/tasks").status_code == 401
+
+    login = client.post("/dashboard-auth/login", json={"password": "dashboard-test-password"})
+    assert login.status_code == 200
+    cookie = login.headers["set-cookie"]
+    assert "ccn_dashboard_session=" in cookie
+    assert "HttpOnly" in cookie
+    assert "SameSite=strict" in cookie
+    assert "dashboard-test-password" not in cookie
+
+    listed = client.get("/api/v1/tasks")
+    assert listed.status_code == 200
+    assert listed.json()["data"][0]["task_id"] == sample_task["task_id"]
+
+    logout = client.post("/dashboard-auth/logout")
+    assert logout.status_code == 200
+    assert client.get("/api/v1/tasks").status_code == 401

@@ -7,7 +7,7 @@
 
 - `https://docs.haohaoxiaoyu.top`：文档站。
 - `https://ccn-api.haohaoxiaoyu.top`：CCN任务接口。
-- `https://ccn-api.haohaoxiaoyu.top/dashboard`：任务状态台，以及无需登录即可查看的API接口文档页签；任务数据仍受Bearer Key保护。
+- `https://ccn-api.haohaoxiaoyu.top/dashboard`：使用独立密码登录的任务状态台，以及无需登录即可查看的API接口文档页签；机器API仍受Bearer Key保护。
 - `https://api.haohaoxiaoyu.top`：Red Flower Garden API。
 - 80端口只负责HTTPS跳转或拒绝明文API。
 - 8888端口只将旧文档地址308跳转到标准HTTPS地址。

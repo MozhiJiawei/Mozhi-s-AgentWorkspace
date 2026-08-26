@@ -1,6 +1,5 @@
 "use strict";
 
-const TOKEN_KEY = "ccn-dashboard-bearer";
 const state = {
   cursor: null,
   cursorHistory: [],
@@ -19,7 +18,7 @@ const elements = {
   loginLayer: document.querySelector("#login-layer"),
   loginForm: document.querySelector("#login-form"),
   loginError: document.querySelector("#login-error"),
-  apiKey: document.querySelector("#api-key"),
+  password: document.querySelector("#dashboard-password"),
   loginDocs: document.querySelector("#login-docs-button"),
   logout: document.querySelector("#logout-button"),
   refresh: document.querySelector("#refresh-button"),
@@ -54,7 +53,6 @@ const elements = {
   },
 };
 
-function token() { return sessionStorage.getItem(TOKEN_KEY) || ""; }
 function text(value, fallback = "—") { return value === null || value === undefined || value === "" ? fallback : String(value); }
 function formatDate(value) {
   if (!value) return "—";
@@ -93,7 +91,7 @@ function showView(view) {
 
   if (showDocs) {
     elements.loginLayer.hidden = true;
-  } else if (!token()) {
+  } else if (elements.loginLayer.hidden === false) {
     showLogin();
   }
 }
@@ -268,19 +266,17 @@ function render(tasks, pagination) {
   updateSelectionState();
 }
 async function loadTasks() {
-  if (!token() || state.loading) return;
+  if (state.loading) return;
   state.loading = true;
   elements.refresh.disabled = true;
   setMessage();
   try {
     const response = await fetch(`/api/v1/tasks?${queryString()}`, {
-      headers: { Authorization: `Bearer ${token()}` },
       cache: "no-store",
     });
     const payload = await response.json();
     if (response.status === 401) {
-      sessionStorage.removeItem(TOKEN_KEY);
-      showLogin("API Key 无效，请重新输入。");
+      showLogin("登录已失效，请重新输入密码。");
       return;
     }
     if (!response.ok || payload.status !== "success") throw new Error(payload.error?.message || `请求失败（${response.status}）`);
@@ -304,7 +300,7 @@ async function deletePendingTasks() {
   elements.cancelDelete.disabled = true;
   try {
     const isBatch = taskIds.length > 1;
-    const headers = { Authorization: `Bearer ${token()}` };
+    const headers = {};
     const options = { method: "DELETE", headers };
     let url = `/api/v1/tasks/${encodeURIComponent(taskIds[0])}`;
     if (isBatch) {
@@ -315,9 +311,8 @@ async function deletePendingTasks() {
     const response = await fetch(url, options);
     const payload = await response.json();
     if (response.status === 401) {
-      sessionStorage.removeItem(TOKEN_KEY);
       elements.deleteDialog.close();
-      showLogin("API Key 无效，请重新输入。");
+      showLogin("登录已失效，请重新输入密码。");
       return;
     }
     if (!response.ok || payload.status !== "success") {
@@ -338,16 +333,30 @@ async function deletePendingTasks() {
 
 elements.loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const value = elements.apiKey.value.trim();
+  const value = elements.password.value;
   if (!value) return;
-  sessionStorage.setItem(TOKEN_KEY, value);
-  elements.apiKey.value = "";
-  resetPaging();
-  await loadTasks();
+  elements.loginError.hidden = true;
+  try {
+    const response = await fetch("/dashboard-auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: value }),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      showLogin(response.status === 401 ? "密码不正确，请重试。" : "登录暂不可用，请稍后重试。");
+      return;
+    }
+    elements.password.value = "";
+    resetPaging();
+    await loadTasks();
+  } catch (_error) {
+    showLogin("无法连接服务器，请稍后重试。");
+  }
 });
 elements.recordsTab.addEventListener("click", async () => {
   showView("records");
-  if (token()) await loadTasks();
+  await loadTasks();
 });
 elements.apiDocsTab.addEventListener("click", () => showView("docs"));
 elements.loginDocs.addEventListener("click", () => showView("docs"));
@@ -380,8 +389,8 @@ elements.deleteSelected.addEventListener("click", () => openDeleteDialog([...sta
 elements.cancelDelete.addEventListener("click", () => elements.deleteDialog.close());
 elements.confirmDelete.addEventListener("click", deletePendingTasks);
 elements.deleteDialog.addEventListener("close", () => { state.pendingDelete = []; });
-elements.logout.addEventListener("click", () => {
-  sessionStorage.removeItem(TOKEN_KEY);
+elements.logout.addEventListener("click", async () => {
+  await fetch("/dashboard-auth/logout", { method: "POST", cache: "no-store" });
   elements.rows.replaceChildren();
   state.selected.clear();
   updateSelectionState();
@@ -417,4 +426,4 @@ elements.previous.addEventListener("click", async () => {
 });
 
 showView("records");
-if (token()) loadTasks(); else showLogin();
+loadTasks();
