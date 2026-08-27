@@ -59,7 +59,42 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 function statusLabel(value) { return { pending: "待处理", completed: "已完成", failed: "失败" }[value] || value; }
-function resultUrl(task) { return task.latest_result?.artifact_urls?.[0] || ""; }
+function resultArtifacts(task) {
+  const urls = task.latest_result?.artifact_urls || [];
+  return {
+    directory: urls[0] || "",
+    html: urls[1] || "",
+    pptx: urls[2] || "",
+  };
+}
+function resultUrl(task) { return resultArtifacts(task).directory; }
+function resultLink(url, label, className = "") {
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = label;
+  if (className) link.className = className;
+  return link;
+}
+function appendResultLinks(parent, task) {
+  const artifacts = resultArtifacts(task);
+  if (!artifacts.directory) {
+    parent.textContent = "—";
+    return;
+  }
+  parent.append(resultLink(artifacts.directory, artifacts.directory, "result-link"));
+  if (!artifacts.html && !artifacts.pptx) return;
+  const downloads = document.createElement("div");
+  downloads.className = "result-downloads";
+  if (artifacts.html) {
+    downloads.append(resultLink(artifacts.html, "下载报告", "result-download result-download-html"));
+  }
+  if (artifacts.pptx) {
+    downloads.append(resultLink(artifacts.pptx, "下载PPT", "result-download result-download-pptx"));
+  }
+  parent.append(downloads);
+}
 function setMessage(message = "", tone = "error") {
   elements.message.textContent = message;
   elements.message.hidden = !message;
@@ -158,17 +193,7 @@ function detailRow(task) {
   appendDetail(grid, "创建时间", formatDate(task.created_at));
   appendDetail(grid, "更新时间", formatDate(task.updated_at));
   const result = appendDetail(grid, "结果 URL", "", true);
-  const resultUrlValue = resultUrl(task);
-  if (resultUrlValue) {
-    const resultLink = document.createElement("a");
-    resultLink.href = resultUrlValue;
-    resultLink.target = "_blank";
-    resultLink.rel = "noopener noreferrer";
-    resultLink.textContent = resultUrlValue;
-    result.append(resultLink);
-  } else {
-    result.textContent = "—";
-  }
+  appendResultLinks(result, task);
   cell.append(grid);
   row.append(cell);
   return row;
@@ -205,13 +230,7 @@ function taskRow(task) {
       cell.append(badge);
     } else if (index === 7) {
       if (value) {
-        const resultLink = document.createElement("a");
-        resultLink.className = "result-link";
-        resultLink.href = value;
-        resultLink.target = "_blank";
-        resultLink.rel = "noopener noreferrer";
-        resultLink.textContent = value;
-        cell.append(resultLink);
+        appendResultLinks(cell, task);
       } else {
         cell.textContent = "—";
       }

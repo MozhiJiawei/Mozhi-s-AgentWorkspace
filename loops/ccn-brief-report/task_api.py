@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import sys
 from typing import Any
-from urllib.parse import unquote, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, unquote, urlsplit, urlunsplit
 
 import requests
 
@@ -199,11 +199,15 @@ def cmd_fetch(args: argparse.Namespace) -> int:
     return 0
 
 
-def validate_artifact_url(value: str, config: dict[str, Any]) -> str:
+def configured_repository(config: dict[str, Any]):
     repository = config.get("ccn_report_repository_url")
     if not isinstance(repository, str):
         raise TaskAPIError("config.json 缺少 ccn_report_repository_url")
-    expected = urlsplit(repository.rstrip("/"))
+    return urlsplit(repository.rstrip("/"))
+
+
+def validate_artifact_url(value: str, config: dict[str, Any]) -> str:
+    expected = configured_repository(config)
     parsed = urlsplit(value)
     expected_prefix = expected.path.rstrip("/") + "/tree/main/"
     decoded_path = unquote(parsed.path)
@@ -225,6 +229,51 @@ def validate_artifact_url(value: str, config: dict[str, Any]) -> str:
     return urlunsplit((parsed.scheme, parsed.netloc, iri_path, "", ""))
 
 
+def report_relative_path(artifact_url: str, config: dict[str, Any]) -> str:
+    expected = configured_repository(config)
+    decoded_path = unquote(urlsplit(artifact_url).path)
+    expected_prefix = expected.path.rstrip("/") + "/tree/main/"
+    return decoded_path[len(expected_prefix):]
+
+
+def validate_download_url(
+    value: str,
+    config: dict[str, Any],
+    *,
+    artifact_url: str,
+    expected_suffix: str,
+) -> str:
+    expected = configured_repository(config)
+    parsed = urlsplit(value)
+    expected_prefix = expected.path.rstrip("/") + "/raw/refs/heads/main/"
+    decoded_path = unquote(parsed.path)
+    iri_path = decode_non_ascii_percent_escapes(parsed.path)
+    relative_path = decoded_path[len(expected_prefix):] if decoded_path.startswith(expected_prefix) else ""
+    path_segments = relative_path.split("/")
+    expected_parent = report_relative_path(artifact_url, config)
+    parent, separator, filename = relative_path.rpartition("/")
+    if (
+        parsed.scheme != "https"
+        or parsed.netloc != expected.netloc
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.fragment
+        or parse_qsl(parsed.query, keep_blank_values=True) != [("download", "1")]
+        or not decoded_path.startswith(expected_prefix)
+        or any(segment in {"", ".", ".."} for segment in path_segments)
+        or not separator
+        or parent != expected_parent
+        or not filename.lower().endswith(expected_suffix)
+    ):
+        label = "HTML" if expected_suffix == ".html" else "PPTX"
+        raise TaskAPIError(f"{label} 下载 URL 必须指向同一报告目录下的 GitHub main 分支 raw 文件，并包含 download=1")
+    return urlunsplit((parsed.scheme, parsed.netloc, iri_path, parsed.query, ""))
+
+
+def download_filename(download_url: str) -> str:
+    return unquote(urlsplit(download_url).path).rsplit("/", 1)[-1]
+
+
 def fetch_task(*, base_url: str, key: str, task_id: str, timeout: float, session=None) -> dict[str, Any]:
     requester = session or requests
     try:
@@ -242,20 +291,29 @@ def fetch_task(*, base_url: str, key: str, task_id: str, timeout: float, session
     return payload["data"]
 
 
-def result_matches(task: dict[str, Any], artifact_url: str) -> bool:
+def result_matches(task: dict[str, Any], artifact_urls: list[str]) -> bool:
     result = task.get("latest_result")
     return (
         task.get("status") == "completed"
         and isinstance(result, dict)
         and result.get("outcome") == "completed"
-        and result.get("artifact_urls") == [artifact_url]
+        and result.get("artifact_urls") == artifact_urls
     )
 
 
-def submit_result(*, base_url: str, key: str, task_id: str, artifact_url: str, timeout: float, session=None) -> dict[str, Any]:
+def submit_result(
+    *,
+    base_url: str,
+    key: str,
+    task_id: str,
+    artifact_urls: list[str],
+    timeout: float,
+    session=None,
+) -> dict[str, Any]:
     requester = session or requests
-    payload = {"outcome": "completed", "artifact_urls": [artifact_url]}
-    digest = hashlib.sha256(artifact_url.encode("utf-8")).hexdigest()[:16]
+    payload = {"outcome": "completed", "artifact_urls": artifact_urls}
+    digest_input = json.dumps(artifact_urls, ensure_ascii=False, separators=(",", ":"))
+    digest = hashlib.sha256(digest_input.encode("utf-8")).hexdigest()[:16]
     headers = {
         "Authorization": f"Bearer {key}",
         "Idempotency-Key": f"ccn-report-{task_id}-{digest}",
@@ -276,7 +334,7 @@ def submit_result(*, base_url: str, key: str, task_id: str, artifact_url: str, t
             timeout=timeout,
             session=requester,
         )
-        if result_matches(task, artifact_url):
+        if result_matches(task, artifact_urls):
             return task
         raise TaskAPIError("结果提交状态不确定，服务端对账未确认成功")
     task = fetch_task(
@@ -286,7 +344,7 @@ def submit_result(*, base_url: str, key: str, task_id: str, artifact_url: str, t
         timeout=timeout,
         session=requester,
     )
-    if not result_matches(task, artifact_url):
+    if not result_matches(task, artifact_urls):
         raise TaskAPIError("结果提交后服务端状态或 URL 不匹配")
     return task
 
@@ -299,14 +357,33 @@ def cmd_complete(args: argparse.Namespace) -> int:
     if not TASK_ID_PATTERN.fullmatch(task_id):
         raise TaskAPIError("task_id 格式无效")
     artifact_url = validate_artifact_url(args.artifact_url, config)
+    html_download_url = validate_download_url(
+        args.html_download_url,
+        config,
+        artifact_url=artifact_url,
+        expected_suffix=".html",
+    )
+    pptx_download_url = validate_download_url(
+        args.pptx_download_url,
+        config,
+        artifact_url=artifact_url,
+        expected_suffix=".pptx",
+    )
+    artifact_urls = [artifact_url, html_download_url, pptx_download_url]
     report_path = Path(args.report_path).resolve()
     if not report_path.is_dir():
         raise TaskAPIError("本地报告目录不存在")
+    html_path = report_path / download_filename(html_download_url)
+    pptx_path = report_path / download_filename(pptx_download_url)
+    if not html_path.is_file():
+        raise TaskAPIError(f"HTML 下载 URL 对应的本地文件不存在：{html_path.name}")
+    if not pptx_path.is_file():
+        raise TaskAPIError(f"PPTX 下载 URL 对应的本地文件不存在：{pptx_path.name}")
     task = submit_result(
         base_url=api_base(config),
         key=api_key(credentials),
         task_id=task_id,
-        artifact_url=artifact_url,
+        artifact_urls=artifact_urls,
         timeout=timeout,
     )
     import local_state
@@ -324,6 +401,8 @@ def cmd_complete(args: argparse.Namespace) -> int:
                 "task_id": task_id,
                 "remote_status": task["status"],
                 "artifact_url": artifact_url,
+                "html_download_url": html_download_url,
+                "pptx_download_url": pptx_download_url,
                 "local_status": record["status"],
             },
             ensure_ascii=False,
@@ -344,6 +423,8 @@ def build_parser() -> argparse.ArgumentParser:
     complete_parser = subparsers.add_parser("complete", help="幂等回传结果、对账并标记本地完成")
     complete_parser.add_argument("--task-id", required=True)
     complete_parser.add_argument("--artifact-url", required=True)
+    complete_parser.add_argument("--html-download-url", required=True)
+    complete_parser.add_argument("--pptx-download-url", required=True)
     complete_parser.add_argument("--report-path", required=True)
     complete_parser.add_argument("--state", default=str(DEFAULT_STATE))
     complete_parser.set_defaults(func=cmd_complete)

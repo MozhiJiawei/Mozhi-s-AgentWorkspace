@@ -240,11 +240,16 @@ def test_dashboard_is_public_shell_but_data_remains_protected(client):
     assert dashboard_js.status_code == 200
     assert dashboard_js.headers["cache-control"] == "no-store"
     assert "navigator.clipboard.writeText" in dashboard_js.text
-    assert "task.latest_result?.artifact_urls?.[0]" in dashboard_js.text
+    assert "task.latest_result?.artifact_urls || []" in dashboard_js.text
+    assert 'html: urls[1] || ""' in dashboard_js.text
+    assert 'pptx: urls[2] || ""' in dashboard_js.text
+    assert '"下载报告"' in dashboard_js.text
+    assert '"下载PPT"' in dashboard_js.text
     assert "JSON.stringify(task.latest_result" not in dashboard_js.text
     assert "task.latest_result?.summary" not in dashboard_js.text
     assert "task.latest_result?.error" not in dashboard_js.text
-    assert 'dashboard.js?v=4' in dashboard.text
+    assert 'dashboard.css?v=5' in dashboard.text
+    assert 'dashboard.js?v=5' in dashboard.text
     assert 'id="dashboard-password"' in dashboard.text
     assert 'id="api-key"' not in dashboard.text
     assert client.get("/api/v1/tasks").status_code == 401
