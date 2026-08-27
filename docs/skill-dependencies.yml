@@ -151,10 +151,10 @@ skills:
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
-      source_fingerprint: sha256:9c7d218f0f79e23110305cca16bab02da43c56e366cd19bfae11b6e8ada19858
-      reviewed_at: "2026-08-18"
+      source_fingerprint: sha256:16e8d89fba9baa923e20978aadba305e0e1a88d245c865e4a7cdfa4250182056
+      reviewed_at: "2026-08-27"
       reviewed_by: agent
-      note: Revalidated the existing hybrid PDF pipeline dependencies; the stale fingerprint was refreshed with no dependency changes.
+      note: Added the fixed GROBID 0.8.2 image and single shared-container runtime policy, including automated verification.
     windows:
       python_packages:
         - docling
@@ -162,7 +162,8 @@ skills:
         - torch
       external:
         - WSL2 and Docker Desktop
-        - Local Docker image whose repository name contains grobid
+        - Exactly one local GROBID image ID, tagged only as grobid/grobid:0.8.2
+        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070
       optional:
         - CUDA-capable PyTorch for --docling-device cuda
       verify:
@@ -174,7 +175,8 @@ skills:
         - torch
       external:
         - Docker Desktop for Mac
-        - Local Docker image whose repository name contains grobid
+        - Exactly one local GROBID image ID, tagged only as grobid/grobid:0.8.2
+        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070
       optional:
         - CUDA is not available on macOS; use --docling-device auto or cpu
       verify:
