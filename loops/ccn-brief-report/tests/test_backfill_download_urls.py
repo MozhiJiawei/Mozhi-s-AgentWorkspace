@@ -39,7 +39,7 @@ class BackfillDownloadUrlsTests(unittest.TestCase):
             self.assertEqual(
                 [
                     "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report",
-                    "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/source_understanding_review.html?download=1",
+                    "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/type/project/report/source_understanding_review.html?download=true",
                     "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/single_page_tech_report.pptx?download=1",
                 ],
                 urls,
@@ -65,7 +65,7 @@ class BackfillDownloadUrlsTests(unittest.TestCase):
             )
 
             self.assertEqual(2, len(urls))
-            self.assertTrue(urls[1].endswith("/source_understanding.html?download=1"))
+            self.assertTrue(urls[1].endswith("/source_understanding.html?download=true"))
 
     def test_does_not_guess_when_multiple_unrecognized_html_files_exist(self):
         with tempfile.TemporaryDirectory() as temporary:

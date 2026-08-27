@@ -79,9 +79,31 @@ def report_directory(task: dict[str, Any], ccn_root: Path, config: dict[str, Any
     return artifact_url, report_dir
 
 
-def download_url(config: dict[str, Any], relative_path: str, filename: str) -> str:
+def download_url(
+    config: dict[str, Any],
+    relative_path: str,
+    filename: str,
+    *,
+    media: bool = False,
+) -> str:
     repository = task_api.configured_repository(config)
-    path = repository.path.rstrip("/") + "/raw/refs/heads/main/" + relative_path.rstrip("/") + "/" + filename
+    if media:
+        path = (
+            "/media"
+            + repository.path.rstrip("/")
+            + "/refs/heads/main/"
+            + relative_path.rstrip("/")
+            + "/"
+            + filename
+        )
+        return urlunsplit((repository.scheme, "media.githubusercontent.com", path, "download=true", ""))
+    path = (
+        repository.path.rstrip("/")
+        + "/raw/refs/heads/main/"
+        + relative_path.rstrip("/")
+        + "/"
+        + filename
+    )
     return urlunsplit((repository.scheme, repository.netloc, path, "download=1", ""))
 
 
@@ -101,7 +123,7 @@ def artifact_urls_for_task(
     html = choose_file(report_dir, HTML_PREFERRED_NAMES, ".html")
     if html is None:
         return None
-    urls = [artifact_url, download_url(config, relative, html.name)]
+    urls = [artifact_url, download_url(config, relative, html.name, media=True)]
     pptx = choose_file(report_dir, PPTX_PREFERRED_NAMES, ".pptx")
     if pptx is not None:
         urls.append(download_url(config, relative, pptx.name))

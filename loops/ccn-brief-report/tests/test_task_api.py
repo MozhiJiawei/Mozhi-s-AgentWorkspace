@@ -274,7 +274,7 @@ class TaskAPITests(unittest.TestCase):
         artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
         artifact_urls = [
             artifact_url,
-            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.html?download=1",
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/type/project/report/report.html?download=true",
             "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.pptx?download=1",
         ]
         session.get.return_value = self.response(
@@ -308,7 +308,7 @@ class TaskAPITests(unittest.TestCase):
         artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
         artifact_urls = [
             artifact_url,
-            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.html?download=1",
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/type/project/report/report.html?download=true",
             "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.pptx?download=1",
         ]
         session.get.return_value = self.response(
@@ -360,8 +360,8 @@ class TaskAPITests(unittest.TestCase):
         config = {"ccn_report_repository_url": "https://github.com/MozhiJiawei/ccn-report"}
         artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
         html_url = (
-            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/"
-            "type/project/report/source_understanding_review.html?download=1"
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/"
+            "type/project/report/source_understanding_review.html?download=true"
         )
         pptx_url = (
             "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/"
@@ -380,11 +380,11 @@ class TaskAPITests(unittest.TestCase):
             ),
         )
         invalid = (
-            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/"
-            "type/project/other/report.html?download=1",
-            html_url.removesuffix("?download=1"),
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/"
+            "type/project/other/report.html?download=true",
+            html_url.removesuffix("?download=true"),
             html_url.replace(".html", ".pptx"),
-            html_url.replace("github.com", "example.com"),
+            html_url.replace("media.githubusercontent.com", "example.com"),
         )
         for value in invalid:
             with self.subTest(value=value):

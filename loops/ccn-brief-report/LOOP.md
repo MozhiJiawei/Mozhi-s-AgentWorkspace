@@ -139,7 +139,8 @@ README 模板：
    - 结果内容只传 `outcome` 和 `artifact_urls`，不传 `summary` 或 `metadata`。
    - `artifact_urls` 按固定顺序包含三个 URL：报告目录直达地址、HTML Git LFS 下载地址、PPTX Git LFS 下载地址。任务状态台按这个顺序保留现有“结果”链接，并显示“下载报告”和“下载PPT”按钮。
    - 目录 URL 格式为 `<ccn_report_repository_url>/tree/main/<报告相对目录>`。
-   - HTML 和 PPTX 下载 URL 格式为 `<ccn_report_repository_url>/raw/refs/heads/main/<报告相对目录>/<文件名>?download=1`；两个下载文件必须位于目录 URL 指向的同一报告目录。
+   - HTML Git LFS 实体 URL 格式为 `https://media.githubusercontent.com/media/<owner>/<repo>/refs/heads/main/<报告相对目录>/<文件名>?download=true`，前端将其读取为 Blob 并保留 `.html` 文件名。
+   - PPTX 下载 URL 格式为 `<ccn_report_repository_url>/raw/refs/heads/main/<报告相对目录>/<文件名>?download=1`；两个下载文件必须位于目录 URL 指向的同一报告目录。
    - `<报告相对目录>` 使用 `/` 分隔；三个 URL 都必须指向已合入默认分支的正式交付件，不传仓库根地址、本地路径或临时预览地址。
    - URL 的路径统一使用可读的中文 IRI 形式。客户端和服务端都必须把等价的 percent-encoded UTF-8 路径规范化为中文后，再计算幂等键和对账；服务端 API 统一返回中文形式，但数据库保留原始提交值，不迁移或重写历史数据。ASCII 保留字符（例如 `%20`、`%2F`）不得被误解码。
 7. 重新运行 `task_api.py fetch`；只有 API pending 为 0、rejected 已报告且本地没有未对账任务时，本轮完成。最后释放本地锁。
@@ -151,7 +152,7 @@ README 模板：
   "outcome": "completed",
   "artifact_urls": [
     "https://github.com/MozhiJiawei/ccn-report/tree/main/开源软件分析/Example/20260805-example-source-understanding-codex",
-    "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/source_understanding_review.html?download=1",
+    "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/source_understanding_review.html?download=true",
     "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/single_page_tech_report.pptx?download=1"
   ]
 }

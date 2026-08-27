@@ -114,6 +114,7 @@ tbody tr:hover { background: #f9fbfe; }
   white-space: nowrap;
 }
 .result-download:hover { border-color: #7fa9df; background: #e8f0ff; }
+.result-download-loading { cursor: wait; opacity: .65; pointer-events: none; }
 .result-download-pptx { color: #8f2635; border-color: #e7b5bd; background: #fff4f5; }
 .result-download-pptx:hover { border-color: #d88996; background: #ffe9ec; }
 .muted { color: #8190a3; }

@@ -245,7 +245,14 @@ def validate_download_url(
 ) -> str:
     expected = configured_repository(config)
     parsed = urlsplit(value)
-    expected_prefix = expected.path.rstrip("/") + "/raw/refs/heads/main/"
+    is_html = expected_suffix == ".html"
+    expected_netloc = "media.githubusercontent.com" if is_html else expected.netloc
+    expected_prefix = (
+        "/media" + expected.path.rstrip("/") + "/refs/heads/main/"
+        if is_html
+        else expected.path.rstrip("/") + "/raw/refs/heads/main/"
+    )
+    expected_query = [("download", "true")] if is_html else [("download", "1")]
     decoded_path = unquote(parsed.path)
     iri_path = decode_non_ascii_percent_escapes(parsed.path)
     relative_path = decoded_path[len(expected_prefix):] if decoded_path.startswith(expected_prefix) else ""
@@ -254,19 +261,26 @@ def validate_download_url(
     parent, separator, filename = relative_path.rpartition("/")
     if (
         parsed.scheme != "https"
-        or parsed.netloc != expected.netloc
+        or parsed.netloc != expected_netloc
         or parsed.username is not None
         or parsed.password is not None
         or parsed.fragment
-        or parse_qsl(parsed.query, keep_blank_values=True) != [("download", "1")]
+        or parse_qsl(parsed.query, keep_blank_values=True) != expected_query
         or not decoded_path.startswith(expected_prefix)
         or any(segment in {"", ".", ".."} for segment in path_segments)
         or not separator
         or parent != expected_parent
         or not filename.lower().endswith(expected_suffix)
     ):
-        label = "HTML" if expected_suffix == ".html" else "PPTX"
-        raise TaskAPIError(f"{label} 下载 URL 必须指向同一报告目录下的 GitHub main 分支 raw 文件，并包含 download=1")
+        if is_html:
+            raise TaskAPIError(
+                "HTML 下载 URL 必须指向同一报告目录下的 media.githubusercontent.com "
+                "Git LFS 实体文件，并包含 download=true"
+            )
+        raise TaskAPIError(
+            "PPTX 下载 URL 必须指向同一报告目录下的 GitHub main 分支 raw 文件，"
+            "并包含 download=1"
+        )
     return urlunsplit((parsed.scheme, parsed.netloc, iri_path, parsed.query, ""))
 
 

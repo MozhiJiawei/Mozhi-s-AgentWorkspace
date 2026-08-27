@@ -77,6 +77,40 @@ function resultLink(url, label, className = "") {
   if (className) link.className = className;
   return link;
 }
+function filenameFromUrl(url, fallback) {
+  try {
+    const pathname = new URL(url).pathname;
+    return decodeURIComponent(pathname.slice(pathname.lastIndexOf("/") + 1)) || fallback;
+  } catch (_error) {
+    return fallback;
+  }
+}
+async function downloadBlob(event, url, fallbackFilename) {
+  event.preventDefault();
+  const link = event.currentTarget;
+  const originalLabel = link.textContent;
+  link.classList.add("result-download-loading");
+  link.setAttribute("aria-disabled", "true");
+  link.textContent = "下载中…";
+  try {
+    const response = await fetch(url, { mode: "cors", credentials: "omit" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const objectUrl = URL.createObjectURL(await response.blob());
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = filenameFromUrl(url, fallbackFilename);
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch (error) {
+    setMessage(`报告下载失败：${error.message}`);
+  } finally {
+    link.classList.remove("result-download-loading");
+    link.removeAttribute("aria-disabled");
+    link.textContent = originalLabel;
+  }
+}
 function appendResultLinks(parent, task) {
   const artifacts = resultArtifacts(task);
   if (!artifacts.directory) {
@@ -88,7 +122,15 @@ function appendResultLinks(parent, task) {
   const downloads = document.createElement("div");
   downloads.className = "result-downloads";
   if (artifacts.html) {
-    downloads.append(resultLink(artifacts.html, "下载报告", "result-download result-download-html"));
+    const htmlDownload = resultLink(
+      artifacts.html,
+      "下载报告",
+      "result-download result-download-html",
+    );
+    htmlDownload.addEventListener("click", (event) => {
+      downloadBlob(event, artifacts.html, "source_understanding_review.html");
+    });
+    downloads.append(htmlDownload);
   }
   if (artifacts.pptx) {
     downloads.append(resultLink(artifacts.pptx, "下载PPT", "result-download result-download-pptx"));
