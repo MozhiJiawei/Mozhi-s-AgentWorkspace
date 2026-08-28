@@ -27,7 +27,7 @@ skills:
       entry: docs/skills/gh-issue-comment-monitor/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:ce86edaf04a2cf715bf0d9dad01cfc472cd363311f837c5ce902fc0732b43e08
+      source_fingerprint: sha256:e20910a0c671f18d90f0f34c4d4fcd3432d055674f22e7ed0f37eb8b01d7e9a1
       reviewed_at: "2026-06-05"
       reviewed_by: agent
       note: 已复核 ppt-deep-search 文档更新；继续通过子仓 docs.manifest.yml 构建时同步文档。
@@ -41,7 +41,7 @@ skills:
       entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:f593556d23d18559732de018a06ba02f11c045d116ab1ece121aee5de2390a93
+      source_fingerprint: sha256:f8f339007368888d91871984052f22bc3f3cd1b0cf0849a81dc8899d991259ba
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/create-single-page-tech-report/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:16c4523aca699a89ba925706f62c5b2faaa696e34edf3bcf631bda3cc9238d15
+      source_fingerprint: sha256:a3f75b6acd55fe0a5e53cb6392168e8e07a14c7baf926ed845ad3214868843a2
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: 已复核 noGrp 规范化、校验流程及能力、使用、依赖和架构页面；通过子仓 docs.manifest.yml 构建同步。
@@ -69,7 +69,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:fe128bd046ce8c7060529af937777e1f63a7de4ed1310c6564cec2b623905fcc
+      source_fingerprint: sha256:f4df5c2f1f596d286a230bd2bb010e5d31c3b31896b8df660990160c5caa9849
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
@@ -97,7 +97,7 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:57843ec36a74c4320ad271c7d559535311f658d904cc38da9b77276c85fecad4
+      source_fingerprint: sha256:765bd062304573c7a4e4405e7dce5e9c083e8d415c81a7e8f454ce4694fb43dc
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: 已同步唯一 GROBID 镜像与共享容器的运行时治理说明。
@@ -111,7 +111,7 @@ skills:
       entry: docs/skills/send-qq-email/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:2fe0bebc1bc8cc8d120911d84cdb1ae95a96af84e2524eb4d6823ed5176feef6
+      source_fingerprint: sha256:d9253dd2165a1df509957e6aeeb979a2323b993a4382feee499f8b8d5a6dbc22
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。

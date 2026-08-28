@@ -7,6 +7,11 @@ from pathlib import Path
 import re
 import sys
 
+try:
+    from scripts.fingerprint_utils import canonical_file_bytes
+except ModuleNotFoundError:
+    from fingerprint_utils import canonical_file_bytes
+
 
 MANIFEST_PATH = Path("docs/skill-dependencies.yml")
 SELF_CHECK_SCRIPT = "verify_dependencies.py"
@@ -108,7 +113,7 @@ def source_fingerprint(skill_root: Path) -> str:
         relative = path.relative_to(skill_root).as_posix()
         digest.update(relative.encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update(canonical_file_bytes(path))
         digest.update(b"\0")
     return f"sha256:{digest.hexdigest()}"
 
