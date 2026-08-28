@@ -7,6 +7,11 @@ from pathlib import Path
 import re
 import sys
 
+try:
+    from scripts.fingerprint_utils import canonical_file_hashes
+except ModuleNotFoundError:
+    from fingerprint_utils import canonical_file_hashes
+
 
 MANIFEST_PATH = Path("docs/skill-docs.yml")
 DOCS_MANIFEST_NAME = "docs.manifest.yml"
@@ -167,11 +172,13 @@ def docs_files(skill_root: Path) -> list[Path]:
 
 def source_fingerprint(skill_root: Path) -> str:
     digest = hashlib.sha256()
-    for path in docs_files(skill_root):
+    paths = docs_files(skill_root)
+    hashes = canonical_file_hashes(skill_root, paths)
+    for path, file_hash in zip(paths, hashes, strict=True):
         relative = path.relative_to(skill_root).as_posix()
         digest.update(relative.encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update(file_hash)
         digest.update(b"\0")
     return f"sha256:{digest.hexdigest()}"
 
