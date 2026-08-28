@@ -18,5 +18,8 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Sync skill documentation
+        run: python scripts/sync_skill_docs.py
+
       - name: Run pre-commit gates
         run: python scripts/pre_commit_gate.py
