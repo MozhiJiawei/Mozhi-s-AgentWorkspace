@@ -272,13 +272,18 @@ class TaskAPITests(unittest.TestCase):
         session = Mock()
         session.post.return_value = self.response({"status": "success", "data": {}})
         artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
+        artifact_urls = [
+            artifact_url,
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/type/project/report/report.html?download=true",
+            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.pptx?download=1",
+        ]
         session.get.return_value = self.response(
             {
                 "status": "success",
                 "data": {
                     "task_id": "TASK-1",
                     "status": "completed",
-                    "latest_result": {"outcome": "completed", "artifact_urls": [artifact_url]},
+                    "latest_result": {"outcome": "completed", "artifact_urls": artifact_urls},
                 },
             }
         )
@@ -287,7 +292,7 @@ class TaskAPITests(unittest.TestCase):
             base_url=API_BASE,
             key=API_KEY,
             task_id="TASK-1",
-            artifact_url=artifact_url,
+            artifact_urls=artifact_urls,
             timeout=30,
             session=session,
         )
@@ -295,18 +300,24 @@ class TaskAPITests(unittest.TestCase):
         self.assertEqual("completed", task["status"])
         idempotency_key = session.post.call_args.kwargs["headers"]["Idempotency-Key"]
         self.assertTrue(idempotency_key.startswith("ccn-report-TASK-1-"))
+        self.assertEqual(artifact_urls, session.post.call_args.kwargs["json"]["artifact_urls"])
 
     def test_complete_recovers_when_post_response_is_lost_but_remote_state_matches(self):
         session = Mock()
         session.post.side_effect = requests.ConnectionError("response lost")
         artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
+        artifact_urls = [
+            artifact_url,
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/type/project/report/report.html?download=true",
+            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/type/project/report/report.pptx?download=1",
+        ]
         session.get.return_value = self.response(
             {
                 "status": "success",
                 "data": {
                     "task_id": "TASK-1",
                     "status": "completed",
-                    "latest_result": {"outcome": "completed", "artifact_urls": [artifact_url]},
+                    "latest_result": {"outcome": "completed", "artifact_urls": artifact_urls},
                 },
             }
         )
@@ -315,7 +326,7 @@ class TaskAPITests(unittest.TestCase):
             base_url=API_BASE,
             key=API_KEY,
             task_id="TASK-1",
-            artifact_url=artifact_url,
+            artifact_urls=artifact_urls,
             timeout=30,
             session=session,
         )
@@ -344,6 +355,43 @@ class TaskAPITests(unittest.TestCase):
             with self.subTest(invalid=invalid):
                 with self.assertRaises(task_api.TaskAPIError):
                     task_api.validate_artifact_url(invalid, config)
+
+    def test_download_urls_must_target_files_in_the_report_directory(self):
+        config = {"ccn_report_repository_url": "https://github.com/MozhiJiawei/ccn-report"}
+        artifact_url = "https://github.com/MozhiJiawei/ccn-report/tree/main/type/project/report"
+        html_url = (
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/"
+            "type/project/report/source_understanding_review.html?download=true"
+        )
+        pptx_url = (
+            "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/"
+            "type/project/report/single_page_tech_report.pptx?download=1"
+        )
+        self.assertEqual(
+            html_url,
+            task_api.validate_download_url(
+                html_url, config, artifact_url=artifact_url, expected_suffix=".html"
+            ),
+        )
+        self.assertEqual(
+            pptx_url,
+            task_api.validate_download_url(
+                pptx_url, config, artifact_url=artifact_url, expected_suffix=".pptx"
+            ),
+        )
+        invalid = (
+            "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/"
+            "type/project/other/report.html?download=true",
+            html_url.removesuffix("?download=true"),
+            html_url.replace(".html", ".pptx"),
+            html_url.replace("media.githubusercontent.com", "example.com"),
+        )
+        for value in invalid:
+            with self.subTest(value=value):
+                with self.assertRaises(task_api.TaskAPIError):
+                    task_api.validate_download_url(
+                        value, config, artifact_url=artifact_url, expected_suffix=".html"
+                    )
 
 
 if __name__ == "__main__":

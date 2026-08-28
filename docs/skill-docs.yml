@@ -97,10 +97,10 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:5387ce61505e2da4f75f3133c61dff485e5dab47307ecd1143a5d84a97b1d4af
-      reviewed_at: "2026-06-04"
+      source_fingerprint: sha256:57843ec36a74c4320ad271c7d559535311f658d904cc38da9b77276c85fecad4
+      reviewed_at: "2026-08-27"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已同步唯一 GROBID 镜像与共享容器的运行时治理说明。
 
   send-qq-email:
     path: skills/send-qq-email

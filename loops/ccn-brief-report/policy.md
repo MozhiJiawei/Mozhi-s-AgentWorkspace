@@ -8,7 +8,8 @@
 
 - 按固定 prompt 模板为每个任务启动独立子 agent，只替换占位符。
 - 处理子 agent 上报的 HITL；答案必须能从任务目标、来源证据和 skill gate 推导，决定与理由写入任务临时目录。
-- 验收已审批的 Source Understanding 交付，并按 `LOOP.md` 完成本地归档。
+- 在 Source Understanding HTML 验收通过后，向原报告子 agent 发送消息，要求其根据 `skills/create-single-page-tech-report/SKILL.md` 完成一页 PPT 制作。
+- 验收子agent的HTML与PPTX交付件，并按 `LOOP.md` 完成本地归档。
 
 ## 报告子 agent
 
@@ -39,7 +40,7 @@
 
 #### 第二次 HITL：确认报告是否 OK
 
-- 报告子 agent 完成 Source Understanding HTML、截图导出和独立视觉 QA 后，会询问报告是否 OK；这次询问是报告生成阶段的最终交付信号。
-- 主 agent 收到该信号后，应直接检查正式 HTML、截图和 `visual-qa.md`，并进入验收与归档流程，不再等待报告子 agent 额外发送一次“已完成”消息。
-- 验收通过时，主 agent 将这次询问视为报告子任务结束，并按 `LOOP.md` 继续归档、门禁、PR 合入和任务结果回传。
+- 报告子 agent 完成 Source Understanding HTML、截图导出和独立视觉 QA 后，会询问报告是否 OK；这次询问是 HTML 阶段的交付信号。
+- 主 agent 收到该信号后，应直接检查正式 HTML、截图和 `visual-qa.md`。
+- 验收通过时，主 agent 向原报告子 agent 发送消息，要求其根据 `skills/create-single-page-tech-report/SKILL.md` 完成一页 PPT 制作；报告子 agent 完成 PPT 后再交回最终结果，无需增加第三个常规 HITL。
 - 验收不通过时，主 agent 才向原报告子 agent 返回具体修改项；子 agent 修订后再次提交“报告是否 OK”，新的询问替代上一次结束信号。

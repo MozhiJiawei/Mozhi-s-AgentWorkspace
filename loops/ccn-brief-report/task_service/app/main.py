@@ -57,7 +57,8 @@ def dashboard() -> FileResponse:
             "Cache-Control": "no-store",
             "Content-Security-Policy": (
                 "default-src 'self'; script-src 'self'; style-src 'self'; "
-                "img-src 'self' data:; connect-src 'self'; base-uri 'none'; "
+                "img-src 'self' data:; connect-src 'self' https://media.githubusercontent.com; "
+                "base-uri 'none'; "
                 "frame-ancestors 'none'; form-action 'self'"
             ),
             "Referrer-Policy": "no-referrer",
