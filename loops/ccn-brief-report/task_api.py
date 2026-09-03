@@ -13,6 +13,7 @@ import requests
 
 from task_service.app.domain.percent_encoding import decode_non_ascii_percent_escapes
 from task_service.app.domain.task_contract import TASK_ID_PATTERN, is_valid_https_url
+from validate_deliverables import DeliverableValidationError, validate_completion_report
 
 
 LOOP_ROOT = Path(__file__).resolve().parent
@@ -22,6 +23,7 @@ DEFAULT_CREDENTIALS = Path.home() / ".ccn-brief-report" / "client.json"
 DEFAULT_OUTPUT = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "tasks.json"
 DEFAULT_REJECTED_OUTPUT = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "rejected-tasks.json"
 DEFAULT_STATE = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "state.json"
+DEFAULT_CCN_ROOT = WORKSPACE_ROOT / "ccn-report"
 REQUIRED_FIELDS = ("row_number", "task_id", "content", "url", "hotspot_id", "period")
 TEXT_FIELDS = ("task_id", "content", "url", "hotspot_id", "period")
 
@@ -387,12 +389,20 @@ def cmd_complete(args: argparse.Namespace) -> int:
     report_path = Path(args.report_path).resolve()
     if not report_path.is_dir():
         raise TaskAPIError("本地报告目录不存在")
+    try:
+        deliverable_basename = validate_completion_report(
+            report_path, task_id, DEFAULT_CCN_ROOT
+        )
+    except DeliverableValidationError as exc:
+        raise TaskAPIError(f"正式交付件命名或 README 校验失败：{exc}") from exc
     html_path = report_path / download_filename(html_download_url)
     pptx_path = report_path / download_filename(pptx_download_url)
     if not html_path.is_file():
         raise TaskAPIError(f"HTML 下载 URL 对应的本地文件不存在：{html_path.name}")
     if not pptx_path.is_file():
         raise TaskAPIError(f"PPTX 下载 URL 对应的本地文件不存在：{pptx_path.name}")
+    if html_path.stem != deliverable_basename or pptx_path.stem != deliverable_basename:
+        raise TaskAPIError("下载 URL 文件名与已校验的正式交付件名称不一致")
     task = submit_result(
         base_url=api_base(config),
         key=api_key(credentials),

@@ -54,6 +54,10 @@ API Key 禁止写入仓库、命令输出、日志、截图、任务产物或 Pu
 ### 3. 交付件说明
 
 - 逐项列出该报告目录内实际归档的正式交付件，并使用相对 Markdown 链接指向文件。
+- 正式交付件统一命名为 `<主题短名>.html` 与 `<主题短名>.pptx`；两个文件的 basename 必须完全一致，仅用扩展名区分交付形态。
+- 主题短名优先使用官方产品名、论文系统名、项目名或公认缩写；不足以区分时追加场景或方法，例如 `RAC-参考感知激活压缩`。
+- 不添加“技术解读报告”“单页技术汇报”等冗余后缀，不包含任务编号、批次日期、空格或 Windows 非法字符，长度必须为 2–60 个字符。
+- 本轮任务之间以及历史 CCN 归档之间不得重名；同一主题再次归档时，追加版本、场景或方法消歧词。
 - 每项说明交付形态及用途，例如 dependency-free SingleFile HTML、可编辑 PPTX 或可演示 PPTX。
 - 不得列入未归档的临时草稿、截图、缓存、日志、QA 中间记录或 `.tmp/` 文件。
 
@@ -67,7 +71,7 @@ API Key 禁止写入仓库、命令输出、日志、截图、任务产物或 Pu
 README 模板：
 
 ```markdown
-# <报告标题>
+# <主题短名>
 
 ## 一句话总结
 
@@ -84,8 +88,8 @@ README 模板：
 
 ## 交付件说明
 
-- [source_understanding_review.html](./source_understanding_review.html)：dependency-free SingleFile Source Understanding HTML，可离线打开。
-- [single_page_tech_report.pptx](./single_page_tech_report.pptx)：基于已验收 HTML 总结的一页式可编辑技术洞察 PPTX。
+- [<主题短名>.html](./<主题短名>.html)：dependency-free SingleFile Source Understanding HTML，可离线打开。
+- [<主题短名>.pptx](./<主题短名>.pptx)：基于已验收 HTML 总结的一页式可编辑技术洞察 PPTX。
 
 
 ## 引用信息源说明
@@ -120,7 +124,16 @@ README 模板：
    - `resume_from=delivery`：本地已有报告，跳过重复生成，从门禁、远端合入确认或结果回传继续。
    - 无效 API 记录写入 `.tmp/loops/ccn-brief-report/rejected-tasks.json`，其余合法任务继续处理；主 agent 在本轮总结中报告 rejected，但不让单条坏记录阻断整轮。
 3. 对 `resume_from=generation` 的任务按 `policy.md` 启动报告子 agent完成报告制作，并发上限读取 `config.json`。`resume_from=delivery` 的任务不得重复启动报告子 agent。
-4. 按 `ccn-report/AGENTS.md`、`ccn-report/README.md` 及本文件的“ccn-report 报告 README 规范”归档验收通过的报告；README 必须完整保留任务信息、列明交付件及带链接的实际引用来源，再通过仓库门禁。
+4. 按 `ccn-report/AGENTS.md`、`ccn-report/README.md` 及本文件的“ccn-report 报告 README 规范”归档验收通过的报告。子 agent 的临时文件名不受本规则约束；主 agent 归档时必须确定人类可读且可区分的主题短名，把 HTML/PPTX 重命名为同 basename，并同步更新 README 链接。README 必须完整保留任务信息、列明交付件及带链接的实际引用来源。提交前必须先运行本 Loop 的交付件校验，再运行 `ccn-report` 仓库门禁：
+
+   ```powershell
+   python loops/ccn-brief-report/validate_deliverables.py `
+     --tasks .tmp/loops/ccn-brief-report/pending.json `
+     --ccn-root ccn-report
+   python ccn-report/scripts/pre_commit_gate.py
+   ```
+
+   交付件校验根据 README 中的精确任务编号映射本轮任务，只强制检查当前工作队列；历史归档不会因旧格式阻塞本轮，但会参与主题短名查重。脚本必须输出逐任务名称映射并达到本轮全部通过；任一失败都不得提交或回传 API。
 5. 在 `ccn-report` 中只提交本轮报告相关文件，推送分支并创建 Pull Request；持续跟进 CI、必需检查和评审意见，修复后重新验证，直到 PR 已实际合入默认分支并确认远端存在报告目录。不能把“PR 已创建”“CI 通过”或“可合并”当作完成。
 6. 合入确认后，只使用 `task_api.py complete` 完成结果回传、服务端对账和本地状态落盘，不由 agent 手工拼 POST 或单独调用 `local_state.py mark`：
 
@@ -152,8 +165,8 @@ README 模板：
   "outcome": "completed",
   "artifact_urls": [
     "https://github.com/MozhiJiawei/ccn-report/tree/main/开源软件分析/Example/20260805-example-source-understanding-codex",
-    "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/source_understanding_review.html?download=true",
-    "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/single_page_tech_report.pptx?download=1"
+    "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/Example-代理编排.html?download=true",
+    "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/开源软件分析/Example/20260805-example-source-understanding-codex/Example-代理编排.pptx?download=1"
   ]
 }
 ```
