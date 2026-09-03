@@ -259,27 +259,27 @@ def parse_args() -> argparse.Namespace:
 
     package = sub.add_parser("package")
     package.add_argument("--label", default="manual")
-    package.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
+    package.add_argument("--output-dir", required=True)
 
     deploy_parser = sub.add_parser("deploy")
     deploy_parser.add_argument("--component", choices=["docs", "ccn", "edge", "all"], default="all")
     deploy_parser.add_argument("--remote", default=DEFAULT_REMOTE)
     deploy_parser.add_argument("--deploy-path", default=DEFAULT_DEPLOY_PATH)
     deploy_parser.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
-    deploy_parser.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
+    deploy_parser.add_argument("--output-dir", required=True)
 
     source_deploy = sub.add_parser("deploy-ccn-source")
     source_deploy.add_argument("--remote", default=DEFAULT_REMOTE)
     source_deploy.add_argument("--deploy-path", default=DEFAULT_DEPLOY_PATH)
     source_deploy.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
-    source_deploy.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
+    source_deploy.add_argument("--output-dir", required=True)
     source_deploy.add_argument("--bootstrap-mount", action="store_true")
 
     edge_source = sub.add_parser("deploy-edge-source")
     edge_source.add_argument("--remote", default=DEFAULT_REMOTE)
     edge_source.add_argument("--deploy-path", default=DEFAULT_DEPLOY_PATH)
     edge_source.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
-    edge_source.add_argument("--output-dir", default=str(ROOT / ".tmp" / "releases"))
+    edge_source.add_argument("--output-dir", required=True)
 
     smoke = sub.add_parser("smoke-test")
     smoke.add_argument("--api-base", default="https://ccn-api.haohaoxiaoyu.top")

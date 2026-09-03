@@ -158,7 +158,7 @@ Prompt 示例：
 
 Prompt 示例：
 
-- `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/send-qq-email/。`
+- `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/runs/<run-id>/send-qq-email/。`
 - `请检查我的 QQ 邮箱 SMTP 环境变量是否齐全，不要真实发送邮件。`
 
 预期调用的 Skills：

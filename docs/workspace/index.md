@@ -11,7 +11,7 @@ Mozhi's Agent Workspace 是用于协调 Codex skills 的主仓。各个 skill �
 - 检查 skill 文档 manifest 是否漂移。
 - 追踪 skill 依赖复核指纹。
 - 提供统一的提交前健康门禁。
-- 约定 `.tmp/` 作为运行时产物根目录。
+- 约定 `.tmp/runs/<run-id>/` 作为默认的一次性工作根目录，`.tmp/retained/<work-name>/` 作为用户明确指定的长期本地工作根目录。
 
 ## Skill 子仓负责什么
 
@@ -35,7 +35,8 @@ Mozhi's Agent Workspace 是用于协调 Codex skills 的主仓。各个 skill �
 | `AGENTS.md` | 主仓 | Agent 可读的 skill 注册表和使用约束 |
 | `docs/` | 主仓 | 工作区文档和统一发布面 |
 | `skills/*` | Skill 子仓 | Skill 行为、文档、依赖和验证 |
-| `.tmp/` | 运行时 | 草稿、日志、导出物和中间产物 |
+| `.tmp/runs/<run-id>/` | 运行时 | 一次用户工作的草稿、日志、导出物和中间产物 |
+| `.tmp/retained/<work-name>/` | 运行时 | 用户明确指定并长期维护的本地工作；不与 run root 并用 |
 | `scripts/` | 主仓 | 工作区检查和文档编排 |
 
 ## 下一步

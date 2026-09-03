@@ -7,7 +7,7 @@ skills:
   aurora-tun-bypass:
     path: skills/aurora-tun-bypass
     dependency_review:
-      source_fingerprint: sha256:14885aa940ea45cabc8a442d081d2ab89dfc4699596f36d23fda5f75d0a48547
+      source_fingerprint: sha256:0ab0a12794156466f2f42414672b83b5eedcffd2c4c21dac99c6264137f718de
       reviewed_at: "2026-08-18"
       reviewed_by: agent
       note: Reviewed after removing the deprecated file watcher and closing the Frida hook install, update, uninstall, and exact active-rule verification paths. Runtime dependencies remain Windows, Python, cryptography, frida, Aurora's loopback APIs, and HKCU Run access; initial Frida acquisition may require PyPI network access. No Aurora credentials are required.
@@ -27,7 +27,7 @@ skills:
   gh-issue-comment-monitor:
     path: skills/gh-issue-comment-monitor
     dependency_review:
-      source_fingerprint: sha256:cddb2d96c941012b279ac00f25dca105bb52d42281fd527fcd4a48b64d7bb623
+      source_fingerprint: sha256:4070bde7ab5e639ce7a16705292ac6343e16fb7308787de12fcd03bc2dcc5cdf
       reviewed_at: "2026-05-13"
       reviewed_by: agent
       note: Initial review; scripts use Python standard library, with GitHub API access supplied by GITHUB_TOKEN/GH_TOKEN or authenticated gh CLI fallback.
@@ -51,7 +51,7 @@ skills:
   hw-ppt-gen-html:
     path: skills/hw-ppt-gen-html
     dependency_review:
-      source_fingerprint: sha256:9b58d4d41c83e1f64be48af4a246504060c4191bc4bde26935f4acbfc4b6667a
+      source_fingerprint: sha256:969505688a6dcacf1c06c5f954c534375a38ad310eea873b394c76257a571775
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: Initial review; wrapper uses Python plus Playwright/Chromium for HTML screenshot export, and delegates HTML deck runtime to the nested html-ppt-skill submodule.
@@ -79,7 +79,7 @@ skills:
   create-single-page-tech-report:
     path: skills/create-single-page-tech-report
     dependency_review:
-      source_fingerprint: sha256:fc0009efd976f18a5acb6ef425781168f0a6ee9815faaac10ca829fae84be4ef
+      source_fingerprint: sha256:87f1e94f5db35c887b05be23f37dc0fc23be42ce80dcc9b2d193630f4599238a
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: Reviewed after adding PPTX noGrp normalization and validation; both scripts use Python standard library only. Report creation still requires an Agent runtime with editable PowerPoint creation and rendering capabilities; ImageGen remains optional with an editable-shape fallback.
@@ -105,7 +105,7 @@ skills:
   ppt-deep-search:
     path: skills/ppt-deep-search
     dependency_review:
-      source_fingerprint: sha256:8d4312d107ad08538a81c59429c3b4411c8104876810f54212448688da6e60b8
+      source_fingerprint: sha256:adacd34318532b72ad826fd9a70c47a9eff6b63bb9f2fd7f1c06bb79466f90e3
       reviewed_at: "2026-06-05"
       reviewed_by: agent
       note: Reviewed ppt-deep-search update; new web evidence capture workflow and validators still use Python standard library only with no external service, browser, or package dependency.
@@ -127,7 +127,7 @@ skills:
   web-article-capture:
     path: skills/web-article-capture
     dependency_review:
-      source_fingerprint: sha256:5bff1686fac3ff5c304725bff33cd3227f4d5a1d1f6e9e46619c3c48f81cacd4
+      source_fingerprint: sha256:5837bdbfa5b4e9b5531fcc3bd315feb8ff00126db7fc986ccf4133a1d2e68ea0
       reviewed_at: "2026-06-30"
       reviewed_by: agent
       note: Initial review; validator uses Python standard library only, while real webpage capture depends on Codex in-app Browser and network access to target pages/assets.
@@ -151,7 +151,7 @@ skills:
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
     dependency_review:
-      source_fingerprint: sha256:221f8541a909bdb70e7235013b139f22a18d0c8dbeeeba496d932bc907052c38
+      source_fingerprint: sha256:a52fa0239f8a62af0e203d2490c1c352a1103745505ffd2c1a2cfc12edb924ad
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: Added the fixed GROBID 0.8.2 image and single shared-container runtime policy, including automated verification.
@@ -185,7 +185,7 @@ skills:
   send-qq-email:
     path: skills/send-qq-email
     dependency_review:
-      source_fingerprint: sha256:70887b71e30820e3db652fa4dfbd438b36bfb1b48588c2ec5497f7a43039c5ea
+      source_fingerprint: sha256:1581cdbc2d5f00e7b3aea96d1f13c7781006cefea2a24c6b57b8b2673eb4972d
       reviewed_at: "2026-05-08"
       reviewed_by: agent
       note: Initial review; runtime uses Python standard library only, with QQ Mail SMTP credentials supplied from environment variables or a private config file.

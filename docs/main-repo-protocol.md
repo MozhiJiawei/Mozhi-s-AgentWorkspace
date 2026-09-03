@@ -25,7 +25,7 @@
 - `.codex/config.toml`：登记 Codex 原生子 agent 的主仓级入口。
 - `docs/skill-dependencies.yml`：作为 skill 运行依赖的唯一登记入口。
 - `scripts/pre_commit_gate.py`：作为提交前统一门禁入口。
-- `.tmp/`：作为 Agent 临时产物的唯一工作根目录。
+- `.tmp/runs/<run-id>/`：默认的一次性工作根目录；`.tmp/retained/<work-name>/` 只用于用户明确指定的长期本地工作。
 
 主仓不应：
 
@@ -75,9 +75,9 @@ python scripts/check_skill_dependencies.py --update-fingerprints
 
 ## 临时产物协议
 
-`.tmp/` 是本工作区内所有 Agent 临时产物的唯一工作根目录。
+`.tmp/runs/<run-id>/` 是默认的一次性工作根目录。
 
-skill 运行时产生的以下内容必须写入 `.tmp/` 下：
+skill 运行时产生的以下内容必须写入当前工作根目录下：
 
 - 中间稿。
 - 运行日志。
@@ -87,24 +87,26 @@ skill 运行时产生的以下内容必须写入 `.tmp/` 下：
 - 校验结果。
 - 可删除归档。
 
-如果 skill 自身说明给出了相对临时目录规则，应将该规则解释为相对于主仓 `.tmp/` 的子路径规则。
+如果 skill 自身说明给出了相对临时目录规则，应将该规则解释为本次 `.tmp/runs/<run-id>/` 内的子路径。同一次用户工作中的所有 Skill、Loop、子 Agent 和插件共用同一 run root。
+
+用户明确把某项工作指定为长期本地工作时，`.tmp/retained/<work-name>/` 直接替代该工作的 run root。不要先在 `runs/` 中执行再复制到 `retained/`，也不要为同一工作同时维护两套目录。普通 checkpoint 或恢复状态本身不构成使用 `retained/` 的理由。
 
 示例：
 
 ```text
-<skill-name>/<task-name>/
+<skill-name>/
 ```
 
 应解释为：
 
 ```text
-.tmp/<skill-name>/<task-name>/
+.tmp/runs/<run-id>/<skill-name>/
 ```
 
 不得解释为：
 
 ```text
-skills/<skill-source>/<skill-name>/<task-name>/
+skills/<skill-source>/<skill-name>/
 ```
 
 正式、可追踪、需要评审的仓库内容不应放在 `.tmp/`。如果用户明确要求将结果作为正式产物纳入版本控制，Agent 应把最终产物写入用户指定位置或合适的正式目录，并避免把中间产物一起提交。

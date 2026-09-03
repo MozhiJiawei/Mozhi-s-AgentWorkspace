@@ -24,16 +24,16 @@ docker compose -f deploy/resource-server/compose.local.yml up -d ccn-api
 ## 生产部署
 
 ```powershell
-python deploy/resource-server/scripts/release.py deploy --component all
+python deploy/resource-server/scripts/release.py deploy --component all --output-dir .tmp/runs/<run-id>/release
 ```
 
 也可以只发布一个组件：
 
 ```powershell
-python deploy/resource-server/scripts/release.py deploy --component docs
-python deploy/resource-server/scripts/release.py deploy --component ccn
-python deploy/resource-server/scripts/release.py deploy --component edge
-python deploy/resource-server/scripts/release.py deploy-edge-source
+python deploy/resource-server/scripts/release.py deploy --component docs --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component ccn --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component edge --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy-edge-source --output-dir .tmp/runs/<run-id>/release
 ```
 
 生产部署、密钥、备份与恢复说明见`deploy/resource-server/README.md`。

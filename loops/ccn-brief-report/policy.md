@@ -17,15 +17,17 @@
 
 ### 报告子 Agent Prompt 模板
 
-主 agent 启动每个报告子 agent 时，必须逐字使用以下模板，只替换三个占位符，不允许添加任何额外说明：
+主 agent 启动每个报告子 agent 时，必须逐字使用以下模板，只替换五个占位符，不允许添加任何额外说明：
 
 ```text
-请你根据 <content> + <source> 做一次PPT深度研究，工作区：<absolute-task-workspace>
+请你根据 <content> + <source> 做一次PPT深度研究，仓库根目录：<absolute-workspace-root>，当前工作根目录：<absolute-work-root>，任务工作区：<absolute-task-workspace>
 ```
 
 - `<content>`：任务 API 返回的主题与要点。
 - `<source>`：任务 API 返回的来源 URL。
-- `<absolute-task-workspace>`：`.tmp/loops/ccn-brief-report/<task-id>/` 的绝对路径。
+- `<absolute-workspace-root>`：主工作区根目录的绝对路径。
+- `<absolute-work-root>`：父级为本次用户工作选定的绝对路径；默认是 `.tmp/runs/<run-id>/`，用户明确指定长期工作时则是 retained work root。报告子 agent 继续委派时必须原样传递。
+- `<absolute-task-workspace>`：`<absolute-work-root>/loop-ccn-brief-report/<task-id>/` 的绝对路径。
 - 任务编号、热点编号和周期由主 agent 保留并在归档时写入正式元信息，不通过扩写子 agent prompt 传递。
 - 子 agent 在 `.tmp/` 中使用的 `source_understanding_review.html`、`single_page_tech_report.pptx` 等临时文件名不受正式交付件命名规则约束；主题短名选择和正式重命名由主 agent 在归档阶段负责，不修改固定 prompt 模板。
 

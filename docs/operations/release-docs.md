@@ -5,7 +5,7 @@
 ## 默认发布命令
 
 ```powershell
-python deploy/resource-server/scripts/release.py deploy --component docs
+python deploy/resource-server/scripts/release.py deploy --component docs --output-dir .tmp/runs/<run-id>/release
 ```
 
 默认SSH目标为`root@39.105.78.135`，统一部署目录为：
@@ -14,12 +14,12 @@ python deploy/resource-server/scripts/release.py deploy --component docs
 /opt/mozhi-agent-workspace-services
 ```
 
-发布包写入本地`.tmp/releases/`，只包含Git已跟踪文件以及展开后的skill子仓内容。工作区不干净时发布会拒绝执行；调试打包可以显式使用`--allow-dirty`，但未跟踪文件仍不会进入发布包。
+发布包写入本次任务的 `.tmp/runs/<run-id>/release/`，只包含Git已跟踪文件以及展开后的skill子仓内容。工作区不干净时发布会拒绝执行；调试打包可以显式使用`--allow-dirty`，但未跟踪文件仍不会进入发布包。
 
 ## 只打包
 
 ```powershell
-python deploy/resource-server/scripts/release.py package
+python deploy/resource-server/scripts/release.py package --output-dir .tmp/runs/<run-id>/release
 ```
 
 ## 发布后验证

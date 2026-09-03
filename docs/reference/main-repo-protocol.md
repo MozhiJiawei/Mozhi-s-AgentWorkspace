@@ -21,21 +21,22 @@
 | `docs/skill-dependencies.yml` | 登记 skill 运行依赖与复核指纹。 |
 | `docs/skill-docs.yml` | 登记 skill 文档发布来源与复核指纹。 |
 | `scripts/pre_commit_gate.py` | 提交前统一门禁入口。 |
-| `.tmp/` | Agent 临时产物唯一工作根目录。 |
+| `.tmp/runs/<run-id>/` | 默认的一次性工作根目录。 |
+| `.tmp/retained/<work-name>/` | 用户明确指定的长期本地工作根目录。 |
 
 主仓不应复制 skill 子仓的核心实现逻辑，不应把运行时中间产物写入正式仓库目录，也不应绕过统一门禁声明接入完成。
 
 ## 临时产物协议
 
-`.tmp/` 是本工作区内所有 Agent 临时产物的唯一工作根目录。
+`.tmp/runs/<run-id>/` 是默认的一次性工作根目录。`<run-id>` 使用“时间戳 + 简短名称”；同一次工作中的 Skill、Loop、子 Agent 和插件共享当前工作根目录。
 
-以下内容必须写入 `.tmp/` 下：
+以下内容必须写入当前工作根目录下：
 
 - 中间稿、运行日志、调试文件。
 - 导出预览、阶段性 PPT、XML、draw.io、图片或其他生成文件。
 - 校验结果和可删除归档。
 
-如果 skill 自身说明给出了相对临时目录规则，应解释为 `.tmp/` 的子路径。例如 `<skill-name>/<task-name>/` 应落到 `.tmp/<skill-name>/<task-name>/`。
+如果 skill 自身说明给出了相对临时目录规则，应解释为当前工作根目录的子路径。默认情况下，`<skill-name>/` 落到 `.tmp/runs/<run-id>/<skill-name>/`。只有用户明确指定长期工作时，才改为 `.tmp/retained/<work-name>/<skill-name>/`；此时 retained work root 替代 run root，不得并行维护两套目录。checkpoint 或状态本身不自动触发 retained 模式。
 
 ## Skill 接入流程
 

@@ -66,7 +66,7 @@ nav:
 4. 运行 `python scripts/sync_skill_docs.py`。
 5. 运行 `python scripts/pre_commit_gate.py`。
 6. 如果文档指纹漂移，确认资料已复核后运行 `python scripts/check_skill_docs.py --update-fingerprints`，再重新运行 pre-commit gate。
-7. 只有用户要求发布验收，或本轮修改涉及远端可访问性时，发布后运行 `python loops/material-quality-guardian/qa/run.py --output-root .tmp/loops/material-quality-guardian`。
+7. 只有用户要求发布验收，或本轮修改涉及远端可访问性时，发布后运行 `python loops/material-quality-guardian/qa/run.py --output-root .tmp/runs/<run-id>/loop-material-quality-guardian`。
 
 ## QA 守护
 

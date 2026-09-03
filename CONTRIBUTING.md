@@ -13,7 +13,7 @@
 
 - 主仓级文档写在 `docs/`。
 - Skill 专属文档写在对应 `skills/<skill>/docs/`。
-- 临时产物写在 `.tmp/`。
+- 默认临时产物写入本次 `.tmp/runs/<run-id>/`；用户明确指定的长期本地工作直接写入 `.tmp/retained/<work-name>/`，同一工作不同时使用两者。
 - Agent-facing 的 skill 暴露规则写在 `AGENTS.md`。
 
 ## 提交前

@@ -40,6 +40,6 @@ Skills 是挂载在 `skills/` 下的一组独立能力，通常以 Git submodule
 
 ## `.tmp/`
 
-`.tmp/` 是 agent 和 skills 生成临时产物时唯一的工作区根目录。
+`.tmp/runs/<run-id>/` 是默认的一次性工作根目录；`<run-id>` 使用“时间戳 + 简短名称”。同一次工作中的 agents、skills、loops 和插件共享它。
 
-草稿、日志、导出图片、中间 XML、生成 deck 和本地实验都应放在这里。需要长期保存或评审的正式内容不要放进 `.tmp/`。
+草稿、日志、导出图片、中间 XML、生成 deck 和本地实验都应放在当前工作根目录内。只有用户明确指定某项长期本地工作时，才直接使用 `.tmp/retained/<work-name>/`，并停止为同一工作创建 run；普通 checkpoint 不自动进入 retained。需要正式保存或评审的仓库内容仍应升格到 `.tmp/` 之外。

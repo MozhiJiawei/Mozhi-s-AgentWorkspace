@@ -67,7 +67,7 @@ http://127.0.0.1:5173/
 |-- docs/              # 主仓文档和统一文档站
 |-- skills/            # skill 子仓；每个 skill 拥有自己的文档
 |-- scripts/           # 主仓检查脚本和文档编排脚本
-`-- .tmp/              # 运行时产物、草稿、日志和导出文件
+`-- .tmp/              # runs 保存默认临时工作；retained 保存用户指定的长期本地工作
 ```
 
 ## 文档模型
@@ -137,7 +137,7 @@ Skill 子仓负责：
 
 ### `skills/web-article-capture`
 
-- `请使用 web-article-capture 抓取这些网页的正文和正文图片，把 source package 写到 .tmp/web-article-capture/<任务名>/。`
+- `请使用 web-article-capture 抓取这些网页的正文和正文图片，把 source package 写到 .tmp/runs/<run-id>/web-article-capture/。`
 - `请把这篇官方博客渲染后的正文、图表和原始图片链接整理成 source.md，并运行 validate_capture_package.py 校验。`
 
 ### `skills/grobid_pdf_skill`
@@ -147,7 +147,7 @@ Skill 子仓负责：
 
 ### `skills/send-qq-email`
 
-- `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/send-qq-email/。`
+- `请用 QQ 邮箱 SMTP dry-run 一封测试邮件，并把 .eml 快照写到 .tmp/runs/<run-id>/send-qq-email/。`
 - `请检查我的 QQ 邮箱 SMTP 环境变量是否齐全，不要真实发送邮件。`
 
 ## 维护
@@ -155,7 +155,7 @@ Skill 子仓负责：
 资料服务器的文档站、统一网关和CCN任务服务部署统一由`deploy/resource-server/`维护；服务器只接收本仓生成的发布包，不直接维护部署源码。
 
 ```powershell
-python deploy/resource-server/scripts/release.py deploy --component docs
+python deploy/resource-server/scripts/release.py deploy --component docs --output-dir .tmp/runs/<run-id>/release
 ```
 
 修改 skill 资料前，先阅读 [文档架构需求](./docs/documentation-architecture-requirements.md)。其中的 `Skill 资料页面要求` 定义 `能力展示`、`使用方式`、`依赖说明`、`架构概览` 四个必选页面的写作要求，也是 Agent 补写或审查资料时的参考入口。
@@ -174,6 +174,6 @@ python scripts/pre_commit_gate.py
 
 - Skill 文档留在对应 skill 子仓。
 - 主仓文档只解释工作区级协议和入口。
-- 运行时产物写入 `.tmp/`。
+- 默认工作产物写入本次 `.tmp/runs/<run-id>/`；只有用户明确指定某项长期工作时，才直接使用 `.tmp/retained/<work-name>/`，同一工作不同时使用两者。
 - 文档站是统一发布面，不是第二份正文来源。
 - 每次提交前都应通过统一 pre-commit gate。

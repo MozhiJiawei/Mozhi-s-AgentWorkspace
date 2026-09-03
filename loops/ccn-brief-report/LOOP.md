@@ -114,21 +114,21 @@ README 模板：
    ```powershell
    python loops/ccn-brief-report/task_api.py fetch
    python loops/ccn-brief-report/local_state.py filter `
-     --tasks .tmp/loops/ccn-brief-report/tasks.json `
-     --output .tmp/loops/ccn-brief-report/pending.json `
+     --tasks .tmp/runs/<run-id>/loop-ccn-brief-report/tasks.json `
+     --output .tmp/runs/<run-id>/loop-ccn-brief-report/pending.json `
      --ccn-root ccn-report
    ```
 
    - API 返回的 pending 永远保留在工作队列中，本地 README 或本地 `archived` 记录不能把它过滤掉。
    - `resume_from=generation`：本地没有报告，从报告生成开始。
    - `resume_from=delivery`：本地已有报告，跳过重复生成，从门禁、远端合入确认或结果回传继续。
-   - 无效 API 记录写入 `.tmp/loops/ccn-brief-report/rejected-tasks.json`，其余合法任务继续处理；主 agent 在本轮总结中报告 rejected，但不让单条坏记录阻断整轮。
+   - 无效 API 记录写入 `.tmp/runs/<run-id>/loop-ccn-brief-report/rejected-tasks.json`，其余合法任务继续处理；主 agent 在本轮总结中报告 rejected，但不让单条坏记录阻断整轮。
 3. 对 `resume_from=generation` 的任务按 `policy.md` 启动报告子 agent完成报告制作，并发上限读取 `config.json`。`resume_from=delivery` 的任务不得重复启动报告子 agent。
 4. 按 `ccn-report/AGENTS.md`、`ccn-report/README.md` 及本文件的“ccn-report 报告 README 规范”归档验收通过的报告。子 agent 的临时文件名不受本规则约束；主 agent 归档时必须确定人类可读且可区分的主题短名，把 HTML/PPTX 重命名为同 basename，并同步更新 README 链接。README 必须完整保留任务信息、列明交付件及带链接的实际引用来源。提交前必须先运行本 Loop 的交付件校验，再运行 `ccn-report` 仓库门禁：
 
    ```powershell
    python loops/ccn-brief-report/validate_deliverables.py `
-     --tasks .tmp/loops/ccn-brief-report/pending.json `
+     --tasks .tmp/runs/<run-id>/loop-ccn-brief-report/pending.json `
      --ccn-root ccn-report
    python ccn-report/scripts/pre_commit_gate.py
    ```

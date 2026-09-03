@@ -25,12 +25,12 @@ docker compose -f deploy/resource-server/compose.local.yml run --rm ccn-api alem
 ## 打包与部署
 
 ```powershell
-python deploy/resource-server/scripts/release.py package
-python deploy/resource-server/scripts/release.py deploy --component all
-python deploy/resource-server/scripts/release.py deploy --component docs
-python deploy/resource-server/scripts/release.py deploy --component ccn
-python deploy/resource-server/scripts/release.py deploy --component edge
-python deploy/resource-server/scripts/release.py deploy-ccn-source
+python deploy/resource-server/scripts/release.py package --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component all --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component docs --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component ccn --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy --component edge --output-dir .tmp/runs/<run-id>/release
+python deploy/resource-server/scripts/release.py deploy-ccn-source --output-dir .tmp/runs/<run-id>/release
 ```
 
 `deploy-ccn-source`只同步`task_service`源码并重启现有CCN容器，不构建镜像、不重建容器。

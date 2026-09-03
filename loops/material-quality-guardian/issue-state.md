@@ -122,7 +122,7 @@ Guardian 使用三个优先级：
 1. 读取 Issue 中已有 findings。
 2. 清理状态为 `已关闭` 的历史 finding。
 3. 对本次扫描仍发现的问题：
-   - 先把本轮所有新增或刷新 finding 写入 `.tmp/loops/material-quality-guardian/findings-to-upsert.json`。
+   - 先把本轮所有新增或刷新 finding 写入 `.tmp/runs/<run-id>/loop-material-quality-guardian/findings-to-upsert.json`。
    - 如果历史中不存在同 ID finding，batch 写入时新增为 `待处理`。
    - 如果历史中存在同 ID finding 且状态是 `待处理`，batch 写入时刷新 `最近发现`、`证据` 和 `处理建议`。
    - 如果历史中存在同 ID finding 且状态是 `已忽略`，保留该状态，不自动重开。
@@ -134,7 +134,7 @@ Guardian 使用三个优先级：
 
 ```powershell
 python loops/material-quality-guardian/issue_db.py list
-python loops/material-quality-guardian/issue_db.py batch-upsert --input .tmp/loops/material-quality-guardian/findings-to-upsert.json
+python loops/material-quality-guardian/issue_db.py batch-upsert --input .tmp/runs/<run-id>/loop-material-quality-guardian/findings-to-upsert.json
 python loops/material-quality-guardian/issue_db.py sync-protocol
 ```
 

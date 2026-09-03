@@ -4,19 +4,34 @@
 
 当任务涉及修改仓库代码、调整目录结构、更新工程约定或处理非 skill 内容时，agent 应先阅读 `README.md`。
 
-## `.tmp/` Usage Principle
+## 临时工作区与正式工作区
 
-- `.tmp/` 是 agent 在本工作区内处理所有临时产物时唯一的工作根目录。
-- 调用任何 skill 时产生的中间稿、日志、草图、导出文件和阶段性结果，都必须写入 `.tmp/` 下。
-- 具体子目录命名和拼接方式，按对应 skill 自身说明执行。
-- 若 skill 文档中给出了临时产物目录规则，应将该规则视为相对于 `.tmp/` 的子路径规则，而不是写到 skill 仓库或其他位置。
-- 除非用户明确要求生成正式、可追踪的仓库内容，否则不要把这类产物直接写到仓库正式位置。
-- 除非用户明确说明，禁止创建worktree
+```text
+.tmp/
+├── runs/
+│   └── <run-id>/   # 一次用户工作的临时根目录
+│       └── <skill-or-producer>/   # 按需组织，非强制
+└── retained/
+    └── <work-name>/   # 用户明确指定的长期本地工作根目录
+```
+
+- `.tmp/runs/<run-id>/` 是默认的一次性工作根目录。`<run-id>` 使用“时间戳 + 简短名称”，例如 `20260903-163000-waic-report`。同一次工作中的多 Skill、Loop、子 Agent、Codex 插件和其他工具必须共用该 run root，不得各自新建并列 run。
+- 仅在默认一次性工作需要生成产物时创建 run root。当前工作根目录内可用 Skill 或产物生成者名称分目录，例如 `ppt-deep-search/`、`hw-ppt-gen-html/`、`loop-ccn-brief-report/` 或 `plugin-github/`；也可按实际需要直接组织，不强制工作流、`inputs/`、manifest 或其他固定层级。
+- 草稿、日志、下载、解压内容、测试或构建输出、浏览器产物、中间结果，以及尚未决定是否正式保留的交付物，都应写在当前工作根目录中。
+- `.tmp/retained/<work-name>/` 不是通用状态区，只用于用户明确指定的某项长期本地工作。用户未表达长期保留意图时，Agent 不得自行使用 `retained/`，也不得仅因存在 checkpoint、增量游标或恢复状态就把内容放进去。
+- `runs` 与 `retained` 是互斥的工作模式。默认使用 run root；一旦用户为某项工作指定长期工作目录，就直接以该 retained work root（或用户指定的其他长期路径）开展后续工作，不再为同一工作创建 run root，也不在两处复制同一套工作内容。
+- 当前工作根目录内部只要路径清楚、不互相覆盖、下游能找到上游结果即可。Skill、Loop 或工具文档中的临时目录应解释为当前工作根目录内的子路径。不得把 token、Cookie、授权码、SMTP 密码等凭据写入其中。
+- 仓库正式工作区是 `.tmp/` 之外、由仓库现有架构或用户指定的路径。修改现有代码、文档、Skill 或 Loop 时，直接修改正式位置；相关过程产物仍放在 `.tmp/runs/`。
+- 用户要求保存到指定路径、写入或更新仓库、形成正式资料或纳入版本控制时，应把最终结果升格到 `.tmp/` 之外；未表达正式保存或长期工作意图时留在 `.tmp/runs/`。进入 `retained/` 必须来自用户对长期工作的明确指定，且不算正式升格。
+- 正式目标明确时直接使用；仓库已有唯一自然位置时可按现有架构判断；若选择会显著影响公开范围或维护方式，应询问用户。只升格最终需要的内容，不连带复制中间产物，也不把升格视为对提交、推送、发布或发送外部消息的授权。
+- 用户指定的路径优先于本节默认规则。Agent 不得把新产物写入 `.tmp_old/`；未经用户明确要求，不得批量删除 `.tmp/runs/`、`.tmp/retained/` 或 `.tmp_old/`。
+- 除非用户明确说明，禁止创建 worktree。
 
 ## Codex Custom Agent 调用约束
 
 - 使用 `spawn_agent` 启动 custom `agent_type` 时，不要设置 `fork_turns: "all"`；完整历史 fork 会继承父 agent 类型，不能同时选择 custom agent。
-- 默认使用 `fork_turns: "none"`，并在 `message` 中显式传递任务所需的工作区、输入文件、输出文件和约束。
+- 默认使用 `fork_turns: "none"`。启动子 Agent 时，`message` 必须显式传递工作区绝对路径、当前工作根目录绝对路径（run root 或 retained work root）、该 Agent 独占的输出路径，以及所需输入和约束；不得依赖子 Agent 猜测当前目录。
+- 子 Agent 继续委派时，必须原样传递同一工作根目录，并为后代分配不互相覆盖的输出路径。如任务需要写产物却未收到工作根目录，应向父 Agent 索取，不得自行新建 run 或 retained 目录。
 - 只有确实需要部分对话上下文时，才使用正整数字符串形式的有限 `fork_turns`。
 
 ## Pre-Commit Gates
@@ -43,7 +58,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/aurora-tun-bypass/SKILL.md`
-- 修改真实配置前必须获得用户授权，并先 dry-run；所有候选配置、备份和日志必须写入 `.tmp/aurora-tun-bypass/`
+- 修改真实配置前必须获得用户授权，并先 dry-run；所有候选配置、备份和日志必须写入当前工作根目录下的 `aurora-tun-bypass/`
 - 默认保持 Aurora GUI 运行，先 dry-run；`--reload-core --apply` 和 `--allow-running` 只用于诊断生成配置覆盖，不作为持久化方案。开始持久化工作前必须阅读 `docs/behavior-findings.md`
 - 用户明确要求“一劳永逸”、跨 Aurora/Windows 重启持久化或自动修复刷新覆盖时，获得授权后使用 `install-memory-hook` 安装 `SetConfig` 内存维护器，并核对 `HKCU Run`、维护器进程、`active_rules_verified: ok=true`、活动 `/rules` 以及一次强制 stop/start 后仍命中；旧 `install-watch` 已移除
 - 不要输出完整解密配置，不要把用户配置、账号、节点或备份提交到仓库
@@ -67,7 +82,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/gh-issue-comment-monitor/SKILL.md`
-- 状态文件和本轮 updates 文件必须写入 `.tmp/gh-issue-comment-monitor/`
+- 一次性检查时，checkpoint 和 updates 都写入本次 `.tmp/runs/<run-id>/gh-issue-comment-monitor/`；只有用户明确把 Issue 跟进指定为长期工作时，才改用其 `.tmp/retained/<work-name>/gh-issue-comment-monitor/`，并停止为该工作创建 run
 - 优先使用该 skill 的脚本读取增量评论；只有缺少 checkpoint 或任务确实需要重建上下文时，才读取完整 issue 历史
 - 只有在已成功处理返回评论后，才使用 `--update-state` 更新本地 checkpoint
 
@@ -91,7 +106,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/hw-ppt-gen-html/SKILL.md`
-- 若任务会产生中间稿、HTML、导出图片、视觉 QA 记录或阶段性结果，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/hw-ppt-gen-html/<task-name>/`
+- 若任务会产生中间稿、HTML、导出图片、视觉 QA 记录或阶段性结果，必须写入当前工作根目录下的 `hw-ppt-gen-html/`
 - 完成 HTML 演示文稿后，必须按该 skill 要求运行 `scripts/render_html_ppt.py` 导出 PNG，并委派独立视觉 QA checker；`visual-qa.md` 必须包含逐页 `Primary Visual Checks`
 
 ### `skills/create-single-page-tech-report`
@@ -112,7 +127,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/create-single-page-tech-report/SKILL.md`
-- 草稿、渲染预览、校验日志和阶段性文件必须写入 `.tmp/create-single-page-tech-report/<task-name>/`
+- 草稿、渲染预览、校验日志和阶段性文件必须写入当前工作根目录下的 `create-single-page-tech-report/`
 - 必须交付可编辑 `.pptx` 和渲染预览，不能只交付图片；仅当用户明确指定正式路径时才把最终文件写入仓库正式目录
 - 交付前必须运行 `python skills/create-single-page-tech-report/scripts/validate_single_page_report.py <pptx-path>`，并人工复核标题语义、证据边界、字体字号、溢出、遮挡和图表清晰度
 
@@ -134,7 +149,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/ppt-deep-search/SKILL.md`
-- 所有临时笔记、基线、草稿、QA 输出和最终审阅产物必须写入 `.tmp/ppt-deep-search/<task-name>/`
+- 所有临时笔记、基线、草稿、QA 输出和最终审阅产物必须写入当前工作根目录下的 `ppt-deep-search/`
 - 完成 Source Understanding HTML 后，必须按该 skill 要求导出截图、委派独立视觉 QA，并保存 `baselines/015-source-understanding.md`
 - 用户批准 `source_understanding_review.html` 后，本 skill 职责结束；不要在深度研究阶段做 PPT 页数、目录、SCQA、逐页观点、视觉模板、字体、配色、版式或导出决策
 
@@ -156,7 +171,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/web-article-capture/SKILL.md`
-- 若任务会产生 source package、图片、review.html、日志或调试产物，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/web-article-capture/<task-name>/`
+- 若任务会产生 source package、图片、review.html、日志或调试产物，必须写入当前工作根目录下的 `web-article-capture/`
 - 需要真实网页抓取时，应按 skill 说明优先使用 Codex in-app Browser；被阻断、超时或只能部分抓取时，要在 `source.md` 记录 capture mode、blocked stage 或 fallback source
 - 交付前必须运行 `python skills/web-article-capture/scripts/validate_capture_package.py <output-root> --require-images when-referenced`
 
@@ -178,7 +193,7 @@
 使用这个 skill 时：
 
 - 先读取 `skills/grobid_pdf_skill/SKILL.md`
-- 若任务会产生中间解析文件、导出图片、XML、校验报告或归档结果，必须以 `.tmp/` 为工作根目录，并按该 skill 的默认目录约定写入 `.tmp/pdf_xml/<paper-name>/`
+- 若任务会产生中间解析文件、导出图片、XML、校验报告或归档结果，必须写入当前工作根目录下的 `grobid-docling-pdf/`，并保留 Skill 要求的论文级结构
 - 运行前应确认 GROBID 服务地址；默认使用 `http://localhost:8070`
 - 对 born-digital 论文 PDF 默认不要开启 OCR；仅在扫描版 PDF 场景下按 skill 说明启用 OCR
 - 交付结果时应报告最终 XML 路径、图片目录和数量、中间结果归档路径，以及校验状态
@@ -203,4 +218,4 @@
 - 先读取 `skills/send-qq-email/SKILL.md`
 - 涉及真实发送时，若用户意图或收件人不明确，应先确认；配置检查、预览和验证任务默认使用 `--dry-run`
 - 不要打印、记录或提交 SMTP 密码、QQ 邮箱授权码等凭据
-- 若任务会产生邮件快照、发送结果或调试日志，必须以 `.tmp/` 为工作根目录，例如写入 `.tmp/send-qq-email/`
+- 若任务会产生邮件快照、发送结果或调试日志，必须写入当前工作根目录下的 `send-qq-email/`

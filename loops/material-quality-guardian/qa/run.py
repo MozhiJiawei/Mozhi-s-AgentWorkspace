@@ -9,9 +9,6 @@ import sys
 from common import repo_root
 
 
-DEFAULT_OUTPUT_ROOT = Path(".tmp/loops/material-quality-guardian")
-
-
 @dataclass(frozen=True)
 class Check:
     name: str
@@ -72,8 +69,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Material Quality Guardian QA checks.")
     parser.add_argument(
         "--output-root",
-        default=DEFAULT_OUTPUT_ROOT.as_posix(),
-        help="Output directory for remote audit JSON artifacts.",
+        required=True,
+        help="Task-owned output directory for remote audit JSON artifacts.",
     )
     args = parser.parse_args()
 

@@ -61,7 +61,7 @@ CANONICAL_PREFIX = """# Material Quality Guardian
 - 已完成的 finding 必须通过 `python loops/material-quality-guardian/issue_db.py delete <id>` 从 Issue 中移除。
 - 所有 finding 状态变更必须通过 `python loops/material-quality-guardian/issue_db.py status ...` 或 `delete` 写回 Issue body。
 - Guardian Loop 每轮通过 `python loops/material-quality-guardian/issue_db.py list` 读取历史 Issue 状态，并通过 `batch-upsert` 一次性新增或刷新本轮全部 `待处理` 问题。
-- Guardian Loop 不应逐条写入 finding；应先聚合 `.tmp/loops/material-quality-guardian/findings-to-upsert.json`，再调用 `python loops/material-quality-guardian/issue_db.py batch-upsert --input ...`。
+- Guardian Loop 不应逐条写入 finding；应先聚合 `.tmp/runs/<run-id>/loop-material-quality-guardian/findings-to-upsert.json`，再调用 `python loops/material-quality-guardian/issue_db.py batch-upsert --input ...`。
 - Guardian Loop 不负责修复，也不负责把问题改成 `已忽略`；读取到 `已关闭` finding 时应清理删除。
 - Guardian Loop 不回复 Issue，不追加评论；Issue body 是唯一状态面。
 - 人类或其他修复 Agent 修复完成后必须用 `issue_db.py delete` 删除问题；确认无需处理时用 `issue_db.py status` 标记为 `已忽略` 并填写 `更新人`、`更新时间`、`处理结论`。
