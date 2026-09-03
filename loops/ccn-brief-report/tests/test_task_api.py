@@ -393,6 +393,39 @@ class TaskAPITests(unittest.TestCase):
                         value, config, artifact_url=artifact_url, expected_suffix=".html"
                     )
 
+    def test_complete_rejects_invalid_deliverable_name_before_api_submission(self):
+        config = {"ccn_report_repository_url": "https://github.com/MozhiJiawei/ccn-report"}
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory)
+            (report / "report.html").write_text("html", encoding="utf-8")
+            (report / "report.pptx").write_bytes(b"pptx")
+            (report / "README.md").write_text(
+                "- 任务编号：`TASK-1`\n\n"
+                "- [report.html](./report.html)\n"
+                "- [report.pptx](./report.pptx)\n",
+                encoding="utf-8",
+            )
+            args = Mock(
+                config="unused.json",
+                credentials="unused-credentials.json",
+                task_id="TASK-1",
+                artifact_url="https://github.com/MozhiJiawei/ccn-report/tree/main/type/report",
+                html_download_url=(
+                    "https://media.githubusercontent.com/media/MozhiJiawei/ccn-report/refs/heads/main/"
+                    "type/report/report.html?download=true"
+                ),
+                pptx_download_url=(
+                    "https://github.com/MozhiJiawei/ccn-report/raw/refs/heads/main/"
+                    "type/report/report.pptx?download=1"
+                ),
+                report_path=str(report),
+                state=str(report / "state.json"),
+            )
+            with patch.object(task_api, "load_config", return_value=config), patch.object(
+                task_api, "load_credentials", return_value={}
+            ), self.assertRaisesRegex(task_api.TaskAPIError, "通用名称"):
+                task_api.cmd_complete(args)
+
 
 if __name__ == "__main__":
     unittest.main()

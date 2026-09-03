@@ -10,6 +10,8 @@
 - 处理子 agent 上报的 HITL；答案必须能从任务目标、来源证据和 skill gate 推导，决定与理由写入任务临时目录。
 - 在 Source Understanding HTML 验收通过后，向原报告子 agent 发送消息，要求其根据 `skills/create-single-page-tech-report/SKILL.md` 完成一页 PPT 制作。
 - 验收子agent的HTML与PPTX交付件，并按 `LOOP.md` 完成本地归档。
+- 根据任务主题和历史归档确定人类可读、可区分的主题短名。优先使用官方产品名、论文系统名、项目名或公认缩写，必要时增加场景或方法消歧词。
+- 归档时把正式 HTML 与 PPTX 重命名为相同 basename 的 `<主题短名>.html` 和 `<主题短名>.pptx`，同步更新 README，并在提交和 API 回传前运行 `validate_deliverables.py`。主题短名不得使用通用交付形态、任务编号、批次日期或其他仅对单批任务有效的信息。
 
 ## 报告子 agent
 
@@ -25,6 +27,7 @@
 - `<source>`：任务 API 返回的来源 URL。
 - `<absolute-task-workspace>`：`.tmp/loops/ccn-brief-report/<task-id>/` 的绝对路径。
 - 任务编号、热点编号和周期由主 agent 保留并在归档时写入正式元信息，不通过扩写子 agent prompt 传递。
+- 子 agent 在 `.tmp/` 中使用的 `source_understanding_review.html`、`single_page_tech_report.pptx` 等临时文件名不受正式交付件命名规则约束；主题短名选择和正式重命名由主 agent 在归档阶段负责，不修改固定 prompt 模板。
 
 ### HITL 代理
 
