@@ -3,6 +3,7 @@
 
 *.log
 *.tmp
+outputs
 *.cache
 Thumbs.db
 .DS_Store

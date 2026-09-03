@@ -79,7 +79,7 @@ skills:
   create-single-page-tech-report:
     path: skills/create-single-page-tech-report
     dependency_review:
-      source_fingerprint: sha256:f9a25ea5492e9a25ebc3f32e994dbfb4e89edb70b2cab31c867d0cc611b3f1fd
+      source_fingerprint: sha256:fc0009efd976f18a5acb6ef425781168f0a6ee9815faaac10ca829fae84be4ef
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: Reviewed after adding PPTX noGrp normalization and validation; both scripts use Python standard library only. Report creation still requires an Agent runtime with editable PowerPoint creation and rendering capabilities; ImageGen remains optional with an editable-shape fallback.

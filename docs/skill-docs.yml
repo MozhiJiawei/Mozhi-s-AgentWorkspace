@@ -55,7 +55,7 @@ skills:
       entry: docs/skills/create-single-page-tech-report/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:ffea05ebe549c375db6621424f663df2e87e709223f9169723ed33e27af8bae3
+      source_fingerprint: sha256:a39d3e8d8ada34d2ec0734ca72b03f62f20017926a70886f7408ff919a87a3bd
       reviewed_at: "2026-08-27"
       reviewed_by: agent
       note: 已复核 noGrp 规范化、校验流程及能力、使用、依赖和架构页面；通过子仓 docs.manifest.yml 构建同步。
@@ -69,7 +69,7 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:e3456c81ffd873b475f88b3d751fdc05ff3a2df5f1f0561d4cba2d52e1214238
+      source_fingerprint: sha256:84410e001602ad136a114d3441143aec34ee7502f118b123cbb95b58bfd78a47
       reviewed_at: "2026-06-04"
       reviewed_by: agent
       note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
