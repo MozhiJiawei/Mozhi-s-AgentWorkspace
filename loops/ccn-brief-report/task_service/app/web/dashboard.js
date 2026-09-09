@@ -2,6 +2,7 @@
 
 const state = {
   cursor: null,
+  nextCursor: null,
   cursorHistory: [],
   page: 1,
   hasMore: false,
@@ -56,10 +57,13 @@ const elements = {
   },
 };
 
+const dateRange = new DateRangePicker(document.getElementById("date-range-filter"));
+
 function text(value, fallback = "—") { return value === null || value === undefined || value === "" ? fallback : String(value); }
 function formatDate(value) {
   if (!value) return "—";
-  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  const timestamp = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value) ? value : `${value}Z`;
+  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Shanghai" }).format(new Date(timestamp));
 }
 function statusLabel(value) { return { pending: "待处理", completed: "已完成", failed: "失败" }[value] || value; }
 function resultArtifacts(task) {
@@ -170,6 +174,7 @@ function showView(view) {
 }
 function resetPaging() {
   state.cursor = null;
+  state.nextCursor = null;
   state.cursorHistory = [];
   state.page = 1;
 }
@@ -181,7 +186,6 @@ function updateSelectionState() {
   elements.selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
   elements.selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
   elements.selectAll.disabled = checkboxes.length === 0;
-  document.getElementById("select-page-button").disabled = checkboxes.length === 0;
   elements.deleteSelected.disabled = Boolean(state.download && [...state.selected].some((id) => state.download.ids.has(id)));
   document.getElementById("download-selected-button").disabled = Boolean(state.download) || state.selected.size === 0;
 }
@@ -196,12 +200,13 @@ function openDeleteDialog(taskIds) {
 }
 function captureFilters() {
   state.filters = { status: elements.status.value, q: elements.query.value.trim(),
-    hotspot_id: elements.hotspot.value.trim(), period: elements.period.value.trim() };
+    hotspot_id: elements.hotspot.value.trim(), period: elements.period.value.trim(),
+    updated_from: dateRange.startInput.value, updated_to: dateRange.endInput.value };
 }
 function queryString() {
-  const params = new URLSearchParams({ limit: elements.limit.value });
+  const params = new URLSearchParams({ limit: elements.limit.value, sort: "updated_desc" });
   Object.entries(state.filters).forEach(([key, value]) => { if (value) params.set(key, value); });
-  if (state.cursor !== null) params.set("cursor", String(state.cursor));
+  if (state.cursor !== null) params.set("page_token", state.cursor);
   return params.toString();
 }
 function appendDetail(parent, label, value, wide = false) {
@@ -315,6 +320,7 @@ function taskRow(task) {
 }
 function render(tasks, pagination) {
   elements.rows.replaceChildren();
+  document.querySelector(".table-scroll").scrollTop = 0;
   state.selected.clear();
   tasks.forEach((task) => {
     const rendered = taskRow(task);
@@ -326,6 +332,7 @@ function render(tasks, pagination) {
   elements.metrics.total.textContent = String(tasks.length);
   Object.keys(counts).forEach((key) => { elements.metrics[key].textContent = String(counts[key]); });
   state.hasMore = Boolean(pagination?.has_more);
+  state.nextCursor = pagination?.next_page_token || null;
   elements.next.disabled = !state.hasMore;
   elements.previous.disabled = state.cursorHistory.length === 0;
   elements.page.textContent = `第 ${state.page} 页`;
@@ -334,7 +341,9 @@ function render(tasks, pagination) {
 async function loadTasks() {
   if (state.loading) return;
   state.loading = true;
+  dateRange.close();
   state.selected.clear();
+  elements.rows.querySelectorAll(".row-select").forEach((checkbox) => { checkbox.checked = false; });
   updateSelectionState();
   elements.previous.disabled = true;
   elements.next.disabled = true;
@@ -493,24 +502,18 @@ elements.filterForm.addEventListener("submit", async (event) => {
 elements.reset.addEventListener("click", async () => {
   if (state.loading) return;
   elements.filterForm.reset();
+  dateRange.reset();
   captureFilters();
   resetPaging();
   await loadTasks();
 });
-elements.refresh.addEventListener("click", loadTasks);
+elements.refresh.addEventListener("click", async () => { resetPaging(); await loadTasks(); });
 elements.limit.addEventListener("change", async () => { resetPaging(); await loadTasks(); });
-document.getElementById("select-page-button").addEventListener("click", () => {
-  elements.selectAll.checked = true;
-  elements.selectAll.dispatchEvent(new Event("change"));
-});
 elements.next.addEventListener("click", async () => {
   if (state.loading || !state.hasMore) return;
-  const taskRows = Array.from(elements.rows.querySelectorAll("tr:not(.detail-row)"));
-  const lastRow = taskRows[taskRows.length - 1];
-  const rowNumber = lastRow?.dataset.rowNumber;
-  if (!rowNumber) return;
+  if (!state.nextCursor) return;
   state.cursorHistory.push(state.cursor);
-  state.cursor = Number(rowNumber);
+  state.cursor = state.nextCursor;
   state.page += 1;
   await loadTasks();
 });

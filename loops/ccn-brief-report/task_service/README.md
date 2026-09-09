@@ -23,6 +23,10 @@
 例如 `"category": "04-AI模型"` 或 `"category": "04-AI模型/多模态模型与模型架构"`。网站 `/dashboard` 的“API接口文档”提供简短填写规则和一条可复制的创建命令；分类下拉框包含全部63个合法值，选择后自动填入命令，与API校验共用生成的分类注册表。运行时无需访问归档仓库。
 任务列表还支持`q`、`hotspot_id`和`period`筛选参数。
 
+状态台默认按更新时间倒序，同一时间按行号倒序。更新时间筛选支持下拉日历选择区间，按北京时间包含开始、结束当天；选择日期后点击“应用筛选”，可与其他条件组合。
+
+列表接口接受 `updated_from=2026-09-01&updated_to=2026-09-09`（均可单独传入）。状态台使用 `sort=updated_desc`，下一页传响应 `pagination.next_page_token` 到 `page_token`。为兼容自动处理脚本，接口未指定排序时仍按行号升序，沿用 `cursor`；两种分页参数不能混用。本次无需数据库迁移。
+
 ## 任务状态台
 
 `GET /dashboard`提供表格化任务状态页面。页面外壳不包含业务数据；输入独立状态台密码
@@ -79,7 +83,7 @@ python -m pytest loops/ccn-brief-report/task_service/tests
 
 ## 当前页批量下载
 
-筛选后勾选当前页任务，或点击“全选当前页”，最多 200 个；不会选择其他页。翻页、每页条数变化、刷新、应用/清除筛选及退出会清空选择。选择 HTML、PPTX 或默认“全部”后点击“批量下载”。
+筛选后勾选当前页任务，或使用表头复选框全选当前页，最多 200 个；不会选择其他页。翻页、每页条数变化、刷新、应用/清除筛选及退出会清空选择。选择 HTML、PPTX 或默认“全部”后点击“批量下载”。
 
 浏览器先核对任务详情，再直接从目标 GitHub 仓库获取 completed 报告，不经过服务端中转。支持既定 main 分支 media 地址和 GitHub raw 地址映射；不下载目录页面，不泛化开放 CSP。不支持的地址、历史缺链接、非完成任务和已删除任务均有明细。
 
@@ -89,6 +93,6 @@ python -m pytest loops/ccn-brief-report/task_service/tests
 
 ZIP 库使用本地托管 fflate 0.8.2 UMD，来源 `https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js`，许可证随 `app/web/fflate-LICENSE.txt` 保存。Docker 与源码发布均包含整个 app 目录，无运行时 CDN 依赖。
 
-额外测试：`node --test loops/ccn-brief-report/task_service/tests/downloads.test.mjs`。真实 PostgreSQL 测试设置 `CCN_TEST_POSTGRES_URL` 指向专用测试实例后运行服务 pytest；测试创建隔离 schema 并在结束时清理，不使用生产数据库。
+额外测试：`node --test loops/ccn-brief-report/task_service/tests/*.test.mjs`。真实 PostgreSQL 测试设置 `CCN_TEST_POSTGRES_URL` 指向专用测试实例后运行服务 pytest；测试创建隔离 schema 并在结束时清理，不使用生产数据库。
 
 fflate 0.8.2 UMD SHA-256：`c3b34f2e9f5e74d4d7d64e01cac7a0c01954c6c406414d42185c7b53d6875ddf`。

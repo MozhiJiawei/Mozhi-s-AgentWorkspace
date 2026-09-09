@@ -46,7 +46,7 @@ class DashboardLogin(BaseModel):
 
 @app.get("/dashboard-assets/{asset_name}", include_in_schema=False)
 def dashboard_asset(asset_name: str) -> FileResponse:
-    if asset_name not in {"dashboard.css", "dashboard.js", "downloads.js", "fflate-0.8.2.js"}:
+    if asset_name not in {"dashboard.css", "dashboard.js", "downloads.js", "fflate-0.8.2.js", "date-range.js"}:
         raise HTTPException(status_code=404, detail={"code": "asset_not_found", "message": "Asset not found"})
     return FileResponse(
         WEB_ROOT / asset_name,

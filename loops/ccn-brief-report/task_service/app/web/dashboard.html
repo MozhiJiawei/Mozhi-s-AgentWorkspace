@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <title>CCN 任务状态台</title>
-    <link rel="stylesheet" href="/dashboard-assets/dashboard.css?v=7">
+    <link rel="stylesheet" href="/dashboard-assets/dashboard.css?v=8">
   </head>
   <body>
     <header class="site-header">
@@ -77,6 +77,29 @@
             <span>周期</span>
             <input id="period-filter" name="period" type="search" maxlength="64" placeholder="例如 2026-W32">
           </label>
+          <div id="date-range-filter" class="date-range-filter">
+            <span id="date-range-label" class="filter-label">更新时间（北京时间）</span>
+            <input type="hidden" name="updated_from">
+            <input type="hidden" name="updated_to">
+            <button type="button" class="date-range-trigger" aria-labelledby="date-range-label date-range-value" aria-haspopup="dialog" aria-expanded="false" aria-controls="date-range-popup">
+              <span id="date-range-value" class="date-range-value">选择日期区间</span><span aria-hidden="true">▾</span>
+            </button>
+            <div id="date-range-popup" class="date-range-popup" role="dialog" aria-labelledby="range-title" hidden>
+              <div class="range-heading"><strong id="range-title">选择更新时间范围</strong><span>包含开始和结束当天</span></div>
+              <div class="range-shortcuts">
+                <button type="button" data-days="1">今天</button><button type="button" data-days="7">最近 7 天</button><button type="button" data-days="30">最近 30 天</button><button type="button" class="range-clear">不限日期</button>
+              </div>
+              <div class="range-navigation">
+                <button type="button" class="range-previous" aria-label="上一个月">‹</button>
+                <select class="range-year" aria-label="日历年份"></select>
+                <select class="range-month" aria-label="日历月份"><option value="0">1 月</option><option value="1">2 月</option><option value="2">3 月</option><option value="3">4 月</option><option value="4">5 月</option><option value="5">6 月</option><option value="6">7 月</option><option value="7">8 月</option><option value="8">9 月</option><option value="9">10 月</option><option value="10">11 月</option><option value="11">12 月</option></select>
+                <button type="button" class="range-next" aria-label="下一个月">›</button>
+              </div>
+              <div class="range-calendars"></div>
+              <p class="range-summary" aria-live="polite"></p>
+              <div class="range-footer"><button type="button" class="button button-quiet range-cancel">取消</button><button type="button" class="button button-primary range-confirm">确定日期</button></div>
+            </div>
+          </div>
           <label>
             <span>每页数量</span>
             <select id="limit-filter" name="limit">
@@ -94,9 +117,8 @@
         <div class="panel-heading table-heading">
           <div>
             <p class="section-kicker">TASK RECORDS</p>
-            <h2 id="records-title">任务记录</h2>
+            <h2 id="records-title">任务记录 <span class="sort-badge">最近更新优先 ↓</span></h2>
           </div>
-          <button id="select-page-button" class="button" type="button">全选当前页</button>
           <p id="updated-at" class="updated-at">尚未加载</p>
         </div>
         <div id="message" class="message" role="status" aria-live="polite" hidden></div>
@@ -112,7 +134,7 @@
           <button id="retry-download-button" class="button" type="button" hidden>重试失败项（补充 ZIP）</button>
           <details><summary>查看下载明细</summary><ul id="download-results"></ul></details>
         </section>
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="任务记录滚动区域">
           <table>
             <thead>
               <tr>
@@ -123,7 +145,7 @@
                 <th>热点 ID</th>
                 <th>周期</th>
                 <th>内容摘要</th>
-                <th>最近更新</th>
+                <th aria-sort="descending">最近更新 ↓</th>
                 <th>结果</th>
                 <th><span class="sr-only">操作</span></th>
               </tr>
@@ -390,6 +412,7 @@ $BatchDeleted.data</code></pre>
 
     <script src="/dashboard-assets/fflate-0.8.2.js" defer></script>
     <script src="/dashboard-assets/downloads.js?v=1" defer></script>
-    <script src="/dashboard-assets/dashboard.js?v=7" defer></script>
+    <script src="/dashboard-assets/date-range.js?v=1" defer></script>
+    <script src="/dashboard-assets/dashboard.js?v=8" defer></script>
   </body>
 </html>
