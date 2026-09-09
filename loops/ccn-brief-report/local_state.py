@@ -12,14 +12,22 @@ from typing import Any
 
 LOOP_ROOT = Path(__file__).resolve().parent
 WORKSPACE_ROOT = LOOP_ROOT.parent.parent
-RUNTIME_ROOT = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report"
-DEFAULT_STATE = RUNTIME_ROOT / "state.json"
-DEFAULT_LOCK = RUNTIME_ROOT / "run.lock"
 DEFAULT_CONFIG = LOOP_ROOT / "config.json"
 DEFAULT_CCN_ROOT = WORKSPACE_ROOT / "ccn-report"
 TASK_ID_PATTERN = re.compile(
     r"(?im)^\s*(?:[-*]\s*)?(?:task[_ ]?id|任务编号)\s*[:：]\s*`?([A-Za-z0-9._-]+)`?\s*$"
 )
+
+
+def work_root(value: str) -> Path:
+    path = Path(value)
+    if not path.is_absolute() or not path.is_dir():
+        raise argparse.ArgumentTypeError("--work-root 必须是主 agent 已选定并创建的绝对目录")
+    return path.resolve()
+
+
+def runtime_root(args: argparse.Namespace) -> Path:
+    return args.work_root / "loop-ccn-brief-report"
 
 
 def utc_now() -> datetime:
@@ -105,7 +113,7 @@ def acquire_lock(lock_path: Path, stale_hours: float) -> dict[str, Any]:
 
 
 def cmd_lock(args: argparse.Namespace) -> int:
-    lock_path = Path(args.lock).resolve()
+    lock_path = runtime_root(args) / "run.lock"
     if args.action == "acquire":
         config = read_json(Path(args.config), {})
         stale_hours = float(config.get("run_lock_stale_hours", 20))
@@ -118,10 +126,11 @@ def cmd_lock(args: argparse.Namespace) -> int:
 
 
 def cmd_filter(args: argparse.Namespace) -> int:
-    tasks = read_json(Path(args.tasks), [])
+    root = runtime_root(args)
+    tasks = json.loads((root / "tasks.json").read_text(encoding="utf-8"))
     if not isinstance(tasks, list):
         raise ValueError("任务文件必须是数组")
-    state = load_state(Path(args.state))
+    state = load_state(root / "state.json")
     local_reports = archived_task_ids(state, Path(args.ccn_root).resolve())
     pending = []
     resumed = []
@@ -136,7 +145,7 @@ def cmd_filter(args: argparse.Namespace) -> int:
         else:
             task["resume_from"] = "generation"
         pending.append(task)
-    output = Path(args.output).resolve()
+    output = root / "pending.json"
     write_json_atomic(output, pending)
     print(
         json.dumps(
@@ -176,24 +185,21 @@ def record_completed_task(
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    print(json.dumps(load_state(Path(args.state)), ensure_ascii=False, indent=2))
+    print(json.dumps(load_state(runtime_root(args) / "state.json"), ensure_ascii=False, indent=2))
     return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="维护 CCN 快报 Loop 的本地调测状态与去重信息。")
-    parser.add_argument("--state", default=str(DEFAULT_STATE))
+    parser.add_argument("--work-root", type=work_root, required=True)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     lock_parser = subparsers.add_parser("lock")
     lock_parser.add_argument("action", choices=["acquire", "release"])
-    lock_parser.add_argument("--lock", default=str(DEFAULT_LOCK))
     lock_parser.add_argument("--config", default=str(DEFAULT_CONFIG))
     lock_parser.set_defaults(func=cmd_lock)
 
     filter_parser = subparsers.add_parser("filter")
-    filter_parser.add_argument("--tasks", required=True)
-    filter_parser.add_argument("--output", required=True)
     filter_parser.add_argument("--ccn-root", default=str(DEFAULT_CCN_ROOT))
     filter_parser.set_defaults(func=cmd_filter)
 

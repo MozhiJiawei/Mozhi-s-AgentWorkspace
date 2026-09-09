@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import sys
 from typing import Any, Iterable
+from task_service.app.domain.categories import category_path_error
 
 
 GENERIC_BASENAMES = {
@@ -190,6 +191,16 @@ def historical_basenames(ccn_root: Path, current_dirs: set[Path]) -> set[str]:
     return names
 
 
+def validate_category_constraint(report_dir: Path, ccn_root: Path, category: object) -> None:
+    try:
+        relative = report_dir.resolve().relative_to(ccn_root.resolve())
+        error = category_path_error(relative.parent.as_posix(), category)
+    except ValueError as exc:
+        raise DeliverableValidationError(str(exc)) from exc
+    if error:
+        raise DeliverableValidationError(error)
+
+
 def validate_tasks(tasks: list[dict[str, Any]], ccn_root: Path) -> list[TaskValidation]:
     task_ids = [task["task_id"] for task in tasks]
     directory_matches = map_task_directories(ccn_root, task_ids)
@@ -216,6 +227,12 @@ def validate_tasks(tasks: list[dict[str, Any]], ccn_root: Path) -> list[TaskVali
                 matches[0], task_id, historical_basenames=history
             )
     results = [result_by_id[task_id] for task_id in task_ids]
+    for task, result in zip(tasks, results):
+        if result.report_dir:
+            try:
+                validate_category_constraint(result.report_dir, ccn_root, task.get('category'))
+            except DeliverableValidationError as exc:
+                result.errors.append(str(exc))
 
     by_basename: dict[str, list[TaskValidation]] = {}
     for result in results:

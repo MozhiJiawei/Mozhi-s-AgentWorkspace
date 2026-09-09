@@ -11,18 +11,19 @@ from urllib.parse import parse_qsl, unquote, urlsplit, urlunsplit
 
 import requests
 
+import local_state
+
 from task_service.app.domain.percent_encoding import decode_non_ascii_percent_escapes
 from task_service.app.domain.task_contract import TASK_ID_PATTERN, is_valid_https_url
 from validate_deliverables import DeliverableValidationError, validate_completion_report
+from task_service.app.domain.categories import normalize_category
+from validate_deliverables import validate_category_constraint
 
 
 LOOP_ROOT = Path(__file__).resolve().parent
 WORKSPACE_ROOT = LOOP_ROOT.parent.parent
 DEFAULT_CONFIG = LOOP_ROOT / "config.json"
 DEFAULT_CREDENTIALS = Path.home() / ".ccn-brief-report" / "client.json"
-DEFAULT_OUTPUT = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "tasks.json"
-DEFAULT_REJECTED_OUTPUT = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "rejected-tasks.json"
-DEFAULT_STATE = WORKSPACE_ROOT / ".tmp" / "loops" / "ccn-brief-report" / "state.json"
 DEFAULT_CCN_ROOT = WORKSPACE_ROOT / "ccn-report"
 REQUIRED_FIELDS = ("row_number", "task_id", "content", "url", "hotspot_id", "period")
 TEXT_FIELDS = ("task_id", "content", "url", "hotspot_id", "period")
@@ -95,19 +96,23 @@ def normalize_task(raw: Any, index: int) -> dict[str, Any]:
     task = {field: raw[field] for field in REQUIRED_FIELDS}
     task["row_number"] = row_number
     task["status"] = raw.get("status") or ""
+    try:
+        task["category"] = normalize_category(raw.get("category"))
+    except ValueError as exc:
+        raise TaskAPIError(f"第 {index} 条任务分类无效：{exc}") from exc
     return task
 
 
 def deduplicate_tasks(tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     unique: dict[str, dict[str, Any]] = {}
-    comparison_fields = ("row_number", "content", "url", "hotspot_id", "period")
+    comparison_fields = ("row_number", "content", "url", "hotspot_id", "period", "category")
     for task in tasks:
         task_id = task["task_id"]
         existing = unique.get(task_id)
         if existing is None:
             unique[task_id] = task
             continue
-        if any(existing[field] != task[field] for field in comparison_fields):
+        if any(existing.get(field) != task.get(field) for field in comparison_fields):
             raise TaskAPIError(f"任务编号 {task_id} 存在内容冲突的重复记录")
     return list(unique.values())
 
@@ -182,8 +187,9 @@ def cmd_fetch(args: argparse.Namespace) -> int:
         timeout=timeout,
         rejected=rejected,
     )
-    output = Path(args.output).resolve()
-    rejected_output = Path(args.rejected_output).resolve()
+    root = local_state.runtime_root(args)
+    output = root / "tasks.json"
+    rejected_output = root / "rejected-tasks.json"
     write_json(output, tasks)
     write_json(rejected_output, rejected)
     print(
@@ -403,6 +409,15 @@ def cmd_complete(args: argparse.Namespace) -> int:
         raise TaskAPIError(f"PPTX 下载 URL 对应的本地文件不存在：{pptx_path.name}")
     if html_path.stem != deliverable_basename or pptx_path.stem != deliverable_basename:
         raise TaskAPIError("下载 URL 文件名与已校验的正式交付件名称不一致")
+    current_task = fetch_task(base_url=api_base(config), key=api_key(credentials), task_id=task_id, timeout=timeout)
+    try:
+        validate_category_constraint(report_path, DEFAULT_CCN_ROOT, current_task.get("category"))
+        relative = report_path.relative_to(DEFAULT_CCN_ROOT.resolve()).as_posix()
+        expected_url = config["ccn_report_repository_url"].rstrip("/") + "/tree/main/" + relative
+        if unquote(artifact_url).rstrip("/") != expected_url:
+            raise DeliverableValidationError("目录URL与实际归档目录不一致")
+    except (ValueError, DeliverableValidationError) as exc:
+        raise TaskAPIError(f"任务分类或目录校验失败：{exc}") from exc
     task = submit_result(
         base_url=api_base(config),
         key=api_key(credentials),
@@ -410,10 +425,8 @@ def cmd_complete(args: argparse.Namespace) -> int:
         artifact_urls=artifact_urls,
         timeout=timeout,
     )
-    import local_state
-
     record = local_state.record_completed_task(
-        Path(args.state),
+        local_state.runtime_root(args) / "state.json",
         task_id=task_id,
         report_path=str(report_path),
         artifact_url=artifact_url,
@@ -437,12 +450,11 @@ def cmd_complete(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="从 CCN 任务 API 读取待处理快报任务。")
+    parser.add_argument("--work-root", type=local_state.work_root, required=True)
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
     parser.add_argument("--credentials", default=str(credentials_path()))
     subparsers = parser.add_subparsers(dest="command", required=True)
     fetch_parser = subparsers.add_parser("fetch", help="拉取并标准化全部未领取任务")
-    fetch_parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
-    fetch_parser.add_argument("--rejected-output", default=str(DEFAULT_REJECTED_OUTPUT))
     fetch_parser.set_defaults(func=cmd_fetch)
     complete_parser = subparsers.add_parser("complete", help="幂等回传结果、对账并标记本地完成")
     complete_parser.add_argument("--task-id", required=True)
@@ -450,7 +462,6 @@ def build_parser() -> argparse.ArgumentParser:
     complete_parser.add_argument("--html-download-url", required=True)
     complete_parser.add_argument("--pptx-download-url", required=True)
     complete_parser.add_argument("--report-path", required=True)
-    complete_parser.add_argument("--state", default=str(DEFAULT_STATE))
     complete_parser.set_defaults(func=cmd_complete)
     return parser
 

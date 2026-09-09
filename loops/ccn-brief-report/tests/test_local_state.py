@@ -33,18 +33,17 @@ class LocalStateTests(unittest.TestCase):
             report = ccn_root / "type" / "project" / "20260803-example-codex"
             report.mkdir(parents=True)
             (report / "README.md").write_text("任务编号：TASK-1\n", encoding="utf-8")
-            tasks_path = root / "tasks.json"
-            output_path = root / "pending.json"
-            state_path = root / "state.json"
+            runtime = root / "loop-ccn-brief-report"
+            runtime.mkdir()
+            tasks_path = runtime / "tasks.json"
+            output_path = runtime / "pending.json"
             tasks_path.write_text(
                 json.dumps([{"task_id": "TASK-1"}, {"task_id": "TASK-2"}]),
                 encoding="utf-8",
             )
             args = argparse.Namespace(
-                tasks=str(tasks_path),
-                output=str(output_path),
+                work_root=root,
                 ccn_root=str(ccn_root),
-                state=str(state_path),
             )
 
             local_state.cmd_filter(args)

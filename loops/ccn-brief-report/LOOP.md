@@ -2,6 +2,8 @@
 
 本 Loop 是快报任务的主编排入口。它定义执行顺序和角色交接，不复制 workspace skills 或 `ccn-report` 的实现规范。
 
+执行前读取根 [AGENTS.md](../../AGENTS.md)，工作目录、子 Agent 调用和操作授权均遵循该文件。下述归档、提交、推送、合入和 API 回传步骤以本次用户授权为前提；本文件本身不授予这些权限。
+
 ## 目标与完成条件
 
 每轮从 CCN 任务 API 读取全部待处理任务，为尚未归档的任务生成正式报告，由主 agent 将通过验收的报告归档到当前工作区的 `ccn-report/`，再通过 Pull Request 合入 GitHub 归档仓库并上传任务完成记录。
@@ -31,6 +33,22 @@
 如需使用其他私有文件位置，设置 `CCN_BRIEF_TASK_API_CONFIG` 指向该文件。环境变量 `CCN_API_KEY` 的优先级高于私有配置文件。
 
 API Key 禁止写入仓库、命令输出、日志、截图、任务产物或 Pull Request；配置文件必须位于仓库外。
+
+## 可选分类约束
+
+任务创建接口的 `category` 为可选枚举，使用完整中文一级或二级目录路径（含 `01-` 至 `13-` 编号）；不传或 null 表示自动分类。字段只在创建时指定，主 agent 不得改变调用方约束。
+
+| 输入 | 归档行为 |
+| --- | --- |
+| 未指定／null | 读取 `ccn-report/classification/README.md` 及候选板块细则，依据正式正文判断唯一归属。 |
+| 指定一级，如 `04-AI模型` | 加载该一级细则，在其范围内选择二级；只有符合综述条件且无适配单一二级时才一级直归。 |
+| 指定二级，如 `04-AI模型/多模态模型与模型架构` | 加载所属一级细则，严格归入指定二级。 |
+| AI 判断与指定值有差异 | 指定值优先，README 记录差异和判断依据，不自行改类。 |
+| 恢复已有报告交付 | 复核路径是否符合分类约束；必要时迁移、更新链接，再验收和合入，不重复生成。 |
+
+`task_api.py fetch` 保留并校验分类，非法值写入 rejected，禁止当作未指定继续。工作队列、报告子 agent 的输入必须原样透传分类。无法形成合法归档路径时保留 pending 并报告原因，不回传 completed。
+
+`validate_deliverables.py` 检查指定分类与实际报告父目录；`complete` 再查询服务端分类，并校验本地目录和目录 URL。新分类规则需先更新归档注册表，再运行 `python loops/ccn-brief-report/sync_categories.py --write`；统一门禁检查部署枚举与归档细则一致。
 
 ## ccn-report 报告 README 规范
 
@@ -83,6 +101,9 @@ README 模板：
 - 任务编号：<task_id>
 - 热点编号：<hotspot_id>
 - 周期：<period>
+- 指定分类：<category 原值；未指定时写“由 AI 自动分类”>
+- 实际归档分类：<含编号的实际一级／二级完整路径>
+- 归类依据：<选择理由；若与指定分类的语义判断有差异，记录差异但遵循指定值>
 - 任务正文：<content，原样保留>
 - 任务来源：[<来源标题或 URL>](<url>)
 
@@ -101,34 +122,42 @@ README 模板：
 
 ## 每轮步骤
 
-1. 获取本轮本地锁；无论成功、失败或中断，退出前都必须释放：
+本轮命令共用主 agent 已选定并创建的工作根目录：
+
+```powershell
+$workRoot = '<absolute-work-root>'
+$loopRoot = Join-Path $workRoot 'loop-ccn-brief-report'
+```
+
+`local_state.py` 和 `task_api.py` 必须传入 `--work-root`，并从中派生 `loop-ccn-brief-report/` 下的队列、拒绝记录、状态和锁文件。旧的 `--state`、`--lock`、`--output`、`--rejected-output` 及 filter 的 `--tasks` 参数不再使用。
+
+1. 获取当前工作根目录的本地锁；只有成功获取锁的执行者才在 finally/清理阶段释放它。不同工作根目录的锁相互独立，主 agent 不得为同一批 pending 任务重叠启动多轮：
 
    ```powershell
-   python loops/ccn-brief-report/local_state.py lock acquire
+   python -B loops/ccn-brief-report/local_state.py --work-root "$workRoot" lock acquire
    # 本轮结束时在 finally/清理阶段执行：
-   python loops/ccn-brief-report/local_state.py lock release
+   python -B loops/ccn-brief-report/local_state.py --work-root "$workRoot" lock release
    ```
 
 2. 使用脚本读取 API pending 并生成工作队列，不由 agent 手工判断本地状态：
 
    ```powershell
-   python loops/ccn-brief-report/task_api.py fetch
-   python loops/ccn-brief-report/local_state.py filter `
-     --tasks .tmp/runs/<run-id>/loop-ccn-brief-report/tasks.json `
-     --output .tmp/runs/<run-id>/loop-ccn-brief-report/pending.json `
+   python -B loops/ccn-brief-report/task_api.py --work-root "$workRoot" fetch
+   python -B loops/ccn-brief-report/local_state.py --work-root "$workRoot" filter `
      --ccn-root ccn-report
    ```
 
    - API 返回的 pending 永远保留在工作队列中，本地 README 或本地 `archived` 记录不能把它过滤掉。
    - `resume_from=generation`：本地没有报告，从报告生成开始。
    - `resume_from=delivery`：本地已有报告，跳过重复生成，从门禁、远端合入确认或结果回传继续。
-   - 无效 API 记录写入 `.tmp/runs/<run-id>/loop-ccn-brief-report/rejected-tasks.json`，其余合法任务继续处理；主 agent 在本轮总结中报告 rejected，但不让单条坏记录阻断整轮。
-3. 对 `resume_from=generation` 的任务按 `policy.md` 启动报告子 agent完成报告制作，并发上限读取 `config.json`。`resume_from=delivery` 的任务不得重复启动报告子 agent。
+   - 无效 API 记录写入 `$loopRoot/rejected-tasks.json`，其余合法任务继续处理；主 agent 在本轮总结中报告 rejected，但不让单条坏记录阻断整轮。
+   - 每条命令成功后才进入下一步；fetch 失败不得使用遗留队列，filter 找不到 `tasks.json` 时会报错，不能把缺失输入当成零任务。
+3. 先按“可选分类约束”处理 category，再对 `resume_from=generation` 的任务按 `policy.md` 启动报告子 agent完成报告制作，并发上限读取 `config.json`；子 agent 输入必须包含指定分类及对应规则。`resume_from=delivery` 的任务不得重复启动报告子 agent，但必须复核已有归档路径是否满足分类约束。
 4. 按 `ccn-report/AGENTS.md`、`ccn-report/README.md` 及本文件的“ccn-report 报告 README 规范”归档验收通过的报告。子 agent 的临时文件名不受本规则约束；主 agent 归档时必须确定人类可读且可区分的主题短名，把 HTML/PPTX 重命名为同 basename，并同步更新 README 链接。README 必须完整保留任务信息、列明交付件及带链接的实际引用来源。提交前必须先运行本 Loop 的交付件校验，再运行 `ccn-report` 仓库门禁：
 
    ```powershell
-   python loops/ccn-brief-report/validate_deliverables.py `
-     --tasks .tmp/runs/<run-id>/loop-ccn-brief-report/pending.json `
+   python -B loops/ccn-brief-report/validate_deliverables.py `
+     --tasks "$loopRoot/pending.json" `
      --ccn-root ccn-report
    python ccn-report/scripts/pre_commit_gate.py
    ```
@@ -138,7 +167,7 @@ README 模板：
 6. 合入确认后，只使用 `task_api.py complete` 完成结果回传、服务端对账和本地状态落盘，不由 agent 手工拼 POST 或单独调用 `local_state.py mark`：
 
    ```powershell
-   python loops/ccn-brief-report/task_api.py complete `
+   python -B loops/ccn-brief-report/task_api.py --work-root "$workRoot" complete `
      --task-id <task_id> `
      --artifact-url <GitHub报告目录直达URL> `
      --html-download-url <HTML的Git-LFS下载URL> `
@@ -156,7 +185,7 @@ README 模板：
    - PPTX 下载 URL 格式为 `<ccn_report_repository_url>/raw/refs/heads/main/<报告相对目录>/<文件名>?download=1`；两个下载文件必须位于目录 URL 指向的同一报告目录。
    - `<报告相对目录>` 使用 `/` 分隔；三个 URL 都必须指向已合入默认分支的正式交付件，不传仓库根地址、本地路径或临时预览地址。
    - URL 的路径统一使用可读的中文 IRI 形式。客户端和服务端都必须把等价的 percent-encoded UTF-8 路径规范化为中文后，再计算幂等键和对账；服务端 API 统一返回中文形式，但数据库保留原始提交值，不迁移或重写历史数据。ASCII 保留字符（例如 `%20`、`%2F`）不得被误解码。
-7. 重新运行 `task_api.py fetch`；只有 API pending 为 0、rejected 已报告且本地没有未对账任务时，本轮完成。最后释放本地锁。
+7. 使用同一 `$workRoot` 重新运行第 2 步的 fetch 和 filter；只有 API pending 为 0、rejected 已报告且本地没有未对账任务时，本轮完成。最后释放本地锁。
 
 结果记录示例：
 

@@ -25,6 +25,7 @@ def run_gate(root: Path, gate: Gate) -> int:
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
     gates = [
+        Gate(name="ccn-category-registry", command=[sys.executable, "loops/ccn-brief-report/sync_categories.py"]),
         Gate(
             name="codex-agents-config",
             command=[sys.executable, "scripts/check_codex_agents_config.py"],
