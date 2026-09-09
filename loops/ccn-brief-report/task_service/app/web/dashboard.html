@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <title>CCN 任务状态台</title>
-    <link rel="stylesheet" href="/dashboard-assets/dashboard.css?v=6">
+    <link rel="stylesheet" href="/dashboard-assets/dashboard.css?v=7">
   </head>
   <body>
     <header class="site-header">
@@ -96,13 +96,22 @@
             <p class="section-kicker">TASK RECORDS</p>
             <h2 id="records-title">任务记录</h2>
           </div>
+          <button id="select-page-button" class="button" type="button">全选当前页</button>
           <p id="updated-at" class="updated-at">尚未加载</p>
         </div>
         <div id="message" class="message" role="status" aria-live="polite" hidden></div>
         <div id="selection-bar" class="selection-bar" hidden>
           <span>已选择 <strong id="selected-count">0</strong> 项</span>
+          <label>下载类型 <select id="download-type"><option value="all">全部（HTML + PPTX）</option><option value="html">HTML</option><option value="pptx">PPTX</option></select></label>
+          <button id="download-selected-button" class="button button-primary" type="button">批量下载</button>
           <button id="delete-selected-button" class="button button-danger" type="button">删除选中</button>
         </div>
+        <section id="download-panel" class="download-panel" hidden aria-live="polite">
+          <p id="download-progress"></p>
+          <button id="cancel-download-button" class="button" type="button">取消下载</button>
+          <button id="retry-download-button" class="button" type="button" hidden>重试失败项（补充 ZIP）</button>
+          <details><summary>查看下载明细</summary><ul id="download-results"></ul></details>
+        </section>
         <div class="table-scroll">
           <table>
             <thead>
@@ -141,7 +150,7 @@
           <div>
             <p class="section-kicker">API QUICKSTART</p>
             <h2>CCN 任务接口使用说明</h2>
-            <p>以下命令可直接粘贴到 PowerShell 中运行。先配置地址和密钥，再按顺序执行五个典型接口。</p>
+            <p>以下命令可直接粘贴到 PowerShell 中运行。先配置地址和密钥，再选择需要的接口。</p>
           </div>
           <span class="api-version">REST · JSON · v1</span>
         </div>
@@ -181,8 +190,12 @@ $Headers = @{
             </div>
             <p class="endpoint-path">/api/v1/tasks</p>
             <p class="docs-copy">使用统一 API Key。建议每次请求提供唯一的 <code>Idempotency-Key</code>。</p>
-            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-create">复制命令</button></div>
-            <pre><code id="code-create">$TaskId = "TASK-$(Get-Date -Format 'yyyyMMddHHmmss')-$((New-Guid).ToString('N').Substring(0, 8))"
+            <!-- CATEGORY_DOCUMENTATION -->
+            <div class="code-toolbar"><a class="copy-button category-download" href="/dashboard/categories.txt" download="ccn-category-labels.txt">下载分类标签</a><button class="copy-button" type="button" data-copy-target="code-create">复制命令</button></div>
+            <pre><code id="code-create">$ApiBase = "https://ccn-api.haohaoxiaoyu.top"
+$ApiKey = "&lt;API_KEY&gt;"
+$Headers = @{ Authorization = "Bearer $ApiKey" }
+$TaskId = "TASK-$(Get-Date -Format 'yyyyMMddHHmmss')-$((New-Guid).ToString('N').Substring(0, 8))"
 $CreateHeaders = $Headers.Clone()
 $CreateHeaders["Idempotency-Key"] = "create-$TaskId"
 
@@ -192,6 +205,7 @@ $TaskBody = @{
     url        = "https://example.com/source"
     hotspot_id = "HS-001"
     period     = "2026-W32"
+    category   = $null
 } | ConvertTo-Json
 
 $CreatedTask = Invoke-RestMethod `
@@ -202,6 +216,23 @@ $CreatedTask = Invoke-RestMethod `
     -Body $TaskBody
 
 $CreatedTask.data</code></pre>
+          </section>
+
+          <section class="docs-section panel" aria-labelledby="batch-create-title">
+            <div class="docs-heading"><h3 id="batch-create-title">批量添加任务</h3><span class="method method-post">POST</span></div>
+            <p class="endpoint-path">/api/v1/tasks/batch</p>
+            <p class="docs-copy">每批 1–200 条、UTF-8 请求体最多 10 MiB。整批原子写入：重复 ID 或校验错误返回 422，已有 ID 内容冲突返回 409，超限返回 413，失败零新增。category 与单条相同。</p>
+            <p class="docs-copy">有新增返回 201，全为已有任务返回 200。重试保留原请求和 Idempotency-Key；同 key 重放原成功响应，改变内容或顺序返回 409。幂等记录无自动过期，任务删除后仍重放，不会重新创建。</p>
+            <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-batch-create">复制命令</button></div>
+            <pre><code id="code-batch-create">$BatchHeaders = $Headers.Clone()
+$BatchHeaders['Idempotency-Key'] = "batch-$((New-Guid).ToString('N'))"
+$BatchBody = @{ tasks = @(
+    @{ task_id = 'sample-001'; content = '技术线索正文'; url = 'https://example.com/article'; hotspot_id = 'topic-001'; period = '202609'; category = $null },
+    @{ task_id = 'sample-002'; content = '另一条技术线索'; url = 'https://example.com/other'; hotspot_id = 'topic-002'; period = '202609'; category = $null }
+) } | ConvertTo-Json -Depth 5
+$BatchBytes = [System.Text.Encoding]::UTF8.GetBytes($BatchBody)
+Invoke-RestMethod -Method Post -Uri "$ApiBase/api/v1/tasks/batch" -Headers $BatchHeaders -ContentType 'application/json; charset=utf-8' -Body $BatchBytes
+# 重试仅重新执行 Invoke-RestMethod，保留 BatchHeaders 和 BatchBytes。</code></pre>
           </section>
 
           <section class="docs-section panel" aria-labelledby="get-title">
@@ -357,6 +388,8 @@ $BatchDeleted.data</code></pre>
       </form>
     </div>
 
-    <script src="/dashboard-assets/dashboard.js?v=6" defer></script>
+    <script src="/dashboard-assets/fflate-0.8.2.js" defer></script>
+    <script src="/dashboard-assets/downloads.js?v=1" defer></script>
+    <script src="/dashboard-assets/dashboard.js?v=7" defer></script>
   </body>
 </html>

@@ -34,6 +34,7 @@ python deploy/resource-server/scripts/release.py deploy-ccn-source --output-dir 
 ```
 
 `deploy-ccn-source`只同步`task_service`源码并重启现有CCN容器，不构建镜像、不重建容器。
+已审阅且向后兼容的新增表/列迁移可加 `--migrate-database`：先执行数据库备份并校验，再停止 API、替换源码，使用现有镜像的一次性容器执行 `alembic upgrade head`，最后启动 API 并验证。默认仍拒绝迁移变更。失败恢复旧源码并启动旧 API，已提交的新增表/列保留，不自动降级数据库；破坏性迁移或依赖变化仍使用完整发布流程。
 首次从镜像内源码切换到只读bind mount时，显式追加`--bootstrap-mount`；该首次切换会复用现有镜像重建一次容器，之后不得在普通源码发布中使用该参数。
 
 远端无法访问镜像仓库时，可先用`docker load`预载Compose所需镜像，再以

@@ -9,6 +9,23 @@ DEPLOY = ROOT / "deploy" / "resource-server"
 
 
 class DeploymentLayoutTests(unittest.TestCase):
+    def test_source_migration_is_explicit_and_backed_up(self):
+        updater = (DEPLOY / "scripts" / "update-ccn-source.sh").read_text(encoding="utf-8")
+        release = (DEPLOY / "scripts" / "release.py").read_text(encoding="utf-8")
+        self.assertIn('MIGRATE_DATABASE=${MIGRATE_DATABASE:-false}', updater)
+        self.assertIn('--migrate-database', release)
+        self.assertLess(updater.index('bash "$SOURCE/deploy/resource-server/scripts/backup-ccn.sh"'), updater.index('docker stop "$CONTAINER"'))
+        self.assertLess(updater.index('cp -a "$INCOMING/." "$TARGET/"'), updater.index('ccn-api alembic upgrade head'))
+        self.assertIn('run --rm --no-deps --no-build ccn-api alembic upgrade head', updater)
+
+    def test_ccn_body_limit_matches_application(self):
+        template = (DEPLOY / "edge/Caddyfile.template").read_text(encoding="utf-8")
+        ccn = template.split("https://${CCN_API_DOMAIN} {", 1)[1].split("https://${INFERENCEVIZ_DOMAIN}", 1)[0]
+        self.assertIn("max_size 10485760", ccn)
+        app = ROOT / "loops/ccn-brief-report/task_service/app/web"
+        for asset in ("downloads.js", "fflate-0.8.2.js", "fflate-LICENSE.txt"):
+            self.assertTrue((app / asset).is_file())
+
     def test_required_deployment_files_exist(self):
         required = [
             "compose.production.yml",

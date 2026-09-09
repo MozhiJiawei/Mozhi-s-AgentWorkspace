@@ -7,9 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, mod
 
 from app.domain.task_contract import TASK_ID_PATTERN, is_valid_https_url
 from app.domain.urls import normalize_http_iri
+from app.domain.categories import Category
 
 
 class TaskCreate(BaseModel):
+    category: Category | None = Field(default=None, description="可选归档约束：完整一级或二级分类路径；省略或null表示AI自动分类")
     task_id: str = Field(min_length=1, max_length=128, pattern=TASK_ID_PATTERN.pattern)
     content: str = Field(min_length=1, max_length=100_000)
     url: HttpUrl
@@ -22,6 +24,43 @@ class TaskCreate(BaseModel):
         if not is_valid_https_url(str(value)):
             raise ValueError("url must use HTTPS")
         return value
+
+
+class TaskBatchCreate(BaseModel):
+    tasks: list[TaskCreate] = Field(min_length=1, max_length=200)
+
+    @field_validator("tasks")
+    @classmethod
+    def unique_ids(cls, values):
+        from pydantic import ValidationError
+        seen = set()
+        errors = []
+        for index, item in enumerate(values):
+            if item.task_id in seen:
+                errors.append({"type": "value_error", "loc": (index, "task_id"),
+                               "input": item.task_id, "ctx": {"error": ValueError("Duplicate task_id")}})
+            seen.add(item.task_id)
+        if errors:
+            raise ValidationError.from_exception_data(cls.__name__, errors)
+        return values
+
+
+class TaskBatchItem(BaseModel):
+    index: int
+    task_id: str
+    disposition: Literal["created", "existing"]
+
+
+class TaskBatchData(BaseModel):
+    requested: int
+    created: int
+    existing: int
+    items: list[TaskBatchItem]
+
+
+class TaskBatchResponse(BaseModel):
+    status: Literal["success"]
+    data: TaskBatchData
 
 
 class TaskBatchDelete(BaseModel):
@@ -71,6 +110,7 @@ class ResultView(BaseModel):
 
 
 class TaskView(BaseModel):
+    category: Category | None = None
     row_number: int
     task_id: str
     content: str

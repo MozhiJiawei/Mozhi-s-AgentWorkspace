@@ -144,7 +144,8 @@ def create_ccn_source_package(output_dir: Path) -> Path:
         and path.suffix not in {".pyc", ".pyo"}
     ]
     source_files.extend(
-        [DEPLOY_ROOT / "compose.production.yml", DEPLOY_ROOT / "scripts" / "update-ccn-source.sh"]
+        [DEPLOY_ROOT / "compose.production.yml", DEPLOY_ROOT / "scripts" / "update-ccn-source.sh",
+         DEPLOY_ROOT / "scripts" / "backup-ccn.sh"]
     )
     with tarfile.open(package, "w:gz", format=tarfile.PAX_FORMAT) as archive:
         for source in sorted(source_files):
@@ -213,12 +214,14 @@ def deploy_ccn_source(
     remote_tmp: str,
     *,
     bootstrap_mount: bool,
+    migrate_database: bool = False,
 ) -> None:
     remote_package = posixpath.join(remote_tmp, package.name)
     expected_sha256 = sha256_file(package)
     prepare_remote_upload_dir(remote, remote_tmp)
     run(["scp", str(package), f"{remote}:{remote_package}"])
     bootstrap = "true" if bootstrap_mount else "false"
+    migrate = "true" if migrate_database else "false"
     command = (
         f"package={sh_quote(remote_package)} && "
         f"actual=$(sha256sum \"$package\" | awk '{{print $1}}') && "
@@ -227,7 +230,7 @@ def deploy_ccn_source(
         f"trap 'rm -rf \"$tmp\"; rm -f \"$package\"' EXIT && "
         f"tar -xzf \"$package\" -C \"$tmp\" && "
         f"src=$(find \"$tmp\" -mindepth 1 -maxdepth 1 -type d | head -n 1) && "
-        f"DEPLOY_PATH={sh_quote(deploy_path)} BOOTSTRAP_MOUNT={bootstrap} bash "
+        f"DEPLOY_PATH={sh_quote(deploy_path)} BOOTSTRAP_MOUNT={bootstrap} MIGRATE_DATABASE={migrate} bash "
         f"\"$src/deploy/resource-server/scripts/update-ccn-source.sh\" \"$src\""
     )
     run(["ssh", remote, command])
@@ -274,6 +277,8 @@ def parse_args() -> argparse.Namespace:
     source_deploy.add_argument("--remote-tmp", default=DEFAULT_REMOTE_TMP)
     source_deploy.add_argument("--output-dir", required=True)
     source_deploy.add_argument("--bootstrap-mount", action="store_true")
+    source_deploy.add_argument("--migrate-database", action="store_true",
+                               help="Back up and apply reviewed additive migrations before starting the API")
 
     edge_source = sub.add_parser("deploy-edge-source")
     edge_source.add_argument("--remote", default=DEFAULT_REMOTE)
@@ -320,6 +325,7 @@ def main() -> None:
             args.deploy_path,
             args.remote_tmp,
             bootstrap_mount=args.bootstrap_mount,
+            migrate_database=args.migrate_database,
         )
     elif args.command == "deploy-edge-source":
         package = create_edge_source_package(Path(args.output_dir).resolve())

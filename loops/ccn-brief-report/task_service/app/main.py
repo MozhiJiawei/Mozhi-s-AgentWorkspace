@@ -5,10 +5,14 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
+from app.domain.category_docs import category_documentation
+from app.domain.category_data import CATEGORY_DETAILS
 from pydantic import BaseModel, Field
 
 from app.api.routes import router
+from app.api.batch import router as batch_router
+from app.body_limit import BatchBodyLimit
 from app.auth.service import (
     DASHBOARD_SESSION_COOKIE,
     create_dashboard_session,
@@ -29,7 +33,9 @@ app = FastAPI(
     redoc_url=None,
     openapi_url="/openapi.json" if settings.enable_api_docs else None,
 )
+app.include_router(batch_router)
 app.include_router(router)
+app.add_middleware(BatchBodyLimit)
 WEB_ROOT = Path(__file__).resolve().parent / "web"
 TASK_PATH = re.compile(r"^/api/v1/tasks/([^/]+)")
 
@@ -40,7 +46,7 @@ class DashboardLogin(BaseModel):
 
 @app.get("/dashboard-assets/{asset_name}", include_in_schema=False)
 def dashboard_asset(asset_name: str) -> FileResponse:
-    if asset_name not in {"dashboard.css", "dashboard.js"}:
+    if asset_name not in {"dashboard.css", "dashboard.js", "downloads.js", "fflate-0.8.2.js"}:
         raise HTTPException(status_code=404, detail={"code": "asset_not_found", "message": "Asset not found"})
     return FileResponse(
         WEB_ROOT / asset_name,
@@ -48,11 +54,24 @@ def dashboard_asset(asset_name: str) -> FileResponse:
     )
 
 
+@app.get("/dashboard/categories.txt", include_in_schema=False)
+def download_categories() -> Response:
+    return Response(
+        "\n".join(item["value"] for item in CATEGORY_DETAILS) + "\n",
+        media_type="text/plain; charset=utf-8",
+        headers={
+            "Content-Disposition": 'attachment; filename="ccn-category-labels.txt"',
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
 @app.get("/dashboard", include_in_schema=False)
 @app.get("/dashboard/", include_in_schema=False)
-def dashboard() -> FileResponse:
-    return FileResponse(
-        WEB_ROOT / "dashboard.html",
+def dashboard() -> HTMLResponse:
+    return HTMLResponse(
+        (WEB_ROOT / "dashboard.html").read_text(encoding="utf-8").replace("<!-- CATEGORY_DOCUMENTATION -->", category_documentation()),
         headers={
             "Cache-Control": "no-store",
             "Content-Security-Policy": (
@@ -129,8 +148,11 @@ async def audit_request(request: Request, call_next):
             path=request.url.path[:256],
             source_ip=source_ip(request),
             key_fingerprint=principal.fingerprint if principal else None,
-            task_id=match.group(1)[:128] if match else None,
+            task_id=match.group(1)[:128] if match and not (
+                request.method == "POST" and request.url.path.rstrip("/") == "/api/v1/tasks/batch"
+            ) else None,
             status_code=response.status_code,
+            batch_counts=getattr(request.state, "batch_counts", None),
         )
         try:
             with SessionLocal() as session:

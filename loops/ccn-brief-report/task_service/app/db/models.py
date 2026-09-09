@@ -23,6 +23,7 @@ class Task(Base):
     row_number: Mapped[int] = mapped_column(SQLITE_INTEGER_BIGINT, primary_key=True, autoincrement=True)
     task_id: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str | None] = mapped_column(String(256), nullable=True)
     url: Mapped[str] = mapped_column(Text, nullable=False)
     hotspot_id: Mapped[str] = mapped_column(String(128), nullable=False)
     period: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -72,3 +73,14 @@ class AuditEvent(Base):
     key_fingerprint: Mapped[str | None] = mapped_column(String(16))
     task_id: Mapped[str | None] = mapped_column(String(128))
     status_code: Mapped[int] = mapped_column(Integer, nullable=False)
+    batch_counts: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+
+class BatchCreation(Base):
+    __tablename__ = "batch_creations"
+
+    key: Mapped[str] = mapped_column(String(128), primary_key=True)
+    request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    response_body: Mapped[dict] = mapped_column(JSON, nullable=False)
+    status_code: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)

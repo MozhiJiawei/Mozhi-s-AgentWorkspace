@@ -180,7 +180,8 @@ tbody tr:hover { background: #f9fbfe; }
 .method-get { color: #087047; background: #dff7eb; }
 .method-post { color: #164f9f; background: #e4eeff; }
 .method-delete { color: #a52b3b; background: #ffe6ea; }
-.code-toolbar { display: flex; justify-content: flex-end; margin-bottom: 7px; }
+.code-toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 7px; }
+.category-download { display: inline-flex; align-items: center; text-decoration: none; }
 .copy-button { min-height: 30px; padding: 0 10px; color: var(--blue); border: 1px solid #b9d0ef; border-radius: 6px; background: #f5f9ff; font-size: 11px; font-weight: 800; }
 .copy-button.copied { color: var(--green); border-color: #a6d9c5; background: #effbf6; }
 pre { overflow: auto; margin: 0; padding: 17px; color: #d9e7f5; border: 1px solid #274965; border-radius: 10px; background: #0c253d; font: 12px/1.65 "Cascadia Code", Consolas, monospace; tab-size: 4; }
@@ -208,3 +209,8 @@ pre code { font: inherit; }
   .docs-hero { align-items: flex-start; flex-direction: column; }
   .reference-grid { grid-template-columns: 1fr; }
 }
+#create-category { width: 100%; margin: 8px 0 16px; }
+/* Current-page exports remain visible while the user inspects another page. */
+.download-panel { padding: 16px 24px; border-top: 1px solid #ddd; background: #fafafa; }
+.download-panel ul { max-height: 240px; overflow: auto; overflow-wrap: anywhere; }
+.selection-bar { flex-wrap: wrap; gap: 12px; }

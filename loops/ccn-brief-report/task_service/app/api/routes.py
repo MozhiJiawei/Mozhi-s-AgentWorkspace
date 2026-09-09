@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import hashlib
-import json
+from app.domain.task_creation import canonical_json_hash, creation_body, new_task
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy import func, or_, select
@@ -24,11 +23,6 @@ STATUS_ALIASES = {
     "failed": "failed",
     "失败": "failed",
 }
-
-
-def canonical_json_hash(payload: dict[str, object]) -> str:
-    serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
 def normalized_result_payload(payload: ResultCreate) -> dict[str, object]:
@@ -62,6 +56,7 @@ def result_view(result: TaskResult) -> ResultView:
 def task_view(task: Task) -> TaskView:
     latest = task.results[-1] if task.results else None
     return TaskView(
+        category=task.category,
         row_number=task.row_number,
         task_id=task.task_id,
         content=task.content,
@@ -95,7 +90,7 @@ def create_task(
     _principal: Principal = Depends(require_api_key),
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
-    body = payload.model_dump(mode="json")
+    body = creation_body(payload)
     request_hash = canonical_json_hash(body)
     existing = db.scalar(task_query().where(Task.task_id == payload.task_id))
     if existing:
@@ -114,16 +109,7 @@ def create_task(
                     detail={"code": "idempotency_conflict", "message": "Idempotency-Key was reused"},
                 )
             return success(task_view(idem).model_dump(mode="json"))
-    task = Task(
-        task_id=payload.task_id,
-        content=payload.content,
-        url=str(payload.url),
-        hotspot_id=payload.hotspot_id,
-        period=payload.period,
-        status="pending",
-        create_idempotency_key=idempotency_key,
-        create_request_hash=request_hash,
-    )
+    task = new_task(payload, idempotency_key)
     db.add(task)
     try:
         db.commit()

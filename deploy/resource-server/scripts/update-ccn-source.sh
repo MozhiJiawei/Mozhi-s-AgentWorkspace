@@ -4,6 +4,7 @@ set -euo pipefail
 SOURCE=${1:?usage: update-ccn-source.sh <extracted-source-root>}
 DEPLOY_PATH=${DEPLOY_PATH:-/opt/mozhi-agent-workspace-services}
 BOOTSTRAP_MOUNT=${BOOTSTRAP_MOUNT:-false}
+MIGRATE_DATABASE=${MIGRATE_DATABASE:-false}
 CONTAINER=ccn-brief-task-api
 COMPOSE="$DEPLOY_PATH/deploy/resource-server/compose.production.yml"
 TARGET="$DEPLOY_PATH/loops/ccn-brief-report/task_service"
@@ -13,6 +14,7 @@ resolved_deploy_path=$(readlink -m -- "$DEPLOY_PATH")
 [ "$resolved_deploy_path" = "$DEPLOY_PATH" ] || { echo "DEPLOY_PATH must be normalized: $DEPLOY_PATH" >&2; exit 64; }
 case "$DEPLOY_PATH" in /opt/*) ;; *) echo "unsafe DEPLOY_PATH: $DEPLOY_PATH" >&2; exit 64 ;; esac
 case "$BOOTSTRAP_MOUNT" in true|false) ;; *) echo "invalid BOOTSTRAP_MOUNT" >&2; exit 64 ;; esac
+case "$MIGRATE_DATABASE" in true|false) ;; *) echo "invalid MIGRATE_DATABASE" >&2; exit 64 ;; esac
 test -d "$INCOMING/app"
 test -f "$INCOMING/pyproject.toml"
 test -f "$SOURCE/deploy/resource-server/compose.production.yml"
@@ -31,9 +33,15 @@ diff -q -B "$INCOMING/alembic.ini" "$TARGET/alembic.ini" >/dev/null || {
   exit 68
 }
 diff -qr -B --exclude='__pycache__' --exclude='*.pyc' "$INCOMING/migrations" "$TARGET/migrations" >/dev/null || {
-  echo "Database migrations changed; use a full CCN deployment." >&2
-  exit 69
+  if [ "$MIGRATE_DATABASE" != true ]; then
+    echo "Database migrations changed; use --migrate-database for reviewed additive migrations or a full CCN deployment." >&2
+    exit 69
+  fi
 }
+
+if [ "$MIGRATE_DATABASE" = true ]; then
+  bash "$SOURCE/deploy/resource-server/scripts/backup-ccn.sh"
+fi
 
 backup=$(mktemp -d /tmp/mozhi-ccn-source-backup.XXXXXX)
 mkdir -p "$backup/task_service"
@@ -82,6 +90,10 @@ update_started=true
 docker stop "$CONTAINER" >/dev/null
 find "$TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 cp -a "$INCOMING/." "$TARGET/"
+
+if [ "$MIGRATE_DATABASE" = true ]; then
+  docker compose -f "$COMPOSE" run --rm --no-deps --no-build ccn-api alembic upgrade head
+fi
 
 if [ -z "$mounted_source" ]; then
   docker compose -f "$COMPOSE" up -d --no-deps --no-build --force-recreate ccn-api
