@@ -92,7 +92,8 @@ find "$TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 cp -a "$INCOMING/." "$TARGET/"
 
 if [ "$MIGRATE_DATABASE" = true ]; then
-  docker compose -f "$COMPOSE" run --rm --no-deps --no-build ccn-api alembic upgrade head
+  docker image inspect ccn-brief-task-api:local >/dev/null
+  docker compose -f "$COMPOSE" run --rm --no-deps ccn-api alembic upgrade head
 fi
 
 if [ -z "$mounted_source" ]; then

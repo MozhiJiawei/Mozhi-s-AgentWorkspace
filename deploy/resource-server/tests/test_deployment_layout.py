@@ -16,7 +16,8 @@ class DeploymentLayoutTests(unittest.TestCase):
         self.assertIn('--migrate-database', release)
         self.assertLess(updater.index('bash "$SOURCE/deploy/resource-server/scripts/backup-ccn.sh"'), updater.index('docker stop "$CONTAINER"'))
         self.assertLess(updater.index('cp -a "$INCOMING/." "$TARGET/"'), updater.index('ccn-api alembic upgrade head'))
-        self.assertIn('run --rm --no-deps --no-build ccn-api alembic upgrade head', updater)
+        self.assertIn('docker image inspect ccn-brief-task-api:local', updater)
+        self.assertIn('run --rm --no-deps ccn-api alembic upgrade head', updater)
 
     def test_ccn_body_limit_matches_application(self):
         template = (DEPLOY / "edge/Caddyfile.template").read_text(encoding="utf-8")
