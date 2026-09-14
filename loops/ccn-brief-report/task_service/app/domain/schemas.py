@@ -5,7 +5,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
-from app.domain.task_contract import TASK_ID_PATTERN, is_valid_https_url
+from app.domain.task_contract import TASK_ID_PATTERN
 from app.domain.urls import normalize_http_iri
 from app.domain.categories import Category
 
@@ -17,14 +17,6 @@ class TaskCreate(BaseModel):
     url: HttpUrl
     hotspot_id: str = Field(min_length=1, max_length=128)
     period: str = Field(min_length=1, max_length=64)
-
-    @field_validator("url")
-    @classmethod
-    def validate_source_url(cls, value: HttpUrl) -> HttpUrl:
-        if not is_valid_https_url(str(value)):
-            raise ValueError("url must use HTTPS")
-        return value
-
 
 class TaskBatchCreate(BaseModel):
     tasks: list[TaskCreate] = Field(min_length=1, max_length=200)

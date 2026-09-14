@@ -143,7 +143,7 @@ class TaskAPITests(unittest.TestCase):
         with self.assertRaisesRegex(task_api.TaskAPIError, "内容冲突"):
             task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
 
-    def test_fetch_rejects_unsafe_task_id_and_source_url(self):
+    def test_fetch_rejects_unsafe_task_id(self):
         base = {
             "row_number": 2,
             "content": "one",
@@ -154,8 +154,6 @@ class TaskAPITests(unittest.TestCase):
             ("../escape", "https://example.test/1"),
             (".hidden", "https://example.test/1"),
             ("-task", "https://example.test/1"),
-            ("TASK-1", "file:///secret"),
-            ("TASK-1", "http://example.test/1"),
         ):
             with self.subTest(task_id=task_id, source_url=source_url):
                 session = Mock()

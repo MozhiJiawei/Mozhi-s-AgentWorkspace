@@ -14,7 +14,7 @@ import requests
 import local_state
 
 from task_service.app.domain.percent_encoding import decode_non_ascii_percent_escapes
-from task_service.app.domain.task_contract import TASK_ID_PATTERN, is_valid_https_url
+from task_service.app.domain.task_contract import TASK_ID_PATTERN
 from validate_deliverables import DeliverableValidationError, validate_completion_report
 from task_service.app.domain.categories import normalize_category
 from validate_deliverables import validate_category_constraint
@@ -91,8 +91,6 @@ def normalize_task(raw: Any, index: int) -> dict[str, Any]:
         raise TaskAPIError(f"第 {index} 条任务字段必须是字符串：{', '.join(invalid_types)}")
     if not TASK_ID_PATTERN.fullmatch(raw["task_id"]):
         raise TaskAPIError(f"第 {index} 条任务 task_id 格式无效")
-    if not is_valid_https_url(raw["url"]):
-        raise TaskAPIError(f"第 {index} 条任务 url 必须是有效的 HTTPS 地址")
     task = {field: raw[field] for field in REQUIRED_FIELDS}
     task["row_number"] = row_number
     task["status"] = raw.get("status") or ""

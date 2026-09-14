@@ -18,17 +18,6 @@ def test_task_id_matches_loop_client_contract(task_id):
         )
 
 
-def test_task_source_requires_https():
-    with pytest.raises(ValidationError):
-        TaskCreate(
-            task_id="TASK-1",
-            content="x",
-            url="http://example.test/source",
-            hotspot_id="HS",
-            period="2026-W32",
-        )
-
-
 def test_failed_result_requires_error():
     with pytest.raises(ValidationError):
         ResultCreate(outcome="failed")
