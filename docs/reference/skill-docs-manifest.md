@@ -1,6 +1,6 @@
 # Skill 文档 Manifest
 
-`docs/skill-docs.yml` 是 skill 文档集成的唯一登记入口。它描述主仓如何把各 skill 子仓的文档同步到 VitePress 文档站。
+`docs/skill-docs.yml` 是 skill 文档集成的唯一登记入口，记录发布来源、预期挂载位置和复核指纹。`scripts/check_skill_docs.py` 使用它校验接入状态；实际发布正文和导航由各子仓的 `docs.manifest.yml` 声明。
 
 ## 顶层字段
 
@@ -17,11 +17,11 @@
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | `path` | string | skill 子仓在主仓中的路径，例如 `skills/ppt-deep-search`。 |
-| `mount` | string | 文档同步到主仓 docs 下的位置，例如 `docs/skills/ppt-deep-search`。 |
-| `status` | string | 文档接入状态。当前已接入条目使用 `bootstrap`。 |
+| `mount` | string | 预期的文档挂载位置，例如 `docs/skills/ppt-deep-search`；当前同步脚本按子仓目录名固定生成该位置，不读取此字段来更改输出目录。 |
+| `status` | string | 文档接入状态；当前登记中有 `bootstrap` 和 `stable`。此字段不控制同步或发布。 |
 | `publish.mode` | string | 发布模式。当前使用 `subrepo-manifest`。 |
 | `publish.entry` | string | 发布后的入口文档路径。 |
-| `publish.skill_manifest` | string | skill 子仓内的文档 manifest 路径，通常为 `docs.manifest.yml`。 |
+| `publish.skill_manifest` | string | 文档检查使用的子仓 manifest 路径；当前同步脚本固定读取子仓根目录的 `docs.manifest.yml`。 |
 | `docs_review.source_fingerprint` | string | 文档来源复核指纹。 |
 | `docs_review.reviewed_at` | string | 复核日期，格式为 `YYYY-MM-DD`。 |
 | `docs_review.reviewed_by` | string | 复核人或复核 agent。 |
@@ -31,7 +31,9 @@
 
 当前稳定发布模式为 `subrepo-manifest`。
 
-在该模式下，主仓构建文档前会读取 skill 子仓的 `docs.manifest.yml`，并由 `scripts/sync_skill_docs.py` 将子仓文档同步到 `mount` 指定目录。
+在该模式下，主仓构建文档前运行 `scripts/sync_skill_docs.py`。脚本按 `.gitmodules` 中 `skills/` 下的子仓路径发现 skill，读取每个子仓根目录的 `docs.manifest.yml`，将声明的页面同步到 `docs/skills/<子仓目录名>/`，并生成 Skills 索引和侧边栏。
+
+当前同步脚本只检查 `docs/skill-docs.yml` 文件存在，不按其中的 `mount`、`status` 或 `publish.skill_manifest` 字段选择输出目录、过滤 skill 或更换 manifest 文件。登记信息应与上述实际路径保持一致。
 
 同步后的 `docs/skills/` 与 `docs/public/skill-static/` 是生成产物，不应作为主仓手写源码维护。
 

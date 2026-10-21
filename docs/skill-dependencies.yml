@@ -8,15 +8,19 @@ skills:
     path: skills/aurora-tun-bypass
     dependency_review:
       source_fingerprint: sha256:0ab0a12794156466f2f42414672b83b5eedcffd2c4c21dac99c6264137f718de
-      reviewed_at: "2026-08-18"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Reviewed after removing the deprecated file watcher and closing the Frida hook install, update, uninstall, and exact active-rule verification paths. Runtime dependencies remain Windows, Python, cryptography, frida, Aurora's loopback APIs, and HKCU Run access; initial Frida acquisition may require PyPI network access. No Aurora credentials are required.
+      note: Windows/Python/cryptography support the local CLI; frida, compatible running Aurora, loopback APIs and writable HKCU Run are needed for the persistent memory hook. The verifier checks platform, module discovery (only installed-local Frida fallback is actually imported), and default config existence/readability; it does not test Python minimum version, hook/API/HKCU access, decryption, or persistence. Initial package acquisition may require PyPI; no Aurora credentials are required.
     windows:
       python_packages:
         - cryptography
         - frida
       external:
+        - Python 3.10 or newer
         - Windows installation of Aurora Slim with a local config file
+        - Running compatible Aurora.exe and process attach permission for memory-hook operations
+        - Aurora loopback control and active-rule APIs for memory-hook refresh and verification
+        - Writable current-user HKCU Run and local installation directory for persistent-hook installation
       optional:
         - network access to PyPI for initial Frida acquisition
       verify:
@@ -28,23 +32,21 @@ skills:
     path: skills/gh-issue-comment-monitor
     dependency_review:
       source_fingerprint: sha256:4070bde7ab5e639ce7a16705292ac6343e16fb7308787de12fcd03bc2dcc5cdf
-      reviewed_at: "2026-05-13"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Initial review; scripts use Python standard library, with GitHub API access supplied by GITHUB_TOKEN/GH_TOKEN or authenticated gh CLI fallback.
+      note: Scripts use Python standard library. Real issue reads require GitHub API network access plus GITHUB_TOKEN/GH_TOKEN or authenticated gh CLI fallback. The default verifier checks credential presence and gh authentication; --check-network additionally probes API reachability, not target issue permissions or token validity.
     windows:
       python_packages: []
       external:
         - GITHUB_TOKEN, GH_TOKEN, or authenticated gh CLI for real issue checks
-      optional:
-        - network access to api.github.com
+        - network access to api.github.com for real issue checks
       verify:
         - python skills/gh-issue-comment-monitor/verify_dependencies.py
     macos:
       python_packages: []
       external:
         - GITHUB_TOKEN, GH_TOKEN, or authenticated gh CLI for real issue checks
-      optional:
-        - network access to api.github.com
+        - network access to api.github.com for real issue checks
       verify:
         - python skills/gh-issue-comment-monitor/verify_dependencies.py
 
@@ -52,9 +54,9 @@ skills:
     path: skills/hw-ppt-gen-html
     dependency_review:
       source_fingerprint: sha256:969505688a6dcacf1c06c5f954c534375a38ad310eea873b394c76257a571775
-      reviewed_at: "2026-06-30"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Initial review; wrapper uses Python plus Playwright/Chromium for HTML screenshot export, and delegates HTML deck runtime to the nested html-ppt-skill submodule.
+      note: Production uses humanize-ppt for planning, html-ppt-skill for HTML runtime, Python Playwright/Chromium for export, and an independently delegated visual QA checker. The verifier only prints the Python version and checks the checker TOML file/name; it does not probe Playwright, Chromium, nested submodules, or agent availability.
     windows:
       python_packages:
         - playwright
@@ -62,7 +64,9 @@ skills:
         - chromium
       external:
         - Python 3
+        - humanize-ppt nested submodule content for planning
         - html-ppt-skill nested submodule content
+        - html_ppt_visual_qa_checker agent configuration and runtime delegation capability
       verify:
         - python skills/hw-ppt-gen-html/verify_dependencies.py
     macos:
@@ -72,7 +76,9 @@ skills:
         - chromium
       external:
         - Python 3
+        - humanize-ppt nested submodule content for planning
         - html-ppt-skill nested submodule content
+        - html_ppt_visual_qa_checker agent configuration and runtime delegation capability
       verify:
         - python skills/hw-ppt-gen-html/verify_dependencies.py
 
@@ -80,7 +86,7 @@ skills:
     path: skills/create-single-page-tech-report
     dependency_review:
       source_fingerprint: sha256:87f1e94f5db35c887b05be23f37dc0fc23be42ce80dcc9b2d193630f4599238a
-      reviewed_at: "2026-08-27"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
       note: Reviewed after adding PPTX noGrp normalization and validation; both scripts use Python standard library only. Report creation still requires an Agent runtime with editable PowerPoint creation and rendering capabilities; ImageGen remains optional with an editable-shape fallback.
     windows:
@@ -106,21 +112,35 @@ skills:
     path: skills/ppt-deep-search
     dependency_review:
       source_fingerprint: sha256:adacd34318532b72ad826fd9a70c47a9eff6b63bb9f2fd7f1c06bb79466f90e3
-      reviewed_at: "2026-06-05"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Reviewed ppt-deep-search update; new web evidence capture workflow and validators still use Python standard library only with no external service, browser, or package dependency.
+      note: Text validators use Python standard library; Source Understanding screenshot export requires Python Playwright and Chromium. The verifier checks protocol files/agent names, validator self-tests, Markdown size, and actual Chromium launch. Production additionally needs subagent delegation and independent visual QA; webpage inputs need web-article-capture with Codex in-app Browser/network, while PDF inputs need grobid-docling-pdf and its runtime. --skip-services does not skip local checks or validate those downstream services.
     windows:
-      python_packages: []
-      external: []
+      python_packages:
+        - playwright
+      playwright_browsers:
+        - chromium
+      external:
+        - Python 3.9 or newer
+        - web-article-capture, grobid_pdf_skill, and hw-ppt-gen-html integration files
+        - subagent delegation and independent visual QA capability
       optional:
-        - network access only when the research task itself requires supplemental web sources
+        - Codex in-app Browser and target page/asset network access, required for webpage inputs
+        - grobid-docling-pdf dependencies and GROBID service, required for PDF inputs
       verify:
         - python skills/ppt-deep-search/verify_dependencies.py
     macos:
-      python_packages: []
-      external: []
+      python_packages:
+        - playwright
+      playwright_browsers:
+        - chromium
+      external:
+        - Python 3.9 or newer
+        - web-article-capture, grobid_pdf_skill, and hw-ppt-gen-html integration files
+        - subagent delegation and independent visual QA capability
       optional:
-        - network access only when the research task itself requires supplemental web sources
+        - Codex in-app Browser and target page/asset network access, required for webpage inputs
+        - grobid-docling-pdf dependencies and GROBID service, required for PDF inputs
       verify:
         - python skills/ppt-deep-search/verify_dependencies.py
 
@@ -128,23 +148,21 @@ skills:
     path: skills/web-article-capture
     dependency_review:
       source_fingerprint: sha256:5837bdbfa5b4e9b5531fcc3bd315feb8ff00126db7fc986ccf4133a1d2e68ea0
-      reviewed_at: "2026-06-30"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Initial review; validator uses Python standard library only, while real webpage capture depends on Codex in-app Browser and network access to target pages/assets.
+      note: Validator uses Python standard library; the verifier compiles it, runs its self-test, and checks forward-test fixtures. Real webpage capture requires Codex in-app Browser plus access to target pages/assets; the verifier does not probe either or capture a real page.
     windows:
       python_packages: []
       external:
         - Codex in-app Browser for real webpage capture
-      optional:
-        - network access to target webpages and image assets during capture
+        - network access to target webpages and image assets for real capture
       verify:
         - python skills/web-article-capture/verify_dependencies.py
     macos:
       python_packages: []
       external:
         - Codex in-app Browser for real webpage capture
-      optional:
-        - network access to target webpages and image assets during capture
+        - network access to target webpages and image assets for real capture
       verify:
         - python skills/web-article-capture/verify_dependencies.py
 
@@ -152,18 +170,19 @@ skills:
     path: skills/grobid_pdf_skill
     dependency_review:
       source_fingerprint: sha256:a52fa0239f8a62af0e203d2490c1c352a1103745505ffd2c1a2cfc12edb924ad
-      reviewed_at: "2026-08-27"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Added the fixed GROBID 0.8.2 image and single shared-container runtime policy, including automated verification.
+      note: The default local runtime uses the fixed GROBID 0.8.2 image and one managed shared container. A custom --grobid-url uses that service without local Docker management; verify_dependencies.py still inspects only the default local Docker runtime and has no service-URL override. Package imports and runtime checks do not validate full PDF extraction or GPU inference.
     windows:
       python_packages:
         - docling
         - lxml
         - torch
       external:
-        - WSL2 and Docker Desktop
-        - Exactly one local GROBID image ID, tagged only as grobid/grobid:0.8.2
-        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070
+        - WSL2 and Docker Desktop for the default local GROBID runtime
+        - Exactly one local GROBID image ID tagged only as grobid/grobid:0.8.2 for the default local runtime
+        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070 for the default local runtime
+        - Reachable GROBID service at the selected URL during PDF extraction
       optional:
         - CUDA-capable PyTorch for --docling-device cuda
       verify:
@@ -174,9 +193,10 @@ skills:
         - lxml
         - torch
       external:
-        - Docker Desktop for Mac
-        - Exactly one local GROBID image ID, tagged only as grobid/grobid:0.8.2
-        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070
+        - Docker Desktop for Mac for the default local GROBID runtime
+        - Exactly one local GROBID image ID tagged only as grobid/grobid:0.8.2 for the default local runtime
+        - At most one managed local container named grobid-docling-pdf on 127.0.0.1:8070 for the default local runtime
+        - Reachable GROBID service at the selected URL during PDF extraction
       optional:
         - CUDA is not available on macOS; use --docling-device auto or cpu
       verify:
@@ -186,22 +206,20 @@ skills:
     path: skills/send-qq-email
     dependency_review:
       source_fingerprint: sha256:1581cdbc2d5f00e7b3aea96d1f13c7781006cefea2a24c6b57b8b2673eb4972d
-      reviewed_at: "2026-05-08"
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: Initial review; runtime uses Python standard library only, with QQ Mail SMTP credentials supplied from environment variables or a private config file.
+      note: Runtime uses Python standard library. Sender, authorization code, and recipient configuration are loaded even for dry-run; only real sends require SMTP network access. The verifier checks configuration presence, with optional --check-network for a TCP probe; it does not authenticate, negotiate STARTTLS, send mail, or verify delivery.
     windows:
       python_packages: []
       external:
-        - QQ Mail SMTP authorization code for real sends
-      optional:
-        - network access to smtp.qq.com:587 for real sends
+        - Sender, SMTP authorization code, and recipient configuration, including for dry-run
+        - network access to the selected SMTP host/port for real sends (default smtp.qq.com:587)
       verify:
         - python skills/send-qq-email/verify_dependencies.py
     macos:
       python_packages: []
       external:
-        - QQ Mail SMTP authorization code for real sends
-      optional:
-        - network access to smtp.qq.com:587 for real sends
+        - Sender, SMTP authorization code, and recipient configuration, including for dry-run
+        - network access to the selected SMTP host/port for real sends (default smtp.qq.com:587)
       verify:
         - python skills/send-qq-email/verify_dependencies.py

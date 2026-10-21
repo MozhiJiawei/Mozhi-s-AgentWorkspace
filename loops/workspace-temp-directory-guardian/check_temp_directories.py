@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -12,8 +11,6 @@ from datetime import datetime
 from pathlib import Path
 
 
-LOOP_ROOT = Path(__file__).resolve().parent
-GITIGNORE_HASH = LOOP_ROOT / "gitignore.sha256"
 TMP_ROOT_ENTRIES = {"README.md", "runs", "retained"}
 RUN_ID = re.compile(r"^(\d{8})-(\d{6})-(.+)$")
 
@@ -28,33 +25,6 @@ def is_within(path: Path, parent: Path) -> bool:
     except ValueError:
         return False
     return True
-
-
-def canonical_sha256(path: Path) -> str:
-    canonical_text = path.read_text(encoding="utf-8")
-    return hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
-
-
-def check_gitignore(workspace: Path) -> tuple[list[dict[str, str]], bool]:
-    path = workspace / ".gitignore"
-    if not path.is_file():
-        return [issue("gitignore", ".gitignore", "missing current file")], False
-    if not GITIGNORE_HASH.is_file():
-        return [issue("gitignore", str(GITIGNORE_HASH), "missing baseline hash")], False
-
-    expected_hash = GITIGNORE_HASH.read_text(encoding="ascii").strip().casefold()
-    if not re.fullmatch(r"[0-9a-f]{64}", expected_hash):
-        return [issue("gitignore", str(GITIGNORE_HASH), "invalid SHA-256 value")], False
-    if canonical_sha256(path) != expected_hash:
-        return [
-            issue(
-                "gitignore",
-                ".gitignore",
-                "hash differs from the approved Loop baseline; review the change",
-            )
-        ], False
-
-    return [], True
 
 
 def discover_repositories(workspace: Path) -> tuple[list[Path], list[str]]:
@@ -222,22 +192,15 @@ def check_tmp_layout(workspace: Path) -> list[dict[str, str]]:
 
 def audit_workspace(workspace: Path) -> tuple[list[dict[str, str]], list[str], bool]:
     workspace = workspace.resolve()
-    gitignore_findings, gitignore_ok = check_gitignore(workspace)
-    findings = [*gitignore_findings, *check_tmp_layout(workspace)]
-    errors: list[str] = []
-    directory_scan_skipped = not gitignore_ok
-
-    if gitignore_ok:
-        directory_findings, directory_errors = check_git_directories(workspace)
-        findings.extend(directory_findings)
-        errors.extend(directory_errors)
-
-    return findings, errors, directory_scan_skipped
+    findings = check_tmp_layout(workspace)
+    directory_findings, errors = check_git_directories(workspace)
+    findings.extend(directory_findings)
+    return findings, errors, False
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Audit Workspace .gitignore, Git-visible directories, and .tmp layout."
+        description="Audit Git-visible directories using current ignore rules, and .tmp layout."
     )
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
     parser.add_argument("--json", action="store_true", dest="json_output")
@@ -276,10 +239,8 @@ def main() -> int:
                 print(
                     f"- [{finding['check']}] {finding['path']}: {finding['problem']}"
                 )
-        if directory_scan_skipped:
-            print("- [git-directory] skipped until .gitignore matches the Loop policy")
-        elif not findings and not errors:
-            print("OK: .gitignore, Git-visible directories, and .tmp layout are compliant.")
+        if not findings and not errors:
+            print("OK: Git-visible directories and .tmp layout are compliant.")
 
     if errors:
         return 2

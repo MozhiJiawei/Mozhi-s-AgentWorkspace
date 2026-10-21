@@ -13,10 +13,10 @@ skills:
       entry: docs/skills/aurora-tun-bypass/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:ef95ef2b6002824768f62b79ded68c86e6538dadd336a12b70e2c67a258a0d74
-      reviewed_at: "2026-08-18"
+      source_fingerprint: sha256:431be0fc810a57de9d7ef1fea0cc15b402c99846c58a99ba404da8a7f48edca3
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已复核持久化维护器、精确规则验证和卸载流程文档；继续通过子仓 docs.manifest.yml 构建同步。
+      note: 已复核四类资料、维护器运行边界、依赖检查和合成配置示例；真实配置与持久化效果仍须逐任务授权验收。
 
   gh-issue-comment-monitor:
     path: skills/gh-issue-comment-monitor
@@ -27,10 +27,10 @@ skills:
       entry: docs/skills/gh-issue-comment-monitor/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:70cc7b3ec2cb859a211303677a5f7ec7789d45723556b572c27f900b1beaf4e7
-      reviewed_at: "2026-06-05"
+      source_fingerprint: sha256:37e551d7587fa778d25bd69c4c98ef64e25c247a6e8e259012ccfb4982bc1799
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已复核 ppt-deep-search 文档更新；继续通过子仓 docs.manifest.yml 构建时同步文档。
+      note: 已复核 Issue 增量读取、精确确认已处理快照、分页边界和公开运行示例；继续通过子仓 manifest 同步。
 
   hw-ppt-gen-html:
     path: skills/hw-ppt-gen-html
@@ -41,10 +41,10 @@ skills:
       entry: docs/skills/hw-ppt-gen-html/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:5157fb5f3fee763fa90477bfb126682225903331d1fdb193fc92c5ab9e0b9d36
-      reviewed_at: "2026-06-30"
+      source_fingerprint: sha256:ebcfe4cecb1ac270d9e642991b53c4faf6ede4e0423edaa63cfc0be92cf8331a
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已复核导出路径、依赖及证据边界；新增 Ambi、Maia 300 和三星 NIS 三份真实 Report，重新导出并通过独立视觉 QA，保留原图与来源绑定，不宣称 Deck 端到端已验证。
 
   create-single-page-tech-report:
     path: skills/create-single-page-tech-report
@@ -55,10 +55,10 @@ skills:
       entry: docs/skills/create-single-page-tech-report/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:09e40e3fa183babbbc1a92c8cf8e4b5c5c882dc29eb6113caefcf026bdc1520e
-      reviewed_at: "2026-08-27"
+      source_fingerprint: sha256:787b03f21e21a78f6a9bf559cbcbc042aa057cb503a647143097d31c8c954817
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已复核 noGrp 规范化、校验流程及能力、使用、依赖和架构页面；通过子仓 docs.manifest.yml 构建同步。
+      note: 已复核四类页面、标准宽屏尺寸及结构校验边界；新增三星 NIS 与 Apple Minions 的真实可编辑 PPTX、匹配预览、来源和当前校验摘要。
 
   ppt-deep-search:
     path: skills/ppt-deep-search
@@ -69,10 +69,10 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:76b0cfd0521e0c5357464bcfdd5261324b9b21e4011b6a5a48a45c8210c3cb67
-      reviewed_at: "2026-06-04"
+      source_fingerprint: sha256:d6ce0bf920ccd486ae0f7fee0cf504d8ced566734f9f6e33c0f68ba95bc498dd
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已复核交接、输出目录、截图与视觉 QA 门禁；新增 Ambi 与 Maia 300 的 CCN 集成滚动 Report 展示，明确其模式及代理审批边界，保留历史 Deck 来源索引。
 
   web-article-capture:
     path: skills/web-article-capture
@@ -83,10 +83,10 @@ skills:
       entry: docs/skills/web-article-capture/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:6a37269a83fb067d63a5b0888fd399fbc951b622044ce90d3d077281409a71d9
-      reviewed_at: "2026-06-30"
+      source_fingerprint: sha256:0756016a31a7ca06d0edd8b618a0a8373bbe8bdbffc46de1b5257c5bba08d98a
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已复核正文图片来源、上下文和校验边界；新增阿里路线图与高通 AI 原生平台真实采集包，保留原始 source.md 与共 20 张原图。
 
   grobid-docling-pdf:
     path: skills/grobid_pdf_skill
@@ -97,10 +97,10 @@ skills:
       entry: docs/skills/grobid_pdf_skill/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:51aae82de19f90f8d7a0026e93fe61d6cadb59eb835688b00b71f2339a8a7d3b
-      reviewed_at: "2026-08-27"
+      source_fingerprint: sha256:63ac2fafc52be9adf826abc3301da402c05939bdea4eb05cd787698c2caeb98d
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已同步唯一 GROBID 镜像与共享容器的运行时治理说明。
+      note: 已复核运行边界和 Windows UTF-8 依赖检查缓解；展示改用 RSI-Anything 真实 XML 与 17 张原始图表，核对索引和正文关联边界，未改动实现。
 
   send-qq-email:
     path: skills/send-qq-email
@@ -111,8 +111,8 @@ skills:
       entry: docs/skills/send-qq-email/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:3dff2605919a021bf4177c61d33eb2670f5a80e2b140793b6650571086128ae3
-      reviewed_at: "2026-06-04"
+      source_fingerprint: sha256:0254be9b33f44442fd7ffa0bab515d69c21acc36bf42aff1b629a399cd92178b
+      reviewed_at: "2026-10-16"
       reviewed_by: agent
-      note: 已接入子仓 docs.manifest.yml，构建时从子仓同步文档。
+      note: 已复核 SMTP 配置修复步骤、显式输出目录、自检与发送边界及离线 dry-run 交付示例；未执行真实发送。
 

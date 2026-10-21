@@ -30,17 +30,23 @@ def make_valid_tmp(path: Path) -> None:
     (path / ".tmp" / "README.md").write_text("runtime\n", encoding="utf-8")
 
 
-def test_gitignore_hash_must_match_before_directory_scan(tmp_path: Path) -> None:
+def test_current_gitignore_is_used_without_baseline_check(tmp_path: Path) -> None:
     init_repository(tmp_path)
     make_valid_tmp(tmp_path)
-    (tmp_path / ".gitignore").write_text("modified\n", encoding="utf-8")
+    (tmp_path / ".gitignore").write_text(".tmp/\nignored-output/\n", encoding="utf-8")
     (tmp_path / "extra-output").mkdir()
+    (tmp_path / "extra-output" / "result.txt").write_text("x", encoding="utf-8")
+    (tmp_path / "ignored-output").mkdir()
+    (tmp_path / "ignored-output" / "result.txt").write_text("x", encoding="utf-8")
 
     findings, errors, skipped = audit_workspace(tmp_path)
     assert errors == []
-    assert skipped is True
-    assert any("hash differs from the approved Loop baseline" in item["problem"] for item in findings)
-    assert all(item["check"] != "git-directory" for item in findings)
+    assert skipped is False
+    assert findings == [{
+        "check": "git-directory",
+        "path": "extra-output",
+        "problem": "untracked directory requiring classification",
+    }]
 
 
 def test_git_reports_untracked_directory_after_gitignore_is_valid(tmp_path: Path) -> None:

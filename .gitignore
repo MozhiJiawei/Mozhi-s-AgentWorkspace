@@ -18,3 +18,4 @@ __pycache__/
 # Agent工作区临时目录
 .tmp/
 .tmp_old/
+outputs/

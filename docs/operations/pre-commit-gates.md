@@ -17,7 +17,11 @@ python scripts/pre_commit_gate.py
 - skill 文档 manifest 和源文件指纹
 - skill 依赖复核指纹
 - README 中的 skill prompt 示例覆盖
-- 仓库级文档约定
+- CCN 分类登记表和来源文件的一致性
+- 生成后的 Skills 索引和四个必选导航
+- 发布状态文件不被 Git 跟踪、不混入源码指纹的边界
+
+这些检查以登记表、源文件指纹和本地生成资料为依据。它们不会逐个运行 skill 的 `verify_dependencies.py`，也不会发布站点或验证远端正文；实际运行依赖和远端发布验收仍需分别检查。
 
 ## 失败时怎么办
 

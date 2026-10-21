@@ -24,6 +24,7 @@
 - `README.md`：记录工作区说明、日常操作说明和 skill prompt 示例。
 - `.codex/config.toml`：登记 Codex 原生子 agent 的主仓级入口。
 - `docs/skill-dependencies.yml`：作为 skill 运行依赖的唯一登记入口。
+- `docs/skill-docs.yml`：登记 skill 文档发布来源与复核指纹。
 - `scripts/pre_commit_gate.py`：作为提交前统一门禁入口。
 - `.tmp/runs/<run-id>/`：默认的一次性工作根目录；`.tmp/retained/<work-name>/` 只用于用户明确指定的长期本地工作。
 
@@ -120,6 +121,7 @@ skills/<skill-source>/<skill-name>/
 - `README.md` 的 Skill Prompt 示例
 - `.codex/config.toml`（当子仓提供 `.codex/agents/*.toml` 时）
 - `docs/skill-dependencies.yml`
+- `docs/skill-docs.yml`
 
 `AGENTS.md` 应记录主仓调用该 skill 所需的信息，包括：
 
@@ -151,10 +153,11 @@ python scripts/check_codex_agents_config.py --update
 4. 更新 `AGENTS.md` 注册该 skill。
 5. 更新 `README.md` 的 Skill Prompt 示例。
 6. 如果子仓提供 `.codex/agents/*.toml`，运行 `python scripts/check_codex_agents_config.py --update` 刷新 `.codex/config.toml`。
-7. 更新 `docs/skill-dependencies.yml` 登记依赖。
+7. 更新 `docs/skill-dependencies.yml` 登记依赖，并更新 `docs/skill-docs.yml` 登记子仓文档 manifest 与发布入口。
 8. 运行该 skill 的依赖验证命令。
-9. 刷新依赖复核指纹。
-10. 运行 `python scripts/pre_commit_gate.py`。
+9. 按 [文档架构需求](./documentation-architecture-requirements.md) 复核子仓资料，运行 `python scripts/sync_skill_docs.py` 同步文档。
+10. 刷新依赖和文档复核指纹。
+11. 运行 `python scripts/pre_commit_gate.py`。
 
 如果任一步失败，不应提交接入变更。
 
@@ -162,14 +165,15 @@ python scripts/check_codex_agents_config.py --update
 
 更新已有 skill submodule 后，应按以下顺序复核：
 
-1. 检查子仓变更是否涉及依赖、自检脚本、校验脚本或主仓注册信息。
+1. 检查子仓变更是否涉及文档 manifest、发布资料、依赖、自检脚本、校验脚本或主仓注册信息。
 2. 如果主仓触发条件或使用约束需要变化，更新 `AGENTS.md`。
 3. 如果 prompt 示例不再准确，更新 `README.md`。
 4. 如果子仓 `.codex/agents/*.toml` 有新增、删除或改名，运行 `python scripts/check_codex_agents_config.py --update`。
 5. 如果依赖可能变化，更新 `docs/skill-dependencies.yml`。
 6. 运行该 skill 的 `verify_dependencies.py`。
-7. 刷新 `dependency_review.source_fingerprint`。
-8. 运行 `python scripts/pre_commit_gate.py`。
+7. 复核子仓文档及 `docs.manifest.yml`，在需要时更新 `docs/skill-docs.yml` 中的登记信息，并运行 `python scripts/sync_skill_docs.py`。
+8. 刷新 `dependency_review.source_fingerprint` 和 `docs_review.source_fingerprint`。
+9. 运行 `python scripts/pre_commit_gate.py`。
 
 如果依赖没有变化，也应刷新指纹并在 `note` 中说明已复核。
 
@@ -192,8 +196,9 @@ python scripts/pre_commit_gate.py
 - `README.md` 中有对应 prompt 示例。
 - 如果子仓提供 Codex 原生子 agent，`.codex/config.toml` 与子仓 `.codex/agents/*.toml` 一致。
 - `docs/skill-dependencies.yml` 中有对应依赖记录。
+- `docs/skill-docs.yml` 中有对应文档登记，子仓 manifest 声明的页面已同步到文档站。
 - 子仓满足 [Skill Repository Protocol](skill-repo-protocol.md)。
-- 依赖复核指纹是最新的。
+- 依赖和文档复核指纹是最新的。
 - `python scripts/pre_commit_gate.py` 通过。
 
 只有满足以上条件，主仓才应把该 skill 视为已稳定接入。

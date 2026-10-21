@@ -163,7 +163,9 @@ $loopRoot = Join-Path $workRoot 'loop-ccn-brief-report'
    ```
 
    交付件校验根据 README 中的精确任务编号映射本轮任务，只强制检查当前工作队列；历史归档不会因旧格式阻塞本轮，但会参与主题短名查重。脚本必须输出逐任务名称映射并达到本轮全部通过；任一失败都不得提交或回传 API。
-5. 在 `ccn-report` 中只提交本轮报告相关文件，推送分支并创建 Pull Request；持续跟进 CI、必需检查和评审意见，修复后重新验证，直到 PR 已实际合入默认分支并确认远端存在报告目录。不能把“PR 已创建”“CI 通过”或“可合并”当作完成。
+5. 按 [Excel 人工审阅规则](references/review-workbook.md) 加载 Spreadsheets skill，使用 `scripts/build_review_workbook.mjs` 为本轮工作队列生成 Excel，并在聊天中交付可打开的本地文件。任务覆盖以队列的精确 `task_id` 为准，不按报告目录日期筛选。必须等待真实人类填写并批准批次结论；主 agent 不得代理此处的人工审批。审批读取失败、分类仍需修改或文件发生变化时，不得提交、推送、创建 PR 或回传 completed。人工分类修订经主 agent 调整归档、README 和链接并重新校验后，生成新审阅版本，再由人类批准；具体命令及异常处理见引用规则。
+
+   人工批准当前最终版本，且按规则运行 `review_workbook.py read` 得到本轮 `decisions.json` 的 `status=approved` 后，在 `ccn-report` 中只提交本轮报告相关文件，推送分支并创建 Pull Request；持续跟进 CI、必需检查和评审意见，修复后重新验证，直到 PR 已实际合入默认分支并确认远端存在报告目录。评审修复若改变已审交付件、分类或任务范围，必须重新完成人工审阅。不能把“PR 已创建”“CI 通过”或“可合并”当作完成。
 6. 合入确认后，只使用 `task_api.py complete` 完成结果回传、服务端对账和本地状态落盘，不由 agent 手工拼 POST 或单独调用 `local_state.py mark`：
 
    ```powershell

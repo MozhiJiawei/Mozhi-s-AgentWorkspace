@@ -12,6 +12,8 @@
 - 处理子 agent 上报的 HITL；答案必须能从任务目标、来源证据和 skill gate 推导，决定与理由写入任务临时目录。
 - 在 Source Understanding HTML 验收通过后，向原报告子 agent 发送消息，要求其根据 `skills/create-single-page-tech-report/SKILL.md` 完成一页 PPT 制作。
 - 验收子agent的HTML与PPTX交付件，并按 `LOOP.md` 完成本地归档。
+- 本地验收后，按 [Excel 人工审阅规则](references/review-workbook.md) 生成并在聊天交付审阅 Excel；等待真实人类批准后才进入提交与 PR 流程。主 agent 只代理报告子 agent 的两次 HITL，不能代理批次 Excel 的人工审批。
+- 读取人工分类修订时保留 API 原值和 AI 当前分类，核对一级／二级组合、API 指定分类约束及文件哈希。读取器仅输出修订计划；目录迁移和 README 更新由主 agent 执行。更改后重新验收并生成新审阅版本，不能复用旧审批。
 - 根据任务主题和历史归档确定人类可读、可区分的主题短名。优先使用官方产品名、论文系统名、项目名或公认缩写，必要时增加场景或方法消歧词。
 - 归档时把正式 HTML 与 PPTX 重命名为相同 basename 的 `<主题短名>.html` 和 `<主题短名>.pptx`，同步更新 README，并在提交和 API 回传前运行 `validate_deliverables.py`。主题短名不得使用通用交付形态、任务编号、批次日期或其他仅对单批任务有效的信息。
 
@@ -36,7 +38,7 @@
 
 ### HITL 代理
 
-- 主 agent 是本 Loop 中唯一能回答 HITL 的角色。
+- 主 agent 是报告子 agent 的 HITL 代理；PR 前批次 Excel 审阅由真实人类完成，不适用本节代理规则。
 - 主 agent 应预期报告子 agent 在完整流程中主动询问两次 HITL；除纠错或失败恢复外，不应等待第三个常规 HITL。
 
 #### 第一次 HITL：确认信息源

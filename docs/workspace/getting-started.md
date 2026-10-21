@@ -39,7 +39,7 @@ Codex 会通过以下文件认识 workspace：
 
 ### 1.2 OpenClaw
 
-TBD
+当前尚未提供 OpenClaw 接入流程。请使用本页的 Codex 接入步骤；OpenClaw 适配仍在计划中。
 
 ## 2. 依赖配置
 
@@ -58,6 +58,8 @@ TBD
 | `aurora-tun-bypass` | [依赖说明](/skills/aurora-tun-bypass/dependencies) |
 | `ppt-deep-search` | [依赖说明](/skills/ppt-deep-search/dependencies) |
 | `hw-ppt-gen-html` | [依赖说明](/skills/hw-ppt-gen-html/dependencies) |
+| `create-single-page-tech-report` | [依赖说明](/skills/create-single-page-tech-report/dependencies) |
+| `web-article-capture` | [依赖说明](/skills/web-article-capture/dependencies) |
 | `grobid-docling-pdf` | [依赖说明](/skills/grobid_pdf_skill/dependencies) |
 | `gh-issue-comment-monitor` | [依赖说明](/skills/gh-issue-comment-monitor/dependencies) |
 | `send-qq-email` | [依赖说明](/skills/send-qq-email/dependencies) |
