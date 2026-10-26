@@ -11,7 +11,7 @@
 | `POST` | `/api/v1/tasks` | 添加任务 |
 | `POST` | `/api/v1/tasks/batch` | 原子批量添加 1–200 个任务 |
 | `GET` | `/api/v1/tasks/{task_id}` | 按编号获取任务 |
-| `GET` | `/api/v1/tasks?status=pending` | 按状态分页获取 |
+| `GET` | `/api/v1/tasks?status=pending` | 按状态一次获取全部匹配任务 |
 | `POST` | `/api/v1/tasks/{task_id}/results` | 追加处理结果 |
 | `DELETE` | `/api/v1/tasks/{task_id}` | 删除任务及其历史结果 |
 | `DELETE` | `/api/v1/tasks` | 批量删除最多200个任务及其历史结果 |
@@ -25,7 +25,7 @@
 
 状态台默认按更新时间倒序，同一时间按行号倒序。更新时间筛选支持下拉日历选择区间，按北京时间包含开始、结束当天；选择日期后点击“应用筛选”，可与其他条件组合。
 
-列表接口接受 `updated_from=2026-09-01&updated_to=2026-09-09`（均可单独传入）。状态台使用 `sort=updated_desc`，下一页传响应 `pagination.next_page_token` 到 `page_token`。为兼容自动处理脚本，接口未指定排序时仍按行号升序，沿用 `cursor`；两种分页参数不能混用。本次无需数据库迁移。
+列表接口接受 `updated_from=2026-09-01&updated_to=2026-09-09`（均可单独传入），一次返回全部匹配任务。状态台使用 `sort=updated_desc`；接口未指定排序时按行号升序。列表响应仅包含 `status` 和 `data`，不包含 `pagination`，调用方无需传入 `limit`、`cursor` 或 `page_token`。自动处理脚本和历史下载链接回填脚本分别一次拉取全部 `pending` 和 `completed` 任务。本次无需数据库迁移。
 
 ## 任务状态台
 
@@ -33,6 +33,8 @@
 登录后，浏览器才会调用受保护的任务列表接口。服务端只保存
 `CCN_DASHBOARD_PASSWORD_HASH`中的PBKDF2-SHA256密码哈希，浏览器只接收HttpOnly、
 SameSite=Strict的限时会话Cookie，不保存密码。机器调用仍使用原有Bearer API Key。
+
+任务列表在浏览器本地分页展示；翻页或调整每页条数时直接使用已加载的全部筛选结果。顶部总数及各状态统计覆盖全部筛选结果，当前页条数由表格下方的分页信息展示。刷新或应用筛选时重新获取全部匹配任务。
 
 页面内的“API 接口文档”页签无需登录即可查看，提供主要接口的PowerShell调用示例。
 示例只使用`<API_KEY>`代号，使用者必须替换为实际密钥，

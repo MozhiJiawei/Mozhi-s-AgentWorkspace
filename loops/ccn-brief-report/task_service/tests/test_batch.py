@@ -31,7 +31,7 @@ def test_atomic_conflict_and_order(client, api_headers, sample_task):
     assert batch(client, api_headers, [new, sample_task]).status_code == 200
 
 
-@pytest.mark.parametrize("change", [{"url": "http://example.com"}, {"category": "invalid"}, {"content": "x" * 100001}])
+@pytest.mark.parametrize("change", [{"url": "ftp://example.com"}, {"category": "invalid"}, {"content": "x" * 100001}])
 def test_validation_is_located_and_atomic(client, api_headers, sample_task, change):
     response = batch(client, api_headers, [sample_task, {**sample_task, "task_id": "invalid", **change}])
     assert response.status_code == 422

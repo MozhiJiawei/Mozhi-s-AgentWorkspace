@@ -1,5 +1,3 @@
-import base64
-import json
 from datetime import datetime, timezone
 
 import pytest
@@ -18,17 +16,12 @@ def seed(client, headers, sample, stamps):
             db.commit()
 
 
-def test_updated_order_with_ties_and_legacy_paging(client, api_headers, sample_task):
+def test_updated_order_with_ties_and_default_row_order(client, api_headers, sample_task):
     seed(client, api_headers, sample_task, ["2026-09-01T12:00:00", "2026-09-09T12:00:00", "2026-09-05T12:00:00", "2026-09-09T12:00:00"])
-    first = client.get("/api/v1/tasks?sort=updated_desc&limit=2", headers=api_headers).json()
-    assert [t["task_id"] for t in first["data"]] == ["date-3", "date-1"]
-    token = first["pagination"]["next_page_token"]
-    second = client.get("/api/v1/tasks", params={"sort": "updated_desc", "limit": 2, "page_token": token}, headers=api_headers).json()
-    assert [t["task_id"] for t in second["data"]] == ["date-2", "date-0"]
-    assert not second["pagination"]["has_more"]
-    legacy = client.get("/api/v1/tasks?limit=2", headers=api_headers).json()
-    assert [t["task_id"] for t in legacy["data"]] == ["date-0", "date-1"]
-    assert legacy["pagination"]["next_cursor"] == 2
+    updated = client.get("/api/v1/tasks?sort=updated_desc", headers=api_headers).json()
+    assert [t["task_id"] for t in updated["data"]] == ["date-3", "date-1", "date-2", "date-0"]
+    default = client.get("/api/v1/tasks", headers=api_headers).json()
+    assert [t["task_id"] for t in default["data"]] == ["date-0", "date-1", "date-2", "date-3"]
 
 
 def test_beijing_inclusive_day_boundaries(client, api_headers, sample_task):
@@ -44,18 +37,17 @@ def test_beijing_inclusive_day_boundaries(client, api_headers, sample_task):
 
 @pytest.mark.parametrize("query", [
     "updated_from=2026-09-10&updated_to=2026-09-01", "updated_from=bad", "updated_to=9999-12-31",
-    "sort=unknown", "sort=updated_desc&cursor=2", "page_token=abc", "sort=updated_desc&page_token=not-a-token",
+    "sort=unknown",
 ])
 def test_invalid_filters(client, api_headers, query):
     assert client.get("/api/v1/tasks?" + query, headers=api_headers).status_code == 422
 
 
-def test_cursor_survives_anchor_deletion(client, api_headers, sample_task):
+def test_updated_order_after_deletion(client, api_headers, sample_task):
     seed(client, api_headers, sample_task, ["2026-09-01T12:00:00", "2026-09-09T12:00:00"])
-    page = client.get("/api/v1/tasks?sort=updated_desc&limit=1", headers=api_headers).json()
-    client.delete("/api/v1/tasks/date-1", headers=api_headers)
-    next_page = client.get("/api/v1/tasks", params={"sort": "updated_desc", "page_token": page["pagination"]["next_page_token"]}, headers=api_headers).json()
-    assert [t["task_id"] for t in next_page["data"]] == ["date-0"]
+    assert client.delete("/api/v1/tasks/date-1", headers=api_headers).status_code == 200
+    remaining = client.get("/api/v1/tasks?sort=updated_desc", headers=api_headers).json()
+    assert [t["task_id"] for t in remaining["data"]] == ["date-0"]
 
 
 @pytest.mark.parametrize("outcome", ["completed", "failed"])
@@ -79,16 +71,3 @@ def test_same_status_result_updates_date_but_replay_does_not(client, api_headers
     after = client.get("/api/v1/tasks/date-0", headers=api_headers).json()["data"]
     assert after["updated_at"] == before["updated_at"]
     assert after["latest_result"] == before["latest_result"]
-
-
-@pytest.mark.parametrize("cursor", [
-    ["0001-01-01T00:00:00+08:00", 1],
-    ["9999-12-31T23:00:00-08:00", 1],
-    ["2026-09-09T00:00:00+00:00", 2**63],
-    ["2026-09-09T00:00:00+00:00", 10**50],
-])
-def test_cursor_outside_storage_range_returns_422(client, api_headers, cursor):
-    token = base64.urlsafe_b64encode(json.dumps(cursor).encode()).decode().rstrip("=")
-    response = client.get("/api/v1/tasks", params={"sort": "updated_desc", "page_token": token}, headers=api_headers)
-    assert response.status_code == 422
-    assert response.json()["error"]["code"] == "invalid_page_token"

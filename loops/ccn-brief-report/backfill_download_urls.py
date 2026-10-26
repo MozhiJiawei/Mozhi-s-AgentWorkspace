@@ -25,33 +25,21 @@ def fetch_completed_tasks(
 ) -> list[dict[str, Any]]:
     requester = session or requests
     headers = {"Authorization": f"Bearer {key}"}
-    params: dict[str, str | int] = {"status": "completed", "limit": 500}
-    tasks: list[dict[str, Any]] = []
-    seen_cursors: set[int] = set()
-    while True:
-        try:
-            response = requester.get(
-                f"{base_url}/api/v1/tasks",
-                headers=headers,
-                params=params,
-                timeout=(5, timeout),
-            )
-            response.raise_for_status()
-            payload = response.json()
-        except (requests.RequestException, ValueError) as exc:
-            raise task_api.TaskAPIError(f"已完成任务查询失败：{exc}") from exc
-        data = payload.get("data") if isinstance(payload, dict) else None
-        if not isinstance(payload, dict) or payload.get("status") != "success" or not isinstance(data, list):
-            raise task_api.TaskAPIError("已完成任务接口返回失败")
-        tasks.extend(item for item in data if isinstance(item, dict))
-        pagination = payload.get("pagination") or {}
-        if not pagination.get("has_more"):
-            return tasks
-        next_cursor = pagination.get("next_cursor")
-        if not isinstance(next_cursor, int) or next_cursor < 1 or next_cursor in seen_cursors:
-            raise task_api.TaskAPIError("已完成任务接口分页游标无效")
-        seen_cursors.add(next_cursor)
-        params["cursor"] = next_cursor
+    try:
+        response = requester.get(
+            f"{base_url}/api/v1/tasks",
+            headers=headers,
+            params={"status": "completed"},
+            timeout=(5, timeout),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        raise task_api.TaskAPIError(f"已完成任务查询失败：{exc}") from exc
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(payload, dict) or payload.get("status") != "success" or not isinstance(data, list):
+        raise task_api.TaskAPIError("已完成任务接口返回失败")
+    return [item for item in data if isinstance(item, dict)]
 
 
 def choose_file(report_dir: Path, preferred_names: tuple[str, ...], suffix: str) -> Path | None:

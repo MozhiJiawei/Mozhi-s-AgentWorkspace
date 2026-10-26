@@ -1,12 +1,14 @@
 "use strict";
 
 const state = {
-  cursor: null,
-  nextCursor: null,
-  cursorHistory: [],
+  tasks: [],
   page: 1,
-  hasMore: false,
+  pageSize: 50,
   loading: false,
+  requestId: 0,
+  authVersion: 0,
+  authRequired: null, // The initial request checks for an existing session.
+  loggingOut: false,
   filters: {},
   selected: new Set(),
   pendingDelete: [],
@@ -142,10 +144,18 @@ function setOnline(online) {
   elements.connection.classList.toggle("online", online);
 }
 function showLogin(message = "") {
+  state.authVersion += 1;
+  state.requestId += 1;
+  state.authRequired = true;
   state.download?.controller.abort();
   state.retryFiles = [];
-  state.selected.clear();
-  updateSelectionState();
+  state.tasks = [];
+  state.page = 1;
+  setLoading(false);
+  render();
+  elements.updated.textContent = "尚未加载";
+  elements.deleteDialog.close();
+  setMessage();
   document.getElementById("retry-download-button").hidden = true;
   elements.loginLayer.hidden = false;
   elements.loginError.textContent = message;
@@ -153,6 +163,7 @@ function showLogin(message = "") {
   setOnline(false);
 }
 function hideLogin() {
+  state.authRequired = false;
   elements.loginLayer.hidden = true;
   elements.loginError.hidden = true;
 }
@@ -166,17 +177,23 @@ function showView(view) {
   elements.apiDocsTab.setAttribute("aria-selected", String(showDocs));
   elements.headerActions.hidden = showDocs;
 
-  if (showDocs) {
-    elements.loginLayer.hidden = true;
-  } else if (elements.loginLayer.hidden === false) {
-    showLogin();
-  }
+  elements.loginLayer.hidden = showDocs || state.authRequired === false;
 }
-function resetPaging() {
-  state.cursor = null;
-  state.nextCursor = null;
-  state.cursorHistory = [];
-  state.page = 1;
+function pageCount() {
+  return Math.max(1, Math.ceil(state.tasks.length / state.pageSize));
+}
+function updatePaging() {
+  elements.previous.disabled = state.loading || state.page <= 1;
+  elements.next.disabled = state.loading || state.page >= pageCount();
+  elements.page.textContent = `第 ${state.page} / ${pageCount()} 页，共 ${state.tasks.length} 个任务`;
+}
+function setLoading(loading) {
+  state.loading = loading;
+  elements.filterForm.querySelectorAll("input, select, button").forEach((el) => { el.disabled = loading; });
+  elements.reset.disabled = loading;
+  elements.refresh.disabled = loading;
+  updatePaging();
+  downloadLocks();
 }
 function updateSelectionState() {
   const checkboxes = Array.from(elements.rows.querySelectorAll(".row-select"));
@@ -186,11 +203,11 @@ function updateSelectionState() {
   elements.selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
   elements.selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
   elements.selectAll.disabled = checkboxes.length === 0;
-  elements.deleteSelected.disabled = Boolean(state.download && [...state.selected].some((id) => state.download.ids.has(id)));
+  elements.deleteSelected.disabled = state.loading || Boolean(state.download && [...state.selected].some((id) => state.download.ids.has(id)));
   document.getElementById("download-selected-button").disabled = Boolean(state.download) || state.selected.size === 0;
 }
 function openDeleteDialog(taskIds) {
-  if (state.download && taskIds.some((id) => state.download.ids.has(id))) return;
+  if (state.loading || (state.download && taskIds.some((id) => state.download.ids.has(id)))) return;
   state.pendingDelete = [...new Set(taskIds)];
   if (!state.pendingDelete.length) return;
   elements.deleteSummary.textContent = state.pendingDelete.length === 1
@@ -204,9 +221,8 @@ function captureFilters() {
     updated_from: dateRange.startInput.value, updated_to: dateRange.endInput.value };
 }
 function queryString() {
-  const params = new URLSearchParams({ limit: elements.limit.value, sort: "updated_desc" });
+  const params = new URLSearchParams({ sort: "updated_desc" });
   Object.entries(state.filters).forEach(([key, value]) => { if (value) params.set(key, value); });
-  if (state.cursor !== null) params.set("page_token", state.cursor);
   return params.toString();
 }
 function appendDetail(parent, label, value, wide = false) {
@@ -303,7 +319,7 @@ function taskRow(task) {
       const deleteButton = document.createElement("button");
       deleteButton.type = "button";
       deleteButton.dataset.taskId = task.task_id;
-      deleteButton.disabled = Boolean(state.download?.ids.has(task.task_id));
+      deleteButton.disabled = state.loading || Boolean(state.download?.ids.has(task.task_id));
       deleteButton.className = "delete-row-button";
       deleteButton.textContent = "删除";
       deleteButton.addEventListener("click", () => openDeleteDialog([task.task_id]));
@@ -318,7 +334,10 @@ function taskRow(task) {
   });
   return { row, detail };
 }
-function render(tasks, pagination) {
+function render() {
+  state.page = Math.min(state.page, pageCount());
+  const offset = (state.page - 1) * state.pageSize;
+  const tasks = state.tasks.slice(offset, offset + state.pageSize);
   elements.rows.replaceChildren();
   document.querySelector(".table-scroll").scrollTop = 0;
   state.selected.clear();
@@ -326,62 +345,59 @@ function render(tasks, pagination) {
     const rendered = taskRow(task);
     elements.rows.append(rendered.row, rendered.detail);
   });
-  elements.empty.hidden = tasks.length !== 0;
+  elements.empty.hidden = state.tasks.length !== 0;
   const counts = { pending: 0, completed: 0, failed: 0 };
-  tasks.forEach((task) => { if (counts[task.status] !== undefined) counts[task.status] += 1; });
-  elements.metrics.total.textContent = String(tasks.length);
+  state.tasks.forEach((task) => { if (counts[task.status] !== undefined) counts[task.status] += 1; });
+  elements.metrics.total.textContent = String(state.tasks.length);
   Object.keys(counts).forEach((key) => { elements.metrics[key].textContent = String(counts[key]); });
-  state.hasMore = Boolean(pagination?.has_more);
-  state.nextCursor = pagination?.next_page_token || null;
-  elements.next.disabled = !state.hasMore;
-  elements.previous.disabled = state.cursorHistory.length === 0;
-  elements.page.textContent = `第 ${state.page} 页`;
+  updatePaging();
   updateSelectionState();
 }
-async function loadTasks() {
-  if (state.loading) return;
-  state.loading = true;
+async function loadTasks({ resetPage = true } = {}) {
+  if (state.loading || state.authRequired) return false;
+  const requestId = ++state.requestId;
+  setLoading(true);
   dateRange.close();
   state.selected.clear();
   elements.rows.querySelectorAll(".row-select").forEach((checkbox) => { checkbox.checked = false; });
   updateSelectionState();
-  elements.previous.disabled = true;
-  elements.next.disabled = true;
-  elements.filterForm.querySelectorAll("input, select, button").forEach((el) => { el.disabled = true; });
-  elements.reset.disabled = true;
-  elements.refresh.disabled = true;
   setMessage();
   try {
     const response = await fetch(`/api/v1/tasks?${queryString()}`, {
       cache: "no-store",
     });
-    const payload = await response.json();
+    if (requestId !== state.requestId) return false;
     if (response.status === 401) {
       showLogin("登录已失效，请重新输入密码。");
-      return;
+      return false;
     }
+    const payload = await response.json();
+    if (requestId !== state.requestId) return false;
     if (!response.ok || payload.status !== "success") throw new Error(payload.error?.message || `请求失败（${response.status}）`);
-    render(payload.data, payload.pagination);
+    if (!Array.isArray(payload.data)) throw new Error("任务列表响应格式错误");
+    state.tasks = payload.data;
+    if (resetPage) state.page = 1;
+    render();
     setOnline(true);
     hideLogin();
     elements.updated.textContent = `更新于 ${new Intl.DateTimeFormat("zh-CN", { timeStyle: "medium" }).format(new Date())}`;
+    return true;
   } catch (error) {
+    if (requestId !== state.requestId) return false;
     setOnline(false);
     setMessage(`数据加载失败：${error.message}`);
+    return false;
   } finally {
-    state.loading = false;
-    elements.refresh.disabled = false;
-    elements.filterForm.querySelectorAll("input, select, button").forEach((el) => { el.disabled = false; });
-    elements.reset.disabled = false;
-    elements.previous.disabled = state.cursorHistory.length === 0;
-    elements.next.disabled = !state.hasMore;
+    if (requestId === state.requestId) setLoading(false);
   }
 }
 
 async function deletePendingTasks() {
   const taskIds = [...state.pendingDelete];
-  if (state.download && taskIds.some((id) => state.download.ids.has(id))) return;
+  if (state.loading || (state.download && taskIds.some((id) => state.download.ids.has(id)))) return;
   if (!taskIds.length) return;
+  const authVersion = state.authVersion;
+  setLoading(true);
   elements.confirmDelete.disabled = true;
   elements.cancelDelete.disabled = true;
   try {
@@ -395,23 +411,27 @@ async function deletePendingTasks() {
       options.body = JSON.stringify({ task_ids: taskIds });
     }
     const response = await fetch(url, options);
-    const payload = await response.json();
+    if (authVersion !== state.authVersion) return;
     if (response.status === 401) {
       elements.deleteDialog.close();
       showLogin("登录已失效，请重新输入密码。");
       return;
     }
+    const payload = await response.json();
+    if (authVersion !== state.authVersion) return;
     if (!response.ok || payload.status !== "success") {
       throw new Error(payload.error?.message || `删除失败（${response.status}）`);
     }
     const deletedCount = isBatch ? payload.data.deleted : Number(payload.data.deleted);
     elements.deleteDialog.close();
-    await loadTasks();
-    setMessage(`已删除 ${deletedCount} 个任务。`, "success");
+    setLoading(false);
+    if (await loadTasks({ resetPage: false })) setMessage(`已删除 ${deletedCount} 个任务。`, "success");
   } catch (error) {
+    if (authVersion !== state.authVersion) return;
     elements.deleteDialog.close();
     setMessage(`删除失败：${error.message}`);
   } finally {
+    if (authVersion === state.authVersion) setLoading(false);
     elements.confirmDelete.disabled = false;
     elements.cancelDelete.disabled = false;
   }
@@ -419,8 +439,10 @@ async function deletePendingTasks() {
 
 elements.loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (state.loggingOut) return;
   const value = elements.password.value;
   if (!value) return;
+  const authVersion = state.authVersion;
   elements.loginError.hidden = true;
   try {
     const response = await fetch("/dashboard-auth/login", {
@@ -429,14 +451,16 @@ elements.loginForm.addEventListener("submit", async (event) => {
       body: JSON.stringify({ password: value }),
       cache: "no-store",
     });
+    if (authVersion !== state.authVersion) return;
     if (!response.ok) {
       showLogin(response.status === 401 ? "密码不正确，请重试。" : "登录暂不可用，请稍后重试。");
       return;
     }
     elements.password.value = "";
-    resetPaging();
+    hideLogin();
     await loadTasks();
   } catch (_error) {
+    if (authVersion !== state.authVersion) return;
     showLogin("无法连接服务器，请稍后重试。");
   }
 });
@@ -483,50 +507,53 @@ elements.cancelDelete.addEventListener("click", () => elements.deleteDialog.clos
 elements.confirmDelete.addEventListener("click", deletePendingTasks);
 elements.deleteDialog.addEventListener("close", () => { state.pendingDelete = []; });
 elements.logout.addEventListener("click", async () => {
-  state.download?.controller.abort();
-  state.retryFiles = [];
-  document.getElementById("retry-download-button").hidden = true;
-  await fetch("/dashboard-auth/logout", { method: "POST", cache: "no-store" });
-  elements.rows.replaceChildren();
-  state.selected.clear();
-  updateSelectionState();
+  if (state.loggingOut) return;
+  state.loggingOut = true;
   showLogin();
+  try {
+    await fetch("/dashboard-auth/logout", { method: "POST", cache: "no-store" });
+  } catch (_error) {
+    elements.loginError.textContent = "无法连接服务器，请稍后重试退出。";
+    elements.loginError.hidden = false;
+  } finally {
+    state.loggingOut = false;
+  }
 });
 elements.filterForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (state.loading) return;
   captureFilters();
-  resetPaging();
   await loadTasks();
 });
 elements.reset.addEventListener("click", async () => {
   if (state.loading) return;
   elements.filterForm.reset();
+  elements.limit.value = String(state.pageSize);
   dateRange.reset();
   captureFilters();
-  resetPaging();
   await loadTasks();
 });
-elements.refresh.addEventListener("click", async () => { resetPaging(); await loadTasks(); });
-elements.limit.addEventListener("change", async () => { resetPaging(); await loadTasks(); });
-elements.next.addEventListener("click", async () => {
-  if (state.loading || !state.hasMore) return;
-  if (!state.nextCursor) return;
-  state.cursorHistory.push(state.cursor);
-  state.cursor = state.nextCursor;
+elements.refresh.addEventListener("click", () => loadTasks());
+elements.limit.addEventListener("change", () => {
+  if (state.loading) return;
+  state.pageSize = Number(elements.limit.value);
+  state.page = 1;
+  render();
+});
+elements.next.addEventListener("click", () => {
+  if (state.loading || state.page >= pageCount()) return;
   state.page += 1;
-  await loadTasks();
+  render();
 });
-elements.previous.addEventListener("click", async () => {
-  if (state.loading || !state.cursorHistory.length) return;
-  state.cursor = state.cursorHistory.pop();
+elements.previous.addEventListener("click", () => {
+  if (state.loading || state.page <= 1) return;
   state.page -= 1;
-  await loadTasks();
+  render();
 });
 
 function downloadLocks() {
   document.querySelectorAll(".delete-row-button").forEach((button) => {
-    button.disabled = Boolean(state.download?.ids.has(button.dataset.taskId));
+    button.disabled = state.loading || Boolean(state.download?.ids.has(button.dataset.taskId));
   });
   updateSelectionState();
 }

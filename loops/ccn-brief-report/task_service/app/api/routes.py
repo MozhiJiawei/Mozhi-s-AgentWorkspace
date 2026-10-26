@@ -4,7 +4,7 @@ from datetime import date
 from typing import Literal
 
 from app.domain.task_creation import canonical_json_hash, creation_body, new_task
-from app.domain.list_filters import day_boundary, parse_updated_token, updated_token
+from app.domain.list_filters import day_boundary
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy import func, or_, select
@@ -180,26 +180,17 @@ def list_tasks(
     query_text: str | None = Query(default=None, alias="q", min_length=1, max_length=128),
     hotspot_id: str | None = Query(default=None, min_length=1, max_length=128),
     period: str | None = Query(default=None, min_length=1, max_length=64),
-    limit: int = Query(default=100, ge=1, le=500),
-    cursor: int | None = Query(default=None, ge=0),
     sort: Literal["row_number", "updated_desc"] = Query(default="row_number"),
     updated_from: date | None = Query(default=None, description="更新时间起始日期，按北京时间包含当天"),
     updated_to: date | None = Query(default=None, description="更新时间结束日期，按北京时间包含当天"),
-    page_token: str | None = Query(default=None, min_length=1, max_length=256),
     _principal: Principal = Depends(require_api_key),
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
     if updated_from and updated_to and updated_from > updated_to:
         raise HTTPException(422, {"code": "invalid_date_range", "message": "Start date must not exceed end date"})
-    if (sort == "updated_desc" and cursor is not None) or (sort == "row_number" and page_token is not None):
-        raise HTTPException(422, {"code": "invalid_cursor", "message": "Cursor does not match sort order"})
-    query = task_query().limit(limit + 1)
+    query = task_query()
     if sort == "updated_desc":
         query = query.order_by(Task.updated_at.desc(), Task.row_number.desc())
-        if page_token:
-            stamp, row_number = parse_updated_token(page_token)
-            query = query.where(or_(Task.updated_at < stamp,
-                                    (Task.updated_at == stamp) & (Task.row_number < row_number)))
     else:
         query = query.order_by(Task.row_number)
     if updated_from:
@@ -226,19 +217,8 @@ def list_tasks(
         query = query.where(contains(Task.hotspot_id, hotspot_id))
     if period:
         query = query.where(contains(Task.period, period))
-    if cursor is not None:
-        query = query.where(Task.row_number > cursor)
     rows = list(db.scalars(query).unique())
-    has_more = len(rows) > limit
-    rows = rows[:limit]
-    next_cursor = rows[-1].row_number if has_more and rows and sort == "row_number" else None
-    pagination = {"next_cursor": next_cursor, "has_more": has_more}
-    if sort == "updated_desc":
-        pagination["next_page_token"] = updated_token(rows[-1].updated_at, rows[-1].row_number) if has_more and rows else None
-    return success(
-        [task_view(item).model_dump(mode="json") for item in rows],
-        pagination=pagination,
-    )
+    return success([task_view(item).model_dump(mode="json") for item in rows])
 
 
 @router.post("/api/v1/tasks/{task_id}/results")

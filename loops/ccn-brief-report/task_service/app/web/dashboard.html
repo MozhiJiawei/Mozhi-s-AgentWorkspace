@@ -28,9 +28,9 @@
       </nav>
 
       <section id="records-view" class="tab-view">
-      <section class="metrics" aria-label="当前页状态统计">
+      <section class="metrics" aria-label="全部匹配任务状态统计">
         <article class="metric metric-total">
-          <span>当前页任务</span>
+          <span>匹配任务总数</span>
           <strong id="metric-total">0</strong>
         </article>
         <article class="metric metric-pending">
@@ -158,7 +158,7 @@
           <span>调整筛选条件后再试。</span>
         </div>
         <div class="pagination">
-          <span id="page-label">第 1 页</span>
+          <span id="page-label">第 1 / 1 页，共 0 个任务</span>
           <div>
             <button id="previous-button" class="button button-quiet" type="button" disabled>上一页</button>
             <button id="next-button" class="button button-quiet" type="button" disabled>下一页</button>
@@ -285,11 +285,12 @@ $Task.data</code></pre>
               <span class="method method-get">GET</span>
             </div>
             <p class="endpoint-path">/api/v1/tasks?status=...</p>
-            <p class="docs-copy">支持 <code>status</code>、<code>q</code>、<code>hotspot_id</code>、<code>period</code>、<code>limit</code> 和 <code>cursor</code>。</p>
+            <p class="docs-copy">支持 <code>status</code>、<code>q</code>、<code>hotspot_id</code>、<code>period</code>、<code>updated_from</code>、<code>updated_to</code> 和 <code>sort</code>。日期使用 YYYY-MM-DD，按北京时间包含开始和结束当天，可单独设置任一边界。</p>
+            <p class="docs-copy">一次返回全部匹配任务，响应为 <code>{ "status": "success", "data": [...] }</code>，无分页字段或分页参数。默认按行号升序；<code>sort=updated_desc</code> 按更新时间倒序，同一时间按行号倒序。状态台在浏览器中分页，顶部统计覆盖全部匹配结果。</p>
             <div class="code-toolbar"><button class="copy-button" type="button" data-copy-target="code-filter">复制命令</button></div>
             <pre><code id="code-filter">$PendingTasks = Invoke-RestMethod `
     -Method Get `
-    -Uri "$ApiBase/api/v1/tasks?status=pending&amp;hotspot_id=HS-001&amp;period=2026-W32&amp;limit=50" `
+    -Uri "$ApiBase/api/v1/tasks?status=pending&amp;hotspot_id=HS-001&amp;period=2026-W32&amp;updated_from=2026-09-01&amp;updated_to=2026-09-09&amp;sort=updated_desc" `
     -Headers $Headers
 
 $PendingTasks.data | Format-Table `
@@ -413,6 +414,6 @@ $BatchDeleted.data</code></pre>
     <script src="/dashboard-assets/fflate-0.8.2.js" defer></script>
     <script src="/dashboard-assets/downloads.js?v=1" defer></script>
     <script src="/dashboard-assets/date-range.js?v=1" defer></script>
-    <script src="/dashboard-assets/dashboard.js?v=8" defer></script>
+    <script src="/dashboard-assets/dashboard.js?v=9" defer></script>
   </body>
 </html>

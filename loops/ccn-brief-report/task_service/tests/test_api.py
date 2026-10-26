@@ -251,7 +251,7 @@ def test_dashboard_is_public_shell_but_data_remains_protected(client):
     assert "task.latest_result?.summary" not in dashboard_js.text
     assert "task.latest_result?.error" not in dashboard_js.text
     assert 'dashboard.css?v=8' in dashboard.text
-    assert 'dashboard.js?v=8' in dashboard.text
+    assert 'dashboard.js?v=9' in dashboard.text
     assert "connect-src 'self' https://media.githubusercontent.com" in dashboard.headers[
         "content-security-policy"
     ]

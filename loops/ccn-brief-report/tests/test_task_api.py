@@ -39,7 +39,7 @@ class TaskAPITests(unittest.TestCase):
         session.get.assert_called_once_with(
             f"{API_BASE}/api/v1/tasks",
             headers={"Authorization": f"Bearer {API_KEY}"},
-            params={"status": "pending", "limit": 500},
+            params={"status": "pending"},
             timeout=(5, 30),
         )
 
@@ -167,55 +167,111 @@ class TaskAPITests(unittest.TestCase):
                 with self.assertRaises(task_api.TaskAPIError):
                     task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
 
-    def test_fetch_follows_api_pagination(self):
+    def test_fetch_returns_more_than_500_tasks_with_one_request(self):
         session = Mock()
-        session.get.side_effect = [
-            self.response(
-                {
-                    "status": "success",
-                    "data": [
-                        {
-                            "row_number": 1,
-                            "task_id": "TASK-1",
-                            "content": "one",
-                            "url": "https://example.test/1",
-                            "hotspot_id": "HS-1",
-                            "period": "2026-W32",
-                        }
-                    ],
-                    "pagination": {"has_more": True, "next_cursor": 1},
-                }
-            ),
-            self.response(
-                {
-                    "status": "success",
-                    "data": [
-                        {
-                            "row_number": 2,
-                            "task_id": "TASK-2",
-                            "content": "two",
-                            "url": "https://example.test/2",
-                            "hotspot_id": "HS-2",
-                            "period": "2026-W32",
-                        }
-                    ],
-                    "pagination": {"has_more": False, "next_cursor": None},
-                }
-            ),
+        data = [
+            {
+                "row_number": index,
+                "task_id": f"TASK-{index}",
+                "content": f"content {index}",
+                "url": f"https://example.test/{index}",
+                "hotspot_id": f"HS-{index}",
+                "period": "2026-W32",
+            }
+            for index in range(501, 0, -1)
         ]
+        session.get.return_value = self.response({"status": "success", "data": data})
 
         tasks = task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
 
-        self.assertEqual(["TASK-1", "TASK-2"], [task["task_id"] for task in tasks])
-        self.assertEqual(1, session.get.call_args_list[1].kwargs["params"]["cursor"])
+        self.assertEqual(
+            [f"TASK-{index}" for index in range(1, 502)],
+            [task["task_id"] for task in tasks],
+        )
+        session.get.assert_called_once_with(
+            f"{API_BASE}/api/v1/tasks",
+            headers={"Authorization": f"Bearer {API_KEY}"},
+            params={"status": "pending"},
+            timeout=(5, 30),
+        )
 
-    def test_fetch_rejects_repeated_pagination_cursor(self):
+    def test_fetch_wraps_request_errors(self):
+        for error in (requests.ConnectionError("offline"), requests.Timeout("timed out")):
+            with self.subTest(error=type(error).__name__):
+                session = Mock()
+                session.get.side_effect = error
+
+                with self.assertRaisesRegex(task_api.TaskAPIError, "任务接口请求失败"):
+                    task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+                session.get.assert_called_once()
+
+    def test_fetch_wraps_http_error(self):
         session = Mock()
-        page = {"status": "success", "data": [], "pagination": {"has_more": True, "next_cursor": 1}}
-        session.get.side_effect = [self.response(page), self.response(page)]
+        session.get.return_value.raise_for_status.side_effect = requests.HTTPError("unauthorized")
 
-        with self.assertRaisesRegex(task_api.TaskAPIError, "没有前进"):
+        with self.assertRaisesRegex(task_api.TaskAPIError, "任务接口请求失败"):
             task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+        session.get.return_value.json.assert_not_called()
+
+    def test_fetch_wraps_invalid_json(self):
+        session = Mock()
+        session.get.return_value.json.side_effect = ValueError("invalid JSON")
+
+        with self.assertRaisesRegex(task_api.TaskAPIError, "任务接口请求失败"):
+            task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+
+    def test_fetch_rejects_invalid_payload(self):
+        for payload in (None, [], "success"):
+            with self.subTest(payload=payload):
+                session = Mock()
+                session.get.return_value = self.response(payload)
+
+                with self.assertRaisesRegex(task_api.TaskAPIError, "任务接口返回失败"):
+                    task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+
+    def test_fetch_treats_missing_or_falsy_data_as_empty(self):
+        payloads = (
+            {"status": "success"},
+            {"status": "success", "data": None},
+            {"status": "success", "data": {}},
+            {"status": "success", "data": ""},
+            {"status": "success", "data": 0},
+        )
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                session = Mock()
+                session.get.return_value = self.response(payload)
+
+                self.assertEqual(
+                    [],
+                    task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session),
+                )
+                session.get.assert_called_once()
+
+    def test_fetch_rejects_truthy_non_array_data(self):
+        for data in ({"task_id": "TASK-1"}, "invalid", 1):
+            with self.subTest(data=data):
+                session = Mock()
+                session.get.return_value = self.response({"status": "success", "data": data})
+
+                with self.assertRaisesRegex(task_api.TaskAPIError, "data 必须是数组"):
+                    task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+
+    def test_fetch_deduplicates_identical_tasks(self):
+        session = Mock()
+        task = {
+            "row_number": 2,
+            "task_id": "TASK-1",
+            "content": "one",
+            "url": "https://example.test/1",
+            "hotspot_id": "HS-1",
+            "period": "2026-W32",
+        }
+        session.get.return_value = self.response({"status": "success", "data": [task, dict(task)]})
+
+        tasks = task_api.fetch_tasks(base_url=API_BASE, key=API_KEY, timeout=30, session=session)
+
+        self.assertEqual(["TASK-1"], [item["task_id"] for item in tasks])
 
     def test_api_key_comes_from_environment_or_private_config(self):
         with patch.dict(os.environ, {"CCN_API_KEY": ""}):
@@ -241,7 +297,6 @@ class TaskAPITests(unittest.TestCase):
             {
                 "status": "success",
                 "data": [
-                    {"row_number": 1, "task_id": "BROKEN"},
                     {
                         "row_number": 2,
                         "task_id": "TASK-2",
@@ -250,6 +305,8 @@ class TaskAPITests(unittest.TestCase):
                         "hotspot_id": "HS-2",
                         "period": "2026-W32",
                     },
+                    {"row_number": 1, "task_id": "BROKEN"},
+                    "not a task",
                 ],
             }
         )
@@ -265,6 +322,8 @@ class TaskAPITests(unittest.TestCase):
 
         self.assertEqual(["TASK-2"], [task["task_id"] for task in tasks])
         self.assertEqual("BROKEN", rejected[0]["task_id"])
+        self.assertEqual([2, 3], [item["index"] for item in rejected])
+        self.assertIsNone(rejected[1]["task_id"])
 
     def test_complete_result_uses_stable_idempotency_and_confirms_remote_state(self):
         session = Mock()

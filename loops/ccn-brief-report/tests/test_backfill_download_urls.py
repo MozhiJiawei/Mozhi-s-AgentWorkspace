@@ -4,6 +4,9 @@ import tempfile
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import Mock
+
+import requests
 
 
 LOOP_ROOT = Path(__file__).resolve().parents[1]
@@ -13,9 +16,109 @@ import backfill_download_urls  # noqa: E402
 
 
 CONFIG = {"ccn_report_repository_url": "https://github.com/MozhiJiawei/ccn-report"}
+API_BASE = "https://ccn-api.example.test"
+API_KEY = "test-api-key-" + "x" * 32
 
 
 class BackfillDownloadUrlsTests(unittest.TestCase):
+    def response(self, payload):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = payload
+        return response
+
+    def test_fetch_returns_more_than_500_completed_tasks_with_one_request(self):
+        session = Mock()
+        data = [{"task_id": f"TASK-{index}"} for index in range(1, 502)]
+        session.get.return_value = self.response({"status": "success", "data": data})
+
+        tasks = backfill_download_urls.fetch_completed_tasks(
+            base_url=API_BASE, key=API_KEY, timeout=30, session=session
+        )
+
+        self.assertEqual(data, tasks)
+        session.get.assert_called_once_with(
+            f"{API_BASE}/api/v1/tasks",
+            headers={"Authorization": f"Bearer {API_KEY}"},
+            params={"status": "completed"},
+            timeout=(5, 30),
+        )
+
+    def test_fetch_returns_empty_tasks(self):
+        session = Mock()
+        session.get.return_value = self.response({"status": "success", "data": []})
+
+        tasks = backfill_download_urls.fetch_completed_tasks(
+            base_url=API_BASE, key=API_KEY, timeout=30, session=session
+        )
+
+        self.assertEqual([], tasks)
+        session.get.assert_called_once()
+
+    def test_fetch_filters_non_objects_and_preserves_duplicate_objects(self):
+        session = Mock()
+        task = {"task_id": "TASK-1"}
+        data = [task, None, "not a task", 2, [], {}, dict(task)]
+        session.get.return_value = self.response({"status": "success", "data": data})
+
+        tasks = backfill_download_urls.fetch_completed_tasks(
+            base_url=API_BASE, key=API_KEY, timeout=30, session=session
+        )
+
+        self.assertEqual([task, {}, task], tasks)
+
+    def test_fetch_wraps_request_errors(self):
+        for error in (requests.ConnectionError("offline"), requests.Timeout("timed out")):
+            with self.subTest(error=type(error).__name__):
+                session = Mock()
+                session.get.side_effect = error
+
+                with self.assertRaisesRegex(backfill_download_urls.task_api.TaskAPIError, "已完成任务查询失败"):
+                    backfill_download_urls.fetch_completed_tasks(
+                        base_url=API_BASE, key=API_KEY, timeout=30, session=session
+                    )
+                session.get.assert_called_once()
+
+    def test_fetch_wraps_http_error(self):
+        session = Mock()
+        session.get.return_value.raise_for_status.side_effect = requests.HTTPError("unauthorized")
+
+        with self.assertRaisesRegex(backfill_download_urls.task_api.TaskAPIError, "已完成任务查询失败"):
+            backfill_download_urls.fetch_completed_tasks(
+                base_url=API_BASE, key=API_KEY, timeout=30, session=session
+            )
+        session.get.return_value.json.assert_not_called()
+
+    def test_fetch_wraps_invalid_json(self):
+        session = Mock()
+        session.get.return_value.json.side_effect = ValueError("invalid JSON")
+
+        with self.assertRaisesRegex(backfill_download_urls.task_api.TaskAPIError, "已完成任务查询失败"):
+            backfill_download_urls.fetch_completed_tasks(
+                base_url=API_BASE, key=API_KEY, timeout=30, session=session
+            )
+
+    def test_fetch_rejects_invalid_payload(self):
+        payloads = (
+            None,
+            [],
+            "success",
+            {"status": "error", "data": []},
+            {"status": "success"},
+            {"status": "success", "data": None},
+            {"status": "success", "data": {}},
+            {"status": "success", "data": ""},
+        )
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                session = Mock()
+                session.get.return_value = self.response(payload)
+
+                with self.assertRaisesRegex(backfill_download_urls.task_api.TaskAPIError, "已完成任务接口返回失败"):
+                    backfill_download_urls.fetch_completed_tasks(
+                        base_url=API_BASE, key=API_KEY, timeout=30, session=session
+                    )
+
     def test_builds_html_and_pptx_download_urls_from_actual_files(self):
         with tempfile.TemporaryDirectory() as temporary:
             ccn_root = Path(temporary)

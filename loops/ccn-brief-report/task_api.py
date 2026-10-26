@@ -125,39 +125,24 @@ def fetch_tasks(
 ) -> list[dict[str, Any]]:
     requester = session or requests
     headers = {"Authorization": f"Bearer {key}"}
-    params: dict[str, str | int] = {"status": "pending", "limit": 500}
-    raw_tasks: list[Any] = []
-    seen_cursors: set[int] = set()
-    while True:
-        try:
-            response = requester.get(
-                f"{base_url}/api/v1/tasks",
-                headers=headers,
-                params=params,
-                timeout=(5, timeout),
-            )
-            response.raise_for_status()
-            payload = response.json()
-        except (requests.RequestException, ValueError) as exc:
-            raise TaskAPIError(f"任务接口请求失败：{exc}") from exc
-        if not isinstance(payload, dict) or payload.get("status") != "success":
-            raise TaskAPIError("任务接口返回失败")
-        data = payload.get("data") or []
-        if not isinstance(data, list):
-            raise TaskAPIError("任务接口 data 必须是数组")
-        raw_tasks.extend(data)
-        pagination = payload.get("pagination") or {}
-        if not isinstance(pagination, dict) or not pagination.get("has_more"):
-            break
-        next_cursor = pagination.get("next_cursor")
-        if not isinstance(next_cursor, int) or next_cursor < 1:
-            raise TaskAPIError("任务接口分页游标无效")
-        if next_cursor in seen_cursors:
-            raise TaskAPIError("任务接口分页游标没有前进")
-        seen_cursors.add(next_cursor)
-        params["cursor"] = next_cursor
+    try:
+        response = requester.get(
+            f"{base_url}/api/v1/tasks",
+            headers=headers,
+            params={"status": "pending"},
+            timeout=(5, timeout),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        raise TaskAPIError(f"任务接口请求失败：{exc}") from exc
+    if not isinstance(payload, dict) or payload.get("status") != "success":
+        raise TaskAPIError("任务接口返回失败")
+    data = payload.get("data") or []
+    if not isinstance(data, list):
+        raise TaskAPIError("任务接口 data 必须是数组")
     tasks = []
-    for index, item in enumerate(raw_tasks, start=1):
+    for index, item in enumerate(data, start=1):
         try:
             tasks.append(normalize_task(item, index))
         except TaskAPIError as exc:
