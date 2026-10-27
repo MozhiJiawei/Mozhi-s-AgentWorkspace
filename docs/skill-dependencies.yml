@@ -111,10 +111,10 @@ skills:
   ppt-deep-search:
     path: skills/ppt-deep-search
     dependency_review:
-      source_fingerprint: sha256:adacd34318532b72ad826fd9a70c47a9eff6b63bb9f2fd7f1c06bb79466f90e3
-      reviewed_at: "2026-10-16"
+      source_fingerprint: sha256:ebdd3a5473ff4115f05ccec086d039258ad49aea2f8903fe2964f07d9af50024
+      reviewed_at: "2026-10-27"
       reviewed_by: agent
-      note: Text validators use Python standard library; Source Understanding screenshot export requires Python Playwright and Chromium. The verifier checks protocol files/agent names, validator self-tests, Markdown size, and actual Chromium launch. Production additionally needs subagent delegation and independent visual QA; webpage inputs need web-article-capture with Codex in-app Browser/network, while PDF inputs need grobid-docling-pdf and its runtime. --skip-services does not skip local checks or validate those downstream services.
+      note: Source Understanding uses the hw-ppt-gen-html Report exporter with Python Playwright and Chromium. The verifier checks protocol files/agent names, the Report exporter file and its self-test, Markdown size, and actual Chromium launch; it does not export a real report or perform visual QA. Five forward-test contracts now target scrolling Reports. Production additionally needs subagent delegation and independent visual QA; webpage inputs need web-article-capture with Codex in-app Browser/network, while PDF inputs need grobid-docling-pdf and its runtime. --skip-services does not skip local checks or validate those downstream services.
     windows:
       python_packages:
         - playwright

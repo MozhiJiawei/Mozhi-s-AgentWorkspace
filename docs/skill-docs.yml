@@ -69,10 +69,10 @@ skills:
       entry: docs/skills/ppt-deep-search/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:d6ce0bf920ccd486ae0f7fee0cf504d8ced566734f9f6e33c0f68ba95bc498dd
-      reviewed_at: "2026-10-16"
+      source_fingerprint: sha256:88891356d617966d3ea4f06306645b5118a013b0c700879d4632670fc049fbd0
+      reviewed_at: "2026-10-27"
       reviewed_by: agent
-      note: 已复核交接、输出目录、截图与视觉 QA 门禁；新增 Ambi 与 Maia 300 的 CCN 集成滚动 Report 展示，明确其模式及代理审批边界，保留历史 Deck 来源索引。
+      note: 已将五个 forward-test 的输入、预期产物、judge 和依赖自检统一为滚动 Report；同步使用、架构、依赖与展示资料。导出使用 helper 的 render_html_report.py，独立 QA 按章节或屏段检查，baseline 在审批后保存；历史 Deck 不作为当前验收证明。
 
   web-article-capture:
     path: skills/web-article-capture
