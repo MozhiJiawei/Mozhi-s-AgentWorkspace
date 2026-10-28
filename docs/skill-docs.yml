@@ -111,8 +111,8 @@ skills:
       entry: docs/skills/send-qq-email/index.md
       skill_manifest: docs.manifest.yml
     docs_review:
-      source_fingerprint: sha256:0254be9b33f44442fd7ffa0bab515d69c21acc36bf42aff1b629a399cd92178b
-      reviewed_at: "2026-10-16"
+      source_fingerprint: sha256:271019e4e450fe12d654a10908e8e1053cb6055aa75ad37cfcac1677f3a11576
+      reviewed_at: "2026-10-28"
       reviewed_by: agent
-      note: 已复核 SMTP 配置修复步骤、显式输出目录、自检与发送边界及离线 dry-run 交付示例；未执行真实发送。
+      note: 已复核“发给我”和未指定收件人使用配置默认值、显式邮箱覆盖及发送授权边界；离线预演通过，两个无历史上下文子 Agent 的授权真实发送均返回 sent，用户已确认收到测试邮件。
 

@@ -205,8 +205,8 @@ skills:
   send-qq-email:
     path: skills/send-qq-email
     dependency_review:
-      source_fingerprint: sha256:1581cdbc2d5f00e7b3aea96d1f13c7781006cefea2a24c6b57b8b2673eb4972d
-      reviewed_at: "2026-10-16"
+      source_fingerprint: sha256:26f9a2fee0351f46700bea6d6533cbfcf973f324c9c7c0f8afbe7fbaac7f7d29
+      reviewed_at: "2026-10-28"
       reviewed_by: agent
       note: Runtime uses Python standard library. Sender, authorization code, and recipient configuration are loaded even for dry-run; only real sends require SMTP network access. The verifier checks configuration presence, with optional --check-network for a TCP probe; it does not authenticate, negotiate STARTTLS, send mail, or verify delivery.
     windows:
